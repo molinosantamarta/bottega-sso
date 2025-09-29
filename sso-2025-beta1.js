@@ -1,7 +1,12 @@
-// sso-2025-beta1.js (no Custom Elements, no Shadow DOM) – Wix safe
+// sso-2025-beta1.js (no Custom Elements, no Shadow DOM) – Wix safe – MOBILE OPTIMIZED
 (function(){
   const JSQR_URL = 'https://unpkg.com/jsqr@1.4.0/dist/jsQR.js';
   let jsqrLoaded = false;
+
+  // --- iOS patch: forziamo jsQR (BarcodeDetector è ballerino su Safari) ---
+  const isIOS = /iP(hone|ad|od)|iPhone|iPad|iPod/.test(navigator.userAgent);
+  try{ if (isIOS && 'BarcodeDetector' in window) window.BarcodeDetector = undefined; }catch(_){}
+
   function ensureJsQR(){
     return new Promise((resolve)=>{
       if (jsqrLoaded){ resolve(); return; }
@@ -69,27 +74,42 @@
     return blocks.join('\n\n');
   }
 
-  // UI template
+  // UI template (mobile-first)
   const UI = `
   <style>
     :root { --bg:#0b0b0b; --fg:#fff; --muted:#1c1c1e; --accent:#0a84ff; --danger:#ff453a; --ok:#34c759; --chip:#1f1f22; --border:#2c2c2e; }
     .sso { color:var(--fg); background:var(--bg); font-family:-apple-system,system-ui,Segoe UI,Roboto,sans-serif; }
+    .sso *{ box-sizing:border-box; }
+    @supports (-webkit-touch-callout:none){ .sso input{ font-size:16px; } } /* evita zoom su iOS */
+
     .sso header{ padding:14px 16px 6px; text-align:center; border-bottom:1px solid #222; }
     .sso header h1{ margin:0; font-size:18px; font-weight:800; }
     .sso header small{ display:block; margin-top:4px; font-size:12px; opacity:.65; }
-    .wrap{ padding:14px 16px 100px; }
+
+    .wrap{ padding:14px 16px 110px; } /* spazio per la bar fissa */
     .section{ margin:14px 0 0; }
     .step-title{ font-size:14px; opacity:.85; margin-bottom:10px; display:flex; align-items:center; gap:8px; }
     .step-badge{ background:#2a2a2d; color:#fff; border-radius:999px; padding:2px 8px; font-size:12px; }
 
+    /* controlli: mobile = colonna; desktop = riga */
+    .controls{ display:flex; flex-direction:column; gap:10px; }
+    @media (min-width:700px){ .controls{ flex-direction:row; } }
+
+    .btn{ padding:14px 16px; border:0; border-radius:12px; font-size:16px; font-weight:700; color:#fff; cursor:pointer; width:100%; }
+    .primary{ background:var(--accent); }
+    .ghost{ background:var(--muted); }
+    .danger{ background:var(--danger); }
+    @media (min-width:700px){ .btn{ width:auto; } .primary{ flex:1; } }
+
     .seg-row{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
-    .seg{ display:flex; background:#161618; border:1px solid var(--border); border-radius:999px; overflow:hidden; }
-    .seg .opt{ padding:8px 12px; font-size:14px; border:0; background:transparent; color:#fff; cursor:pointer; }
+    .seg{ display:flex; background:#161618; border:1px solid var(--border); border-radius:999px; overflow:auto; -webkit-overflow-scrolling:touch; }
+    .seg::-webkit-scrollbar{ display:none; }
+    .seg .opt{ padding:8px 12px; font-size:14px; border:0; background:transparent; color:#fff; cursor:pointer; white-space:nowrap; }
     .seg .opt.active{ background:var(--ok); color:#000; }
     .seg-label{ font-size:13px; opacity:.8; min-width:72px; }
 
-    .chips{ display:flex; gap:8px; margin-top:12px; }
-    .chip{ background:#2a2a2d; color:#fff; padding:10px 12px; border-radius:999px; font-size:14px; border:0; cursor:pointer; }
+    .chips{ display:flex; gap:8px; margin-top:12px; flex-wrap:wrap; }
+    .chip{ background:#2a2a2d; color:#fff; padding:10px 12px; border-radius:999px; font-size:14px; border:0; cursor:pointer; white-space:nowrap; }
     .chip.active{ background:var(--ok); color:#000; }
 
     .custom{ display:flex; gap:8px; margin-top:10px; }
@@ -99,14 +119,12 @@
     .selected-zone{ margin-top:10px; padding:10px 12px; border-radius:12px; background:#111; border:1px solid var(--border); display:flex; align-items:center; gap:8px; font-weight:600; }
     .selected-dot{ width:10px; height:10px; border-radius:999px; background:var(--ok); display:inline-block; }
 
-    .controls{ display:flex; gap:10px; }
-    .btn{ padding:14px 16px; border:0; border-radius:12px; font-size:16px; font-weight:700; color:#fff; cursor:pointer; }
-    .primary{ background:var(--accent); flex:1; }
-    .ghost{ background:var(--muted); }
-    .danger{ background:var(--danger); }
-
+    /* finestra camera: altezza stabile su mobile; 16:9 su desktop */
     video{ width:100%; aspect-ratio:16/9; background:#000; border-radius:12px; margin-top:10px; display:none; }
     .placeholder{ width:100%; aspect-ratio:16/9; border-radius:12px; border:1px dashed var(--border); display:flex; align-items:center; justify-content:center; color:#aaa; margin-top:10px; text-align:center; padding:0 12px; }
+    @media (max-width:600px){
+      video, .placeholder{ height:56vw; aspect-ratio:auto; }
+    }
 
     .box{ border:1px solid var(--border); border-radius:12px; padding:12px; background:#111; margin-top:10px; }
     .label{ font-size:12px; opacity:.7; margin-bottom:4px; }
@@ -115,7 +133,15 @@
     .pill{ padding:8px 12px; border-radius:999px; background:var(--chip); font-size:15px; }
     .summary{ margin-top:10px; font-size:12px; opacity:.75; }
 
-    .bar{ position:sticky; bottom:0; backdrop-filter:blur(6px); background:rgba(15,15,15,.92); border-top:1px solid var(--border); padding:10px 12px; display:flex; gap:10px; margin-top:14px; }
+    /* barra azioni: fixed + safe-area */
+    .bar{
+      position:fixed; left:0; right:0; bottom:0;
+      backdrop-filter:blur(6px);
+      background:rgba(15,15,15,.96);
+      border-top:1px solid var(--border);
+      padding:10px 12px calc(10px + env(safe-area-inset-bottom));
+      display:flex; gap:10px; z-index:2147483000;
+    }
     .bar .btn{ flex:1; }
   </style>
 
@@ -305,7 +331,9 @@
         alert('Browser non supporta getUserMedia. Usa “Modalità compatibile (foto)”.'); return;
       }
       try{
-        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' } } });
+        // constraints più adatti al decode
+        const constraints = { video: { facingMode: { ideal: 'environment' }, width:{ideal:1280}, height:{ideal:720} } };
+        const stream = await navigator.mediaDevices.getUserMedia(constraints);
         video.srcObject = stream; await video.play();
         video.style.display = 'block'; placeholder.style.display = 'none';
         state.scanning = true; loop();
@@ -339,11 +367,13 @@
             const res = await detector.detect(video);
             if (res.length) code = res[0].rawValue;
           } else if (window.jsQR){
-            canvas.width = video.videoWidth; canvas.height = video.videoHeight;
-            ctx.drawImage(video,0,0,canvas.width,canvas.height);
-            const img = ctx.getImageData(0,0,canvas.width,canvas.height);
-            const q = window.jsQR(img.data, img.width, img.height);
-            if (q) code = q.data;
+            if (video.videoWidth && video.videoHeight){
+              canvas.width = video.videoWidth; canvas.height = video.videoHeight;
+              ctx.drawImage(video,0,0,canvas.width,canvas.height);
+              const img = ctx.getImageData(0,0,canvas.width,canvas.height);
+              const q = window.jsQR(img.data, img.width, img.height);
+              if (q) code = q.data;
+            }
           }
 
           if (code && code !== last){
@@ -381,7 +411,7 @@
 
     function handleCode(raw){
       const s = (raw||'').trim();
-      if (!/^\d+$/.test(s) || !state.currentZone) return;
+      if (!/^\d+$/.test(s) || !state.currentZone) return; // accetta solo QR numerici
       const num = String(Number(s));
 
       // è già presente in qualche zona?
