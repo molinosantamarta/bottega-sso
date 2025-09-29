@@ -1,11 +1,11 @@
 // sso-2025-beta1.js (no Custom Elements, no Shadow DOM) – Wix safe – MOBILE OPTIMIZED
 (function(){
+  // Patch iOS: forza il fallback jsQR (BarcodeDetector è instabile su Safari)
+  const __IS_IOS__ = /iP(hone|ad|od)|iPhone|iPad|iPod/.test(navigator.userAgent);
+  try{ if (__IS_IOS__ && 'BarcodeDetector' in window) window.BarcodeDetector = undefined; }catch(_){}
+
   const JSQR_URL = 'https://unpkg.com/jsqr@1.4.0/dist/jsQR.js';
   let jsqrLoaded = false;
-
-  // --- iOS patch: forziamo jsQR (BarcodeDetector è ballerino su Safari) ---
-  const isIOS = /iP(hone|ad|od)|iPhone|iPad|iPod/.test(navigator.userAgent);
-  try{ if (isIOS && 'BarcodeDetector' in window) window.BarcodeDetector = undefined; }catch(_){}
 
   function ensureJsQR(){
     return new Promise((resolve)=>{
@@ -74,24 +74,28 @@
     return blocks.join('\n\n');
   }
 
-  // UI template (mobile-first)
+  // UI template (mobile-first, tema scuro “blindato” contro override Wix)
   const UI = `
   <style>
     :root { --bg:#0b0b0b; --fg:#fff; --muted:#1c1c1e; --accent:#0a84ff; --danger:#ff453a; --ok:#34c759; --chip:#1f1f22; --border:#2c2c2e; }
     .sso { color:var(--fg); background:var(--bg); font-family:-apple-system,system-ui,Segoe UI,Roboto,sans-serif; }
-    .sso *{ box-sizing:border-box; }
+    .sso, .sso *{ box-sizing:border-box; }
+    .sso, .sso header, .sso .wrap, .sso .section { margin:0; }
+    /* blinda colori contro temi Wix */
+    .sso, .sso .section, .sso .step-title { background:transparent; color:#fff; }
     @supports (-webkit-touch-callout:none){ .sso input{ font-size:16px; } } /* evita zoom su iOS */
 
-    .sso header{ padding:14px 16px 6px; text-align:center; border-bottom:1px solid #222; }
-    .sso header h1{ margin:0; font-size:18px; font-weight:800; }
+    .sso header{ padding:12px 16px 8px; text-align:center; border-bottom:1px solid #222; }
+    .sso header h1{ margin:0; font-size:18px; font-weight:800; line-height:1.2; }
     .sso header small{ display:block; margin-top:4px; font-size:12px; opacity:.65; }
 
-    .wrap{ padding:14px 16px 110px; } /* spazio per la bar fissa */
-    .section{ margin:14px 0 0; }
+    .wrap{ padding:12px 12px 110px; max-width:760px; margin:0 auto; }
+
+    .section{ margin-top:12px; }
     .step-title{ font-size:14px; opacity:.85; margin-bottom:10px; display:flex; align-items:center; gap:8px; }
     .step-badge{ background:#2a2a2d; color:#fff; border-radius:999px; padding:2px 8px; font-size:12px; }
 
-    /* controlli: mobile = colonna; desktop = riga */
+    /* Controls: mobile = colonna; desktop = riga */
     .controls{ display:flex; flex-direction:column; gap:10px; }
     @media (min-width:700px){ .controls{ flex-direction:row; } }
 
@@ -119,7 +123,7 @@
     .selected-zone{ margin-top:10px; padding:10px 12px; border-radius:12px; background:#111; border:1px solid var(--border); display:flex; align-items:center; gap:8px; font-weight:600; }
     .selected-dot{ width:10px; height:10px; border-radius:999px; background:var(--ok); display:inline-block; }
 
-    /* finestra camera: altezza stabile su mobile; 16:9 su desktop */
+    /* finestra camera: altezza stabile su mobile */
     video{ width:100%; aspect-ratio:16/9; background:#000; border-radius:12px; margin-top:10px; display:none; }
     .placeholder{ width:100%; aspect-ratio:16/9; border-radius:12px; border:1px dashed var(--border); display:flex; align-items:center; justify-content:center; color:#aaa; margin-top:10px; text-align:center; padding:0 12px; }
     @media (max-width:600px){
@@ -225,6 +229,12 @@
 
   function initDOM(mount){
     mount.innerHTML = UI;
+
+    // Normalizza lo stile del mount: niente margini verticali “misteriosi”
+    if (mount && mount.style){
+      mount.style.margin = '0 auto';
+      if (!mount.style.maxWidth) mount.style.maxWidth = '760px';
+    }
 
     const video = byId(mount,'video');
     const placeholder = byId(mount,'placeholder');
@@ -444,8 +454,16 @@
       if (!mount){
         mount = document.createElement('div');
         mount.id = 'scanner-mount-inline';
-        mount.style = 'max-width:760px;margin:24px auto;padding:0 12px;';
+        mount.style = 'max-width:760px;margin:0 auto;padding:0 12px;';
         document.body.appendChild(mount);
+      }else{
+        // Normalizza eventuali stili inline “rumorosi” del mount chiamante
+        if (mount.style){
+          if (!mount.style.maxWidth) mount.style.maxWidth = '760px';
+          // evita spazio bianco verticale del vecchio snippet
+          if (mount.style.marginTop) mount.style.marginTop = '0px';
+          if (!mount.style.margin) mount.style.margin = '0 auto';
+        }
       }
       initDOM(mount);
     }
