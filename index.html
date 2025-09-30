@@ -870,8 +870,8 @@
         console.warn("Google Form non configurato.");
         return false;
       }
-      // Invia solo "ZONA | 12,45,137"
-      const value = `${zona || "-"} | ${(ordini && ordini.length) ? ordini.join(",") : "-"}`;
+      // Invia solo "ZONA ; 12,45,137"
+      const value = `${zona || "-"} ; ${(ordini && ordini.length) ? ordini.join(",") : "-"}`;
 
       let iframe = document.getElementById("hidden_iframe_gform");
       if (!iframe) {
