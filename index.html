@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>SSO Scanner – Standalone</title>
+  <title>SSO - Scanner Stoccaggio Ordini</title>
   <style>
     /* Reset pagina e sfondo nero pieno */
     html, body { height:100%; background:#000; }
@@ -52,9 +52,9 @@
       animation:slideInRight .6s ease-out both;
       z-index:2;
     }
-    /* GIF ridotta del 70% (da 70% a 21%), sovrapposta leggermente */
+    /* GIF aumentata del 50% (da 21% a 31.5%), sovrapposta leggermente */
     [data-sso] .hero-img-wrap img.altB{
-      width:21%; max-width:189px; height:auto; border-radius:12px; display:block;
+      width:31.5%; max-width:284px; height:auto; border-radius:12px; display:block;
       box-shadow:0 10px 30px rgba(0,0,0,.2);
       animation:slideInRight .6s .05s ease-out both;
       margin-left:-3%;
@@ -90,6 +90,8 @@
     [data-sso] .controls.nowrap{ flex-wrap:nowrap; }
     [data-sso] .controls .spacer{ flex:1; }
     [data-sso] .controls.split .btn{ flex:1; } /* i due bottoni si dividono lo spazio */
+    /* Bottoni finali step 3: font -3px */
+    #section3 .controls.split .btn{ font-size:13px; }
 
     [data-sso] .btn{
       padding:14px 16px; border:0; border-radius:12px; font-size:16px; font-weight:700; color:#fff; cursor:pointer;
@@ -212,13 +214,13 @@
 
     [data-sso] video{ display:none; width:100%; height:100%; object-fit:cover; object-position:center; background:#000; }
 
-    /* Placeholder */
+    /* Placeholder centrato */
     [data-sso] .placeholder{
       width:100%; height:100%; border:1px dashed var(--border);
-      border-radius:12px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px;
-      color:#aaa; text-align:left; padding:12px;
+      border-radius:12px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px;
+      color:#aaa; text-align:center; padding:12px;
     }
-    [data-sso] .ph-row{ display:flex; align-items:center; gap:12px; justify-content:flex-start; width:100%; padding-left:15px; }
+    [data-sso] .ph-row{ display:flex; align-items:center; gap:12px; justify-content:center; width:100%; }
     [data-sso] .ph-icon{ width:36px; height:36px; opacity:.9; }
 
     [data-sso] .box{ border:1px solid var(--border); border-radius:12px; padding:12px; background:#0b0b0b; margin-top:10px; }
@@ -273,7 +275,7 @@
     @keyframes glow-border { 0%{ border-color:#6a5acd; box-shadow:0 0 0 rgba(0,0,0,0); } 50%{ border-color:#1e90ff; box-shadow:0 0 14px rgba(30,144,255,.35); } 100%{ border-color:#6a5acd; box-shadow:0 0 0 rgba(0,0,0,0); } }
     .gradient-border { border-image: linear-gradient(90deg,#6a5acd,#1e90ff) 1; animation: glow-border 2s ease forwards; }
 
-    /* Progress bar step 4 (viola/blu, più veloce) */
+    /* Progress bar step 4 (viola/blu) */
     .progress-wrap{ margin-top:6px; }
     .progress-outer{ width:100%; height:12px; border-radius:999px; background:#161616; border:1px solid #333; overflow:hidden; }
     .progress-inner{ height:100%; width:0%; background:linear-gradient(90deg,#6a5acd,#1e90ff); transition:width .1s linear; }
@@ -285,7 +287,7 @@
 <body>
   <div data-sso>
     <header>
-      <h1>Scanner Stoccaggio Ordini</h1>
+      <h1>SSO - Scanner Stoccaggio Ordini</h1>
       <div class="subtitle">Scansiona le spese in pochi secondi e trovale subito al momento del ritiro!</div>
 
       <div class="hero-img-wrap">
@@ -293,7 +295,7 @@
         <img class="altB" src="https://community.appinventor.mit.edu/uploads/default/original/3X/c/2/c21a68fb6312af849c89a657cd12c56faf74dc8e.gif" alt="Animazione" />
       </div>
 
-      <div class="beta-row"><span class="beta-pill">Beta 7.6</span></div>
+      <div class="beta-row"><span class="beta-pill">Beta 7.8</span></div>
     </header>
 
     <div class="wrap">
@@ -350,9 +352,9 @@
         </div>
 
         <div class="video-wrap" id="videoWrap">
-          <!-- Guida e hint: ora compaiono SOLO dopo avvio scansione -->
-          <img id="qrGuide" class="qr-guide" src="https://upload.wikimedia.org/wikipedia/commons/d/d0/QR_code_for_mobile_English_Wikipedia.svg" alt="Guida QR" />
-          <div id="qrHint" class="qr-hint">scansiona il codice sul biglietto insieme alla spesa</div>
+          <!-- Guida e hint: devono essere nascosti finché non parte la scansione -->
+          <img id="qrGuide" class="qr-guide" style="display:none" src="https://upload.wikimedia.org/wikipedia/commons/d/d0/QR_code_for_mobile_English_Wikipedia.svg" alt="Guida QR" />
+          <div id="qrHint" class="qr-hint" style="display:none">scansiona il codice sul biglietto insieme alla spesa</div>
           <video id="video" playsinline muted></video>
 
           <div id="placeholder" class="placeholder">
@@ -364,7 +366,6 @@
               </svg>
               <span>La fotocamera comparirà qui dopo aver cliccato “Avvia scansione”.</span>
             </div>
-            <div style="height:6px;"></div>
             <div class="ph-row">
               <!-- icona volume -->
               <svg class="ph-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -417,7 +418,7 @@
         </div>
       </div>
 
-      <!-- STEP 4 (ex 5) -->
+      <!-- STEP 4 -->
       <div class="section" id="section4" style="display:none">
         <div class="step-title"><span class="step-badge" id="badge4">4</span> Invio</div>
         <div class="box gradient-border" id="step4Box">
@@ -472,6 +473,10 @@
     let scanningLocked = false;
     let dupTimer = null;
     let firstScanDone = false;
+
+    // Forza hint/guide nascosti all’avvio (ulteriore sicurezza)
+    if (qrGuide) qrGuide.style.display = 'none';
+    if (qrHint) qrHint.style.display = 'none';
 
     // === AUDIO ===
     const AC = window.AudioContext || window.webkitAudioContext;
@@ -878,7 +883,7 @@
       window.scrollTo({ top:0, behavior:'smooth' });
     });
 
-    // === STEP 4: progress bar + messaggi (testo finale aggiornato) ===
+    // === STEP 4: progress bar + messaggi (finale aggiornato) ===
     const progressMessages = [
       'Stabilisco handshake con il server…',
       'Sincronizzo timestamp NTP…',
