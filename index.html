@@ -39,9 +39,9 @@
       margin-top:6px; font-size:15px; font-weight:600; color:#ddd; opacity:.9;
     }
 
-    /* Solo immagine alternativa con animazione di ingresso da destra */
+    /* Immagini con confronto: prima esistente + nuova sotto */
     [data-sso] .hero-img-wrap{
-      display:flex; justify-content:center; margin-top:14px; margin-bottom:10px;
+      display:flex; flex-direction:column; align-items:center; margin-top:14px; margin-bottom:10px; gap:12px;
     }
     @keyframes slideInRight {
       from { transform:translateX(60px); opacity:0; }
@@ -52,8 +52,13 @@
       box-shadow:0 10px 30px rgba(0,0,0,.25);
       animation:slideInRight .6s ease-out both;
     }
+    [data-sso] .hero-img-wrap img.alt2{
+      width:45%; max-width:420px; height:auto; border-radius:12px; display:block;
+      box-shadow:0 10px 30px rgba(0,0,0,.2);
+      animation:slideInRight .6s .05s ease-out both;
+    }
 
-    /* Pillola Beta 7 */
+    /* Pillola Beta 7.1 */
     [data-sso] .beta-row{ display:flex; justify-content:center; margin-top:14px; }
     [data-sso] .beta-pill{
       display:inline-flex; align-items:center; justify-content:center;
@@ -99,9 +104,9 @@
     [data-sso] .btn.resume{ background:var(--success); color:#001f0f; }   /* verde */
     [data-sso] .pause-ico, [data-sso] .play-ico{ margin-left:8px; font-weight:900; }
 
-    /* Torch wrap allineata a destra, label 6px su due righe */
+    /* Torch wrap allineata a destra, label 10px su due righe */
     [data-sso] .torch-wrap{ display:flex; align-items:center; gap:6px; }
-    [data-sso] .torch-label{ font-size:6px; line-height:1.05; text-align:right; opacity:.8; text-transform:lowercase; }
+    [data-sso] .torch-label{ font-size:10px; line-height:1.05; text-align:right; opacity:.85; text-transform:lowercase; }
     [data-sso] .torch-label strong{ display:block; }
 
     /* Bottone tondo torcia: bianco (off) / giallo (on) + cono invertito */
@@ -167,35 +172,42 @@
     [data-sso] .video-wrap{
       width:100%;
       aspect-ratio:16/9;
-      border-radius:12px;
-      overflow:hidden;
-      border:1px solid var(--border);
-      margin-top:10px;
-      background:#000;
-      position:relative;
+      border-radius:12px; overflow:hidden; border:1px solid var(--border);
+      margin-top:10px; background:#000; position:relative;
+      display:block;
     }
     @media (max-width:600px){ [data-sso] .video-wrap{ height:56vw; aspect-ratio:auto; } }
     [data-sso] .video-wrap.paused::after{
       content:"La scansione è in pausa"; position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
-      backdrop-filter:blur(6px) brightness(.7);
-      color:#fff; font-weight:800; letter-spacing:.6px;
+      backdrop-filter:blur(6px) brightness(.7); color:#fff; font-weight:800; letter-spacing:.6px;
     }
+    /* Overlay: guida QR */
+    [data-sso] .qr-guide{
+      position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
+      height:30%; width:auto; opacity:.1; display:none; pointer-events:none;
+    }
+
+    /* Messaggio duplicati: più largo, max 2 righe */
     [data-sso] .dup-msg{
       position:absolute; left:50%; top:8%; transform:translateX(-50%);
-      max-width:86%; padding:10px 14px; border-radius:14px;
+      width:90%; max-width:680px; padding:10px 14px; border-radius:14px;
       background:rgba(0,0,0,.65); color:#fff; font-weight:800; letter-spacing:.2px; text-align:center;
-      opacity:0; pointer-events:none; transition:opacity .2s ease;
-      border:1px solid rgba(255,255,255,.2);
+      opacity:0; pointer-events:none; transition:opacity .2s ease; border:1px solid rgba(255,255,255,.2);
+      display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;
       line-height:1.25;
     }
     [data-sso] .dup-msg.show{ opacity:1; }
 
     [data-sso] video{ display:none; width:100%; height:100%; object-fit:cover; object-position:center; background:#000; }
+
+    /* Placeholder centrato: icone + due righe */
     [data-sso] .placeholder{
       width:100%; height:100%; border:1px dashed var(--border);
-      border-radius:12px; display:flex; align-items:center; justify-content:center;
-      color:#aaa; text-align:center; padding:0 12px;
+      border-radius:12px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px;
+      color:#aaa; text-align:center; padding:12px;
     }
+    [data-sso] .ph-row{ display:flex; align-items:center; gap:8px; justify-content:center; }
+    [data-sso] .ph-icon{ width:18px; height:18px; opacity:.9; }
 
     [data-sso] .box{ border:1px solid var(--border); border-radius:12px; padding:12px; background:#0b0b0b; margin-top:10px; }
     [data-sso] .label{ font-size:12px; opacity:.7; margin-bottom:4px; }
@@ -240,7 +252,7 @@
 
     @keyframes radar-sweep{0%{background-position:0% 50%;}50%{background-position:200% 50%;}100%{background-position:0% 50%;}}
 
-    /* Step 5: animazione bordo gradiente e dissolvenza testo (2s) */
+    /* Step 5: bordo gradiente permanente + dissolvenza testo iniziale (2s) */
     @keyframes glow-border {
       0%{ border-color:#8a2be2; box-shadow:0 0 0 rgba(0,0,0,0); }
       50%{ border-color:#ff7f50; box-shadow:0 0 14px rgba(255,165,0,.35); }
@@ -249,14 +261,14 @@
     @keyframes text-fade {
       0%{ opacity:.3; filter:blur(1px); }
       50%{ opacity:1; filter:none; }
-      100%{ opacity:.8; }
+      100%{ opacity:.85; }
     }
-    [data-sso] .sending {
-      animation: glow-border 2s ease forwards;
+    /* bordo gradiente che sostituisce quello verde e resta */
+    [data-sso] .gradient-border {
       border-image: linear-gradient(90deg,#8a2be2,#ff7f50,#ffd60a) 1;
-      border-width:1px;
+      animation: glow-border 2s ease forwards;
     }
-    [data-sso] .sending .box { animation: text-fade 2s ease forwards; }
+    [data-sso] .gradient-border .box { animation: text-fade 2s ease forwards; }
   </style>
 </head>
 <body>
@@ -266,10 +278,11 @@
       <div class="subtitle">Scansiona le spese in pochi secondi e trovale subito al momento del ritiro!</div>
 
       <div class="hero-img-wrap">
-        <img class="alt" src="https://static.wixstatic.com/media/9d749b_4e7e462b0d2e40448664f342bb2cd2b5~mv2.png/v1/fill/w_116,h_126,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/shopper%20bottega_anteprima_edited_edited_.png" alt="Immagine alternativa" />
+        <img class="alt" src="https://static.wixstatic.com/media/9d749b_4e7e462b0d2e40448664f342bb2cd2b5~mv2.png/v1/fill/w_116,h_126,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/shopper%20bottega_anteprima_edited_edited_.png" alt="Immagine alternativa 1" />
+        <img class="alt2" src="https://static.wixstatic.com/media/9d749b_250983286df245428d6cedaa6c1c311e~mv2.png/v1/fill/w_226,h_170,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/9d749b_250983286df245428d6cedaa6c1c311e~mv2.png" alt="Immagine alternativa 2" />
       </div>
 
-      <div class="beta-row"><span class="beta-pill">Beta 7</span></div>
+      <div class="beta-row"><span class="beta-pill">Beta 7.1</span></div>
     </header>
 
     <div class="wrap">
@@ -326,10 +339,29 @@
         </div>
 
         <div class="video-wrap" id="videoWrap">
+          <img id="qrGuide" class="qr-guide" src="https://upload.wikimedia.org/wikipedia/commons/d/d0/QR_code_for_mobile_English_Wikipedia.svg" alt="Guida QR" />
           <video id="video" playsinline muted></video>
+
           <div id="placeholder" class="placeholder">
-            La fotocamera comparirà qui dopo aver cliccato “Avvia scansione”.
+            <div class="ph-row">
+              <!-- icona fotocamera -->
+              <svg class="ph-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M4 7h3l1.5-2h7L17 7h3a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2Z" stroke="currentColor" stroke-width="1.5"/>
+                <circle cx="12" cy="13" r="3.5" stroke="currentColor" stroke-width="1.5"/>
+              </svg>
+              <span>La fotocamera comparirà qui dopo aver cliccato “Avvia scansione”.</span>
+            </div>
+            <div style="height:6px;"></div>
+            <div class="ph-row">
+              <!-- icona volume -->
+              <svg class="ph-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M4 10h3l4-3v10l-4-3H4z" stroke="currentColor" stroke-width="1.5"/>
+                <path d="M16 8a5 5 0 0 1 0 8M14 10a3 3 0 0 1 0 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+              </svg>
+              <span>Attiva il volume per un’esperienza migliore</span>
+            </div>
           </div>
+
           <div id="dupMsg" class="dup-msg">già scansionato, passa al prossimo</div>
         </div>
       </div>
@@ -368,7 +400,7 @@
         <div class="step-title"><span class="step-badge" id="badge4">4</span> Termina</div>
         <div class="controls nowrap">
           <button id="btnCopy" class="btn success" disabled>Termina e invia</button>
-          <button id="btnClear" class="btn danger" disabled>Cancella</button>
+          <button id="btnClear" class="btn danger" disabled>Cancella e rifai</button>
         </div>
       </div>
 
@@ -402,6 +434,7 @@
     const video = root.querySelector('#video');
     const placeholder = root.querySelector('#placeholder');
     const dupMsg = document.getElementById('dupMsg');
+    const qrGuide = document.getElementById('qrGuide');
     const btnScan = root.querySelector('#btnScan');
     const btnClear = root.querySelector('#btnClear');
     const btnCopy = root.querySelector('#btnCopy');
@@ -649,6 +682,9 @@
         await video.play();
         videoTrack = stream.getVideoTracks()[0];
 
+        // mostra la guida QR
+        qrGuide.style.display = 'block';
+
         if (window.startQR) {
           window.startQR(video, (text) => {
             if (qrPaused) return;
@@ -699,6 +735,9 @@
       try{ video.pause(); }catch(_){}
       video.srcObject = null;
       videoTrack = null;
+
+      // nascondi guida QR
+      qrGuide.style.display = 'none';
 
       setScanButton_start();
     }
@@ -759,8 +798,9 @@
         const settings = videoTrack.getSettings && videoTrack.getSettings();
         const current = settings && settings.torch ? true : false;
         await videoTrack.applyConstraints({ advanced: [{ torch: !current }] });
-        torchOn = !current;
-        btnTorch.classList.toggle('torch-on', torchOn);
+        const on = !current;
+        btnTorch.classList.toggle('torch-on', on);
+        torchOn = on;
         torchState.textContent = torchOn ? 'ON' : 'OFF';
       } catch (e) { console.error(e); }
     });
@@ -828,7 +868,7 @@
       manualBuffer = ""; keyDisplay.textContent = '—';
     }
 
-    // Cancella (reset completo + clipboard svuotata)
+    // Cancella e rifai
     btnClear.addEventListener('click', async ()=>{
       await fullReset(true);
       // nascondi Step 5
@@ -836,26 +876,23 @@
       if (s5) s5.style.display='none';
     });
 
-    // "Termina e invia": copia payload, mostra Step 5 con animazione, scroll, e reset per nuova scansione (senza pulire la clipboard)
+    // "Termina e invia": copia payload, mostra Step 5 con bordo gradiente permanente, scroll, e reset per nuova scansione (senza pulire la clipboard)
     btnCopy.addEventListener('click', async ()=>{
-      // copia
       await copyCurrentPayloadToClipboard();
 
       // chiudi keypad e deseleziona zona a vista
       keypad.classList.remove('show');
       manualBuffer = ""; keyDisplay.textContent = '—';
 
-      // mostra step 5 + animazione
+      // mostra step 5 con bordo gradiente permanente
       const s5 = document.getElementById('section5');
       if (s5){
         s5.style.display = '';
-        s5.classList.add('sending');               // bordo gradiente + text fade (2s)
+        s5.classList.add('gradient-border'); // sostituisce il bordo verde e resta
         markActive('section5');
         if (badge5) badge5.classList.add('done');
         // scroll verso Step 5
         s5.scrollIntoView({ behavior:'smooth', block:'start' });
-        // rimuovi classe dopo 2s per poterla riusare alla prossima
-        setTimeout(()=>{ s5.classList.remove('sending'); }, 2100);
       }
 
       // pulizia per nuova scansione ma NON pulire la clipboard
