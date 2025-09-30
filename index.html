@@ -28,7 +28,7 @@
 
     [data-sso] header{ padding:16px 16px 12px; text-align:center; border-bottom:1px solid #111; }
     [data-sso] header h1{
-      margin:0; font-size:21px; font-weight:900; line-height:1.3; color:transparent;
+      margin:0; font-size:24px; font-weight:900; line-height:1.3; color:transparent;
       background:linear-gradient(90deg, #ff0000 0%, #ff9900 25%, #ffff00 50%, #ff9900 75%, #ff0000 100%);
       -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent;
       background-size:300% 100%; animation:radar-sweep 8s linear infinite;
@@ -40,11 +40,11 @@
       color:#ddd;
       opacity:.9;
     }
-    /* Pillola Beta 4.1 sotto il sottotitolo */
-    [data-sso] .beta-row{ display:flex; justify-content:center; margin-top:10px; }
+    /* Pillola Beta 4.1 sotto il sottotitolo (margine maggiore) */
+    [data-sso] .beta-row{ display:flex; justify-content:center; margin-top:14px; }
     [data-sso] .beta-pill{
       display:inline-flex; align-items:center; justify-content:center;
-      padding:6px 8px; border-radius:999px;
+      padding:6px 10px; border-radius:999px;
       background:#ffd60a; color:#000; font-weight:800; font-size:12px;
       box-shadow:0 1px 0 rgba(255,255,255,.25) inset, 0 4px 12px rgba(0,0,0,.25);
       border:1px solid #e6c408; letter-spacing:.2px;
@@ -79,8 +79,9 @@
     [data-sso] .primary{ background:var(--accent); flex:1; }
     [data-sso] .ghost{ background:var(--muted); }
     [data-sso] .danger{ background:var(--danger); }
-    /* stato pausa per il tasto scan */
+    /* stato pausa per il tasto scan (stessa dimensione: stessi padding/font) */
     [data-sso] .btn.pause{ background:#3a3a3c; }
+    [data-sso] .pause-ico{ margin-left:8px; font-weight:900; }
 
     /* Bottone tondo torcia (iOS-like) */
     [data-sso] .icon-btn{
@@ -106,6 +107,7 @@
       background:linear-gradient(180deg, #b8ffd4, #a4f5c4);
       color:#003b1f; font-weight:900; border-radius:999px; box-shadow:0 6px 18px rgba(120,255,180,.35), inset 0 1px 0 rgba(255,255,255,.35);
     }
+    [data-sso] .seg .opt:disabled{ opacity:.45; cursor:not-allowed; }
     [data-sso] .seg-label{ font-size:13px; opacity:.85; min-width:72px; transition:all .2s ease; }
     [data-sso] .seg-label.active{ color:#00d07c; font-weight:800; opacity:1; text-shadow:0 0 10px rgba(120,255,180,.65); }
 
@@ -115,11 +117,13 @@
       background:linear-gradient(180deg, #b8ffd4, #a4f5c4);
       color:#003b1f; font-weight:900; box-shadow:0 6px 18px rgba(120,255,180,.35), inset 0 1px 0 rgba(255,255,255,.35);
     }
+    [data-sso] .chip:disabled{ opacity:.45; cursor:not-allowed; }
 
     [data-sso] .custom{ display:flex; gap:8px; margin-top:10px; }
     [data-sso] .custom input{ flex:1; padding:8px 12px; border-radius:999px; border:1px solid var(--border); background:#161618; color:#fff; font-size:14px; }
     [data-sso] .custom input::placeholder{ color:#aaa; }
     [data-sso] .custom button{ padding:12px 14px; border-radius:999px; border:0; background:var(--muted); color:#fff; font-weight:700; cursor:pointer; }
+    [data-sso] .custom button:disabled{ opacity:.45; cursor:not-allowed; }
 
     [data-sso] .selected-zone{
       margin-top:10px; padding:10px 12px; border-radius:12px; background:#111; border:1px solid var(--border);
@@ -203,8 +207,8 @@
       display:flex; align-items:center; justify-content:center; cursor:pointer; user-select:none;
     }
     [data-sso] .key.action{ background:#2a2a2d; }
-    [data-sso] .key.confirm{ background:#0a84ff; }
-    [data-sso] .key:active{ transform:scale(.98); }
+    /* Conferma gialla con testo nero */
+    [data-sso] .key.confirm{ background:#ffd60a; color:#000; }
 
     .spacer{ height:1px; }
 
@@ -221,12 +225,12 @@
     <header>
       <h1>Scanner Stoccaggio Ordini</h1>
       <div class="subtitle">Scansioni le spese in pochi secondi e le trovi subito al momento del ritiro!</div>
-      <div class="beta-row"><span class="beta-pill">Beta 4.4</span></div>
+      <div class="beta-row"><span class="beta-pill">Beta 5</span></div>
     </header>
 
     <div class="wrap">
       <!-- STEP 1 -->
-      <div class="section" id="section1">
+      <div class="section active" id="section1">
         <div class="step-title"><span class="step-badge" id="badge1">1</span> Seleziona la zona che stai per scansionare</div>
 
         <div class="seg-row">
@@ -266,15 +270,11 @@
 
           <!-- Tasto tondo torcia, icona stile iOS-like -->
           <button id="btnTorch" class="icon-btn" title="Torcia" aria-label="Torcia">
-            <!-- Flashlight iOS-like (semplice, chiaro) -->
+            <!-- Flashlight iOS-like -->
             <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <!-- testa -->
               <path d="M6 5h12a1 1 0 0 1 .8 1.6L17 9H7L5.2 6.6A1 1 0 0 1 6 5Z" fill="#cfd4da" stroke="#0b0c0d" stroke-width="1.2"/>
-              <!-- manico -->
               <rect x="8" y="9" width="8" height="10" rx="2.2" fill="#2d2f34" stroke="#141518" stroke-width="1.2"/>
-              <!-- pulsante -->
               <rect x="10" y="11.6" width="4" height="2.8" rx="1" fill="#0a84ff"/>
-              <!-- raggio soft -->
               <path d="M6 5h12l2 2-2 2H6L4 7l2-2Z" fill="rgba(255,255,255,.25)"/>
             </svg>
           </button>
@@ -284,7 +284,7 @@
         <div class="video-wrap" id="videoWrap">
           <video id="video" playsinline muted></video>
           <div id="placeholder" class="placeholder">
-            La fotocamera comparirà qui dopo “Avvia scansione”.
+            La fotocamera comparirà qui dopo aver cliccato “Avvia scansione”.
           </div>
         </div>
       </div>
@@ -360,11 +360,12 @@
     let currentZone = null;
     const data = {};
     let stream = null;
-    let videoTrack = null; // traccia per la torcia
+    let videoTrack = null;
 
     let qrPaused = false;
     let qrRunning = false;
     let hasEverStarted = false;
+    let scanningLocked = false; // blocca cambio zona dopo avvio
 
     // === AUDIO ===
     const AC = window.AudioContext || window.webkitAudioContext;
@@ -389,17 +390,14 @@
         o.stop(now + dur + 0.02);
       }catch(_){}
     }
-    // Suoni:
-    function soundZoneChange(){ playTone(660, 0.09, 'triangle', 0.18); }   // cambio zona
-    // Primo numero: doppio chime (più “riconoscibile”)
-    function soundScanOK(){
+    function soundZoneChange(){ playTone(660, 0.09, 'triangle', 0.18); }
+    function soundScanOK(){  // doppio chime
       playTone(1046.5, 0.10, 'sine', 0.22, 0.00); // C6
       playTone(1318.5, 0.11, 'sine', 0.20, 0.07); // E6
     }
-    // Duplicato: timbro diverso e più basso
     function soundScanDuplicate(){ playTone(392, 0.18, 'square', 0.22); }  // G4
 
-    // STEP 1
+    // STEP 1 (già illuminato da markup)
     badge1.classList.add('pulse');
 
     function markActive(sectionId){
@@ -409,6 +407,10 @@
     }
 
     function select(z){
+      if (scanningLocked){
+        alert('Non puoi cambiare zona dopo aver avviato la scansione.');
+        return;
+      }
       currentZone = z;
       loc.textContent = z;
       zoneLine.textContent = z;
@@ -462,16 +464,28 @@
       const total = arr.length;
       const unique = new Set(arr).size;
       const summary = root.querySelector('#summary');
-      if (summary) summary.textContent = total ? `${unique} numeri in memoria` : '';
+      if (summary) {
+        const label = unique === 1 ? 'ordine' : 'ordini';
+        summary.textContent = total ? `${unique} ${label} in memoria` : '';
+      }
     }
 
     function addScanned(val){
-      if (!currentZone) return;
+      if (!currentZone){
+        alert('Seleziona prima una zona.');
+        return;
+      }
+      if (val < 1 || val > 999) {
+        alert('Sono ammessi solo valori da 1 a 999.');
+        return;
+      }
       if (!data[currentZone]) data[currentZone] = [];
       if (!data[currentZone].includes(val)) {
         data[currentZone].push(val);
         renderList();
         soundScanOK();
+        // se sto aggiungendo manualmente (o in generale ho dati), abilita azioni
+        setActionButtonsEnabled(true);
       } else {
         soundScanDuplicate();
       }
@@ -479,10 +493,13 @@
 
     // --- Inserimento manuale ---
     let manualBuffer = "";
-    function refreshManualDisplay(){
-      keyDisplay.textContent = manualBuffer.length ? manualBuffer : '—';
-    }
+    function refreshManualDisplay(){ keyDisplay.textContent = manualBuffer.length ? manualBuffer : '—'; }
+
     toggleKeypadBtn.addEventListener('click', ()=>{
+      if (!currentZone){
+        alert('Seleziona prima una zona per poter inserire manualmente.');
+        return;
+      }
       keypad.classList.toggle('show');
       if (!keypad.classList.contains('show')) {
         manualBuffer = "";
@@ -501,7 +518,11 @@
       if (act === 'ok'){
         if (!manualBuffer) return;
         const n = parseInt(manualBuffer, 10);
-        if (Number.isFinite(n)) addScanned(n);
+        if (Number.isFinite(n) && n >= 1 && n <= 999) {
+          addScanned(n);
+        } else {
+          alert('Inserisci un valore da 1 a 999.');
+        }
         manualBuffer = "";
         refreshManualDisplay();
         return;
@@ -509,20 +530,32 @@
       // solo cifre
       const digit = k.textContent.trim();
       if (/^\d$/.test(digit)){
-        manualBuffer = (manualBuffer + digit).replace(/^0+(\d)/,'$1'); // niente leading zero
-        refreshManualDisplay();
+        const next = (manualBuffer + digit).replace(/^0+(\d)/,'$1'); // no zeri iniziali
+        // non superare 3 cifre
+        if (next.length <= 3) {
+          manualBuffer = next;
+          refreshManualDisplay();
+        }
       }
     });
 
+    // Selettori zona (bloccabili dopo avvio)
     root.querySelectorAll('#segNegozio .opt, #segCamion .opt, .chip').forEach(btn=>{
       btn.addEventListener('click', ()=>{
+        if (scanningLocked){
+          alert('Non puoi cambiare zona dopo aver avviato la scansione.');
+          return;
+        }
         root.querySelectorAll('.opt, .chip').forEach(b=>b.classList.remove('active'));
         btn.classList.add('active');
         select(btn.dataset.zone);
       });
     });
-
     root.querySelector('#useCustom').addEventListener('click', ()=>{
+      if (scanningLocked){
+        alert('Non puoi cambiare zona dopo aver avviato la scansione.');
+        return;
+      }
       const v = (root.querySelector('#customZone').value||'').trim(); if (!v) return;
       root.querySelectorAll('.opt,.chip').forEach(b=>b.classList.remove('active'));
       select(v);
@@ -555,7 +588,7 @@
         stream = await navigator.mediaDevices.getUserMedia(constraints);
         video.srcObject = stream;
         await video.play();
-        videoTrack = stream.getVideoTracks()[0]; // traccia per torcia
+        videoTrack = stream.getVideoTracks()[0];
 
         if (window.startQR) {
           window.startQR(video, (text) => {
@@ -578,8 +611,11 @@
         badge3.classList.add('pulse');
 
         hasEverStarted = true;
-        // Abilita Termina/Svuota solo quando la scansione è stata avviata (bottone mostra Pausa)
-        setScanButtonState(true); // passa a "Pausa scansione"
+        scanningLocked = true; // blocca cambio zona
+        lockZoneSelectors(true);
+
+        // Abilita azioni quando il bottone passa a "Pausa scansione"
+        setScanButtonState(true); // mostra "Pausa scansione ⏸"
         setActionButtonsEnabled(true);
 
       } catch(err){
@@ -593,14 +629,23 @@
       }
     }
 
+    function lockZoneSelectors(lock){
+      // disabilita/enabled i controlli di selezione zona
+      root.querySelectorAll('#segNegozio .opt, #segCamion .opt, .chip, #useCustom').forEach(el=>{
+        if (lock) el.setAttribute('disabled','disabled');
+        else el.removeAttribute('disabled');
+      });
+      // input custom resta attivo/disabled solo per estetica
+      const customInput = root.querySelector('#customZone');
+      if (customInput) customInput.disabled = !!lock;
+    }
+
     async function stopCamera(){
-      // ferma QR se attivo
       if (window.stopQR) window.stopQR();
       qrRunning = false;
       qrPaused = false;
       videoWrap.classList.remove('paused');
 
-      // spegni stream
       if (stream){
         for (const t of stream.getTracks()) t.stop();
         stream = null;
@@ -608,17 +653,15 @@
       try{ video.pause(); }catch(_){}
       video.srcObject = null;
 
-      // reset torcia/traccia
       videoTrack = null;
 
-      // Reset bottone scan se serve
       setScanButtonState(false);
     }
 
     function setScanButtonState(active){
-      // active = true => "Pausa scansione" (grigio), altrimenti "Avvia scansione" (blu)
+      // active = true => "Pausa scansione ⏸" (grigio), altrimenti "Avvia scansione" (blu)
       if (active){
-        btnScan.textContent = 'Pausa scansione';
+        btnScan.innerHTML = 'Pausa scansione <span class="pause-ico">⏸</span>';
         btnScan.classList.add('pause');
         btnScan.classList.remove('primary');
       } else {
@@ -633,23 +676,20 @@
       btnClear.disabled = !enabled;
     }
 
-    // Toggle scan
+    // Toggle scan (reversibile)
     btnScan.addEventListener('click', async ()=>{
-      // Se non è mai stata avviata, avvia
       if (!hasEverStarted || !stream){
         await openCamera();
         return;
       }
-      // Se attualmente la decodifica è attiva -> metti in pausa
       if (!qrPaused){
         qrPaused = true;
         if (window.stopQR) window.stopQR();
         qrRunning = false;
         videoWrap.classList.add('paused');
-        setScanButtonState(true); // resta "Pausa scansione"
+        setScanButtonState(true);   // resta "Pausa scansione ⏸"
         setActionButtonsEnabled(true);
       } else {
-        // era in pausa -> riprendi
         if (window.startQR){
           window.startQR(video, (text)=>{
             if (qrPaused) return;
@@ -661,7 +701,7 @@
         }
         qrPaused = false;
         videoWrap.classList.remove('paused');
-        setScanButtonState(true); // mantiene "Pausa scansione" (scansione attiva)
+        setScanButtonState(true);   // scansione attiva, tasto continua a mostrare "Pausa"
         setActionButtonsEnabled(true);
       }
     });
@@ -706,18 +746,20 @@
       root.querySelectorAll('.opt,.chip').forEach(b=>b.classList.remove('active'));
 
       hasEverStarted = false;
+      scanningLocked = false;
+      lockZoneSelectors(false);
       setActionButtonsEnabled(false);
       setScanButtonState(false);
     });
 
-    // "Termina e invia": per ora non mostra nulla (dummy)
+    // "Termina e invia": per ora non mostra nulla
     btnCopy.addEventListener('click', async ()=>{
       await stopCamera();
       document.getElementById('section3').classList.add('active');
       badge3.classList.remove('pulse');
       badge3.classList.add('done');
       badge4.classList.add('done');
-      // Nessun alert/feedback visuale richiesto al momento
+      // nessun feedback visuale
     });
 
     window.addEventListener('pagehide', ()=>stopCamera(), { once:true });
