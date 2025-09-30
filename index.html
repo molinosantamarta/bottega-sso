@@ -71,7 +71,7 @@
       top:6px; /* 4px più in basso */
     }
 
-    /* Pillola Beta 7.6 */
+    /* Pillola Beta */
     [data-sso] .beta-row{ display:flex; justify-content:center; margin-top:14px; }
     [data-sso] .beta-pill{
       display:inline-flex; align-items:center; justify-content:center;
@@ -100,7 +100,7 @@
     [data-sso] .controls .spacer{ flex:1; }
     [data-sso] .controls.split .btn{ flex:1; } /* i due bottoni si dividono lo spazio */
 
-    /* Bottoni finali step 3: testo invariato a 13px, +50% altezza via padding */
+    /* Bottoni finali step 3: , +50% altezza via padding */
     #section3 .controls.split .btn{ font-size:16px; padding:21px 16px; } /* 14px -> 21px */
 
     [data-sso] .btn{
@@ -201,7 +201,7 @@
     }
 
     /* Overlay: guida QR + testo (mostrati SOLO dopo avvio) */
-    [data-sso] .qr-guide{ position:absolute; left:50%; top:5%; transform:translate(-50%,-50%); height:30%; width:auto; opacity:1; display:none; pointer-events:none; }
+    [data-sso] .qr-guide{ position:absolute; left:50%; top:20%; transform:translate(-50%,-50%); height:30%; width:auto; opacity:1; display:none; pointer-events:none; }
     [data-sso] .qr-hint{
       position:absolute; left:50%; top:66%; transform:translate(-50%,-50%);
       max-width:80%; width:80%;
@@ -308,7 +308,7 @@
       [data-sso] .torch-label{ font-size:16px; }
       [data-sso] .label{ font-size:13px; }
       [data-sso] .zone-line{ font-size:16px; }
-      [data-sso] .summary{ font-size:13px; }
+      [data-sso] .summary{ font-size:14px; }
       #section3 .controls.split .btn{ font-size:14px; } /* testo leggermente più grande su mobile */
       [data-sso] .qr-hint{ font-size:14px; }
       [data-sso] .dup-msg{ font-size:14px; }
@@ -326,7 +326,7 @@
         <img class="altB" src="https://community.appinventor.mit.edu/uploads/default/original/3X/c/2/c21a68fb6312af849c89a657cd12c56faf74dc8e.gif" alt="Animazione" />
       </div>
 
-      <div class="beta-row"><span class="beta-pill">Beta 7.6</span></div>
+      <div class="beta-row"><span class="beta-pill">Beta 7.9</span></div>
     </header>
 
     <div class="wrap">
@@ -930,7 +930,7 @@
       'Sincronizzo timestamp NTP…',
       'Operazioni crittografiche avanzate…',
       'Ottimizzo il flusso dei pacchetti…',
-      'se non va, corri in chiesina e accendi un cero.' /* finale */
+      'se non va, vai in chiesina e accendi un cero.' /* finale */
     ];
 
     function startStep4Progress(){
