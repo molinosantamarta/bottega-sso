@@ -40,9 +40,10 @@
       margin-top:6px; font-size:15px; font-weight:600; color:#ddd; opacity:.9;
     }
 
-    /* Immagine singola */
+    /* Immagini header: due affiancate e centrate */
     [data-sso] .hero-img-wrap{
-      display:flex; flex-direction:column; align-items:center; margin-top:14px; margin-bottom:10px; gap:12px;
+      display:flex; flex-direction:row; align-items:center; justify-content:center;
+      margin-top:14px; margin-bottom:10px; gap:16px;
     }
     @keyframes slideInRight {
       from { transform:translateX(60px); opacity:0; }
@@ -53,8 +54,13 @@
       box-shadow:0 10px 30px rgba(0,0,0,.25);
       animation:slideInRight .6s ease-out both;
     }
+    [data-sso] .hero-img-wrap img.altB{
+      width:14%; max-width:126px; height:auto; border-radius:12px; display:block;
+      box-shadow:0 10px 30px rgba(0,0,0,.2);
+      animation:slideInRight .6s .05s ease-out both;
+    }
 
-    /* Pillola Beta 7.4 */
+    /* Pillola Beta 7.5 */
     [data-sso] .beta-row{ display:flex; justify-content:center; margin-top:14px; }
     [data-sso] .beta-pill{
       display:inline-flex; align-items:center; justify-content:center;
@@ -95,19 +101,19 @@
     [data-sso] .ghost{ background:var(--muted); }
     [data-sso] .danger{ background:var(--danger); }
     [data-sso] .success{ background:var(--success); color:#001f0f; }
-    .btn-yellow{ background:var(--yellow); color:#000; } /* stesso radius della .btn */
+    .btn-yellow{ background:var(--yellow); color:#000; }
 
     /* stati per il tasto scan */
-    [data-sso] .btn.pause{ background:#5a5a5e; color:#fff; }   /* grigio più chiaro */
-    [data-sso] .btn.resume{ background:var(--success); color:#001f0f; }   /* verde */
+    [data-sso] .btn.pause{ background:#5a5a5e; color:#fff; }
+    [data-sso] .btn.resume{ background:var(--success); color:#001f0f; }
     [data-sso] .pause-ico, [data-sso] .play-ico{ margin-left:8px; font-weight:900; }
 
     /* Torch */
-    [data-sso] .torch-wrap{ display:flex; align-items:center; gap:7px; } /* +1px */
-    [data-sso] .torch-label{ font-size:15px; line-height:1.05; text-align:right; opacity:.9; text-transform:lowercase; } /* +2px */
+    [data-sso] .torch-wrap{ display:flex; align-items:center; gap:7px; }
+    [data-sso] .torch-label{ font-size:15px; line-height:1.05; text-align:right; opacity:.9; text-transform:lowercase; }
     [data-sso] .torch-label strong{ display:block; }
 
-    /* Bottone tondo torcia: cono DRITTO (nessuna inclinazione) */
+    /* Bottone tondo torcia (cono dritto) */
     [data-sso] .icon-btn{
       width:44px; height:44px; border-radius:999px; position:relative;
       border:1px solid #2c2c2e;
@@ -121,7 +127,7 @@
     [data-sso] .icon-btn svg{ width:22px; height:22px; display:block; }
     [data-sso] .icon-btn.torch-on::after{
       content:""; position:absolute; left:50%; bottom:44px;
-      transform:translateX(-50%) rotate(180deg); /* dritta */
+      transform:translateX(-50%) rotate(180deg);
       width:12px; height:0; border-left:60px solid transparent; border-right:60px solid transparent;
       border-bottom:160px solid rgba(255, 244, 200, .18);
       filter:blur(2px);
@@ -145,7 +151,7 @@
     [data-sso] .seg-label{ font-size:13px; opacity:.85; min-width:72px; transition:all .2s ease; }
     [data-sso] .seg-label.active{ color:#00d07c; font-weight:800; opacity:1; text-shadow:0 0 10px rgba(120,255,180,.65); }
 
-    /* Chips “CARNE/SCALE” (scure come SOPRA/SOTTO) */
+    /* Chips */
     [data-sso] .chips{ display:flex; gap:8px; margin-top:12px; flex-wrap:wrap; }
     [data-sso] .chip{
       background:#121214; color:#fff; padding:10px 12px; border-radius:999px; font-size:14px; border:1px solid var(--border);
@@ -184,7 +190,7 @@
       content:"La scansione è in pausa"; position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
       backdrop-filter:blur(6px) brightness(.7); color:#fff; font-weight:800; letter-spacing:.6px;
     }
-    /* Overlay: guida QR (ora 30% altezza, opacità 1.0) */
+    /* Overlay: guida QR (30% altezza, opacità 1.0) */
     [data-sso] .qr-guide{
       position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
       height:30%; width:auto; opacity:1; display:none; pointer-events:none;
@@ -196,7 +202,7 @@
       display:none;
     }
 
-    /* Messaggio duplicati: più largo, max 2 righe */
+    /* Messaggio duplicati (testo aggiornato con punto) */
     [data-sso] .dup-msg{
       position:absolute; left:50%; top:8%; transform:translateX(-50%);
       width:90%; max-width:680px; padding:10px 14px; border-radius:14px;
@@ -209,7 +215,7 @@
 
     [data-sso] video{ display:none; width:100%; height:100%; object-fit:cover; object-position:center; background:#000; }
 
-    /* Placeholder centrato, distanze icona-testo +4px (gap 12) e allineati a sx con 15px padding */
+    /* Placeholder: gap icona-testo 12px (4px in più) */
     [data-sso] .placeholder{
       width:100%; height:100%; border:1px dashed var(--border);
       border-radius:12px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px;
@@ -263,11 +269,11 @@
 
     @keyframes radar-sweep{0%{background-position:0% 50%;}50%{background-position:200% 50%;}100%{background-position:0% 50%;}}
 
-    /* Step 5: bordo gradiente */
+    /* Step 5: bordo gradiente violetto/blu */
     @keyframes glow-border {
-      0%{ border-color:#8a2be2; box-shadow:0 0 0 rgba(0,0,0,0); }
-      50%{ border-color:#1e90ff; box-shadow:0 0 14px rgba(30,144,255,.35); } /* blu */
-      100%{ border-color:#6a5acd; box-shadow:0 0 0 rgba(0,0,0,0); } /* viola */
+      0%{ border-color:#6a5acd; box-shadow:0 0 0 rgba(0,0,0,0); }
+      50%{ border-color:#1e90ff; box-shadow:0 0 14px rgba(30,144,255,.35); }
+      100%{ border-color:#6a5acd; box-shadow:0 0 0 rgba(0,0,0,0); }
     }
     .gradient-border { border-image: linear-gradient(90deg,#6a5acd,#1e90ff) 1; animation: glow-border 2s ease forwards; }
 
@@ -293,9 +299,10 @@
 
       <div class="hero-img-wrap">
         <img class="alt" src="https://static.wixstatic.com/media/9d749b_4e7e462b0d2e40448664f342bb2cd2b5~mv2.png/v1/fill/w_116,h_126,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/shopper%20bottega_anteprima_edited_edited_.png" alt="Immagine alternativa" />
+        <img class="altB" src="https://community.appinventor.mit.edu/uploads/default/original/3X/c/2/c21a68fb6312af849c89a657cd12c56faf74dc8e.gif" alt="Animazione" />
       </div>
 
-      <div class="beta-row"><span class="beta-pill">Beta 7.4</span></div>
+      <div class="beta-row"><span class="beta-pill">Beta 7.5</span></div>
     </header>
 
     <div class="wrap">
@@ -372,11 +379,11 @@
                 <path d="M4 10h3l4-3v10l-4-3H4z" stroke="currentColor" stroke-width="1.5"/>
                 <path d="M16 8a5 5 0 0 1 0 8M14 10a3 3 0 0 1 0 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
               </svg>
-              <span>Attiva il volume per un’esperienza migliore</span>
+              <span>Attiva il volume per un’esperienza migliore e più intuitiva.</span>
             </div>
           </div>
 
-          <div id="dupMsg" class="dup-msg">già scansionato, passa al prossimo</div>
+          <div id="dupMsg" class="dup-msg">già scansionato, passa al prossimo ordine.</div>
         </div>
       </div>
 
@@ -411,7 +418,7 @@
 
       <!-- STEP 4 -->
       <div class="section" id="section4">
-        <div class="step-title"><span class="step-badge" id="badge4">4</span> Termina</div>
+        <div class="step-title"><span class="step-badge" id="badge4">4</span> Concludi scansione</div>
         <div class="controls nowrap">
           <button id="btnCopy" class="btn success" disabled>Termina e invia</button>
           <button id="btnClear" class="btn danger" disabled>Cancella e rifai</button>
@@ -816,7 +823,7 @@
       return payload;
     }
 
-    // Reset completo; se clearClipboard=true pulisce anche la clipboard
+    // Reset completo
     async function fullReset(clearClipboard=true){
       await stopCamera();
 
@@ -878,21 +885,20 @@
     // Cancella e rifai
     btnClear.addEventListener('click', async ()=>{
       await fullReset(true);
-      // nascondi Step 5
       if (step5) step5.style.display='none';
       window.scrollTo({ top:0, behavior:'smooth' });
     });
 
-    // === STEP 5: progress bar + messaggi + nuova scansione (più lento e viola/blu) ===
+    // === STEP 5: progress bar + messaggi + nuova scansione (ancora più lento) ===
     const progressMessages = [
       'Stabilisco handshake con il server…',
       'Sincronizzo timestamp NTP…',
-      'Cripto-cose che suonano importanti…',
+      'Operazioni crittografiche avanzate…',
       'Allocazione buffer di rete…',
       'Ottimizzo il flusso dei pacchetti…',
       'Ricompilo la realtà quantistica…',
-      'Se non funziona, vai in chiesina ad accendere un cero 🙏',
-      'Compressione ordini con algoritmo loseless-ish…',
+      'Se non funziona, vai in chiesina ad accendere un cero.',
+      'Compressione ordini con algoritmo lossless-ish…',
       'Calibro i fotoni della fibra…',
       'Faccio amicizia con i DNS…',
       'Rallento per passare davanti al capo…',
@@ -920,10 +926,10 @@
       const msgTimer = setInterval(()=>{
         pMsg.textContent = progressMessages[msgIdx % progressMessages.length];
         msgIdx++;
-      }, 1200); // più lento per leggere i testi
+      }, 1700); // ancora più tempo per leggere
 
       const incTimer = setInterval(()=>{
-        pct += Math.floor(Math.random()*3) + 1; // +1..+3, più lento
+        pct += Math.floor(Math.random()*2) + 1; // +1..+2
         if (pct > 100) pct = 100;
         pInner.style.width = pct + '%';
 
@@ -938,10 +944,10 @@
             window.scrollTo({ top:0, behavior:'smooth' });
           });
         }
-      }, 250); // più lento
+      }, 350);
     }
 
-    // "Termina e invia": copia, disabilita bottoni step4 (grigi), mostra Step 5 lento
+    // "Termina e invia": copia, disabilita bottoni step4 (grigi), mostra Step 5 rallentato
     btnCopy.addEventListener('click', async ()=>{
       await copyCurrentPayloadToClipboard();
 
@@ -949,7 +955,7 @@
       btnCopy.disabled = true;
       btnClear.disabled = true;
 
-      // chiudi keypad e azzera UI della zona attuale (senza full reset globale)
+      // chiudi keypad e azzera UI della zona attuale
       keypad.classList.remove('show'); manualBuffer = ""; keyDisplay.textContent = '—';
       if (currentZone && data[currentZone]) delete data[currentZone];
       list.innerHTML = '<em style="opacity:.7">Nessun numero</em>';
