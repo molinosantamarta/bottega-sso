@@ -12,7 +12,7 @@
     [data-sso] { color-scheme: dark; }
     [data-sso] :where(*) { box-sizing: border-box; }
     [data-sso] {
-      --bg:#000;            /* nero pieno */
+      --bg:#000;
       --fg:#fff;
       --muted:#1c1c1e;
       --accent:#0a84ff;
@@ -24,29 +24,47 @@
       color:var(--fg);
       font-family:-apple-system,system-ui,Segoe UI,Roboto,sans-serif;
     }
-    [data-sso] .wrap{ padding:12px 12px 110px; max-width:760px; margin:0 auto; }
+    [data-sso] .wrap{ padding:12px 12px 40px; max-width:760px; margin:0 auto; }
 
     [data-sso] header{ padding:16px 16px 12px; text-align:center; border-bottom:1px solid #111; }
     [data-sso] header h1{
-      margin:0; font-size:22px; font-weight:900; line-height:1.3; color:transparent;
+      margin:0; font-size:24px; font-weight:900; line-height:1.3; color:transparent;
       background:linear-gradient(90deg, #ff0000 0%, #ff9900 25%, #ffff00 50%, #ff9900 75%, #ff0000 100%);
       -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent;
       background-size:300% 100%; animation:radar-sweep 8s linear infinite;
-      [data-sso] header .subtitle {
-  margin-top:4px;
-  font-size:15px;
-  font-weight:600;
-  color:#ffd60a;      /* giallo come le zone */
-  text-shadow:0 0 6px rgba(0,0,0,.6);
-}
     }
-    [data-sso] header small{ display:block; margin-top:6px; font-size:14px; opacity:.75; }
+    [data-sso] header .subtitle {
+      margin-top:4px;
+      font-size:15px;
+      font-weight:600;
+      color:#ddd;
+      opacity:.9;
+    }
 
-    [data-sso] .section{ margin-top:20px; border-radius:12px; padding:10px; transition:background .3s ease; }
-    [data-sso] .section.active{ background:rgba(52,199,89,.08); }
-    [data-sso] .step-title{ font-size:14px; opacity:.85; margin-bottom:16px; display:flex; align-items:center; gap:8px; }
-    [data-sso] .step-badge{ background:#2a2a2d; color:#fff; border-radius:999px; padding:2px 8px; font-size:12px; transition:all .2s ease; }
-    [data-sso] .step-badge.done{ background:var(--ok); color:#000; font-weight:800; }
+    /* Pillola Beta 4.1 accanto al titolo */
+    [data-sso] .title-row{
+      display:flex; align-items:center; justify-content:center; gap:8px; flex-wrap:wrap;
+    }
+    [data-sso] .beta-pill{
+      display:inline-flex; align-items:center; justify-content:center;
+      padding:6px 10px; border-radius:999px;
+      background:#ffd60a; color:#000; font-weight:800; font-size:12px;
+      box-shadow:0 1px 0 rgba(255,255,255,.25) inset, 0 4px 12px rgba(0,0,0,.25);
+      border:1px solid #e6c408;
+      letter-spacing:.2px;
+    }
+
+    [data-sso] .section{ margin-top:20px; border-radius:12px; padding:10px; transition:background .25s ease, box-shadow .25s ease, border-color .25s ease; border:1px solid #0f2616; }
+    /* attivo: verde più intenso, “bianco-verde” con glow */
+    [data-sso] .section.active{
+      background:linear-gradient(180deg, rgba(220,255,233,.25), rgba(180,255,208,.1));
+      box-shadow:0 10px 28px rgba(80,255,150,.18), inset 0 1px 0 rgba(255,255,255,.12);
+      border-color:rgba(120,255,180,.55);
+    }
+
+    [data-sso] .step-title{ font-size:14px; opacity:.9; margin-bottom:16px; display:flex; align-items:center; gap:8px; }
+    [data-sso] .step-badge{ background:#1f1f22; color:#fff; border-radius:999px; padding:2px 8px; font-size:12px; transition:all .2s ease; border:1px solid #2a2a2d; }
+    [data-sso] .step-badge.done{ background:linear-gradient(180deg,#eafff2,#b8ffd4); color:#073; font-weight:900; border-color:#a4f5c4; text-shadow:0 0 6px rgba(120,255,180,.6); }
 
     @keyframes pulse-badge {
       0%,100%{ transform:translateZ(0) scale(1); box-shadow:0 0 0 0 rgba(10,132,255,.0);}
@@ -62,10 +80,14 @@
     [data-sso] .primary{ background:var(--accent); flex:1; }
     [data-sso] .ghost{ background:var(--muted); }
     [data-sso] .danger{ background:var(--danger); }
-    /* nuovo bottone tondo per torcia */
+
+    /* bottone tondo torcia, look più skeuomorfico (gradiente e bordo) */
     [data-sso] .icon-btn{
-      width:44px; height:44px; border-radius:999px; border:1px solid var(--border);
-      background:#121214; display:inline-flex; align-items:center; justify-content:center; cursor:pointer;
+      width:44px; height:44px; border-radius:999px;
+      border:1px solid #2c2c2e;
+      background:radial-gradient(100% 100% at 50% 0%, #2a2a2d 0%, #141416 100%);
+      display:inline-flex; align-items:center; justify-content:center; cursor:pointer;
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.06), 0 4px 10px rgba(0,0,0,.35);
     }
     [data-sso] .icon-btn:active{ transform:scale(.97); }
     [data-sso] .icon-btn svg{ width:22px; height:22px; display:block; }
@@ -74,23 +96,23 @@
     [data-sso] .seg{ display:flex; background:#121214; border:1px solid var(--border); border-radius:999px; overflow:auto; -webkit-overflow-scrolling:touch; transition:all .2s ease; }
     [data-sso] .seg::-webkit-scrollbar{ display:none; }
     [data-sso] .seg.active{
-      border-color:rgba(52,199,89,.9);
-      background:linear-gradient(180deg, rgba(52,199,89,.15), rgba(52,199,89,.05));
-      box-shadow:0 8px 24px rgba(52,199,89,.28), inset 0 1px 0 rgba(255,255,255,.08);
+      border-color:rgba(120,255,180,.8);
+      background:linear-gradient(180deg, rgba(220,255,233,.35), rgba(180,255,208,.18));
+      box-shadow:0 8px 24px rgba(80,255,150,.22), inset 0 1px 0 rgba(255,255,255,.12);
     }
     [data-sso] .seg .opt{ padding:8px 12px; font-size:14px; border:0; background:transparent; color:#fff; cursor:pointer; white-space:nowrap; transition:all .2s ease; }
     [data-sso] .seg .opt.active{
-      background:linear-gradient(180deg, rgba(52,199,89,1), rgba(52,199,89,.85));
-      color:#000; font-weight:800; border-radius:999px; box-shadow:0 6px 18px rgba(52,199,89,.45), inset 0 1px 0 rgba(255,255,255,.25);
+      background:linear-gradient(180deg, #b8ffd4, #a4f5c4);
+      color:#003b1f; font-weight:900; border-radius:999px; box-shadow:0 6px 18px rgba(120,255,180,.35), inset 0 1px 0 rgba(255,255,255,.35);
     }
-    [data-sso] .seg-label{ font-size:13px; opacity:.8; min-width:72px; transition:all .2s ease; }
-    [data-sso] .seg-label.active{ color:var(--ok); font-weight:800; opacity:1; text-shadow:0 0 8px rgba(52,199,89,.6); }
+    [data-sso] .seg-label{ font-size:13px; opacity:.85; min-width:72px; transition:all .2s ease; }
+    [data-sso] .seg-label.active{ color:#00d07c; font-weight:800; opacity:1; text-shadow:0 0 10px rgba(120,255,180,.65); }
 
     [data-sso] .chips{ display:flex; gap:8px; margin-top:12px; flex-wrap:wrap; }
     [data-sso] .chip{ background:#2a2a2d; color:#fff; padding:10px 12px; border-radius:999px; font-size:14px; border:0; cursor:pointer; white-space:nowrap; transition:all .2s ease; }
     [data-sso] .chip.active{
-      background:linear-gradient(180deg, rgba(52,199,89,1), rgba(52,199,89,.85));
-      color:#000; font-weight:800; box-shadow:0 6px 18px rgba(52,199,89,.45), inset 0 1px 0 rgba(255,255,255,.25);
+      background:linear-gradient(180deg, #b8ffd4, #a4f5c4);
+      color:#003b1f; font-weight:900; box-shadow:0 6px 18px rgba(120,255,180,.35), inset 0 1px 0 rgba(255,255,255,.35);
     }
 
     [data-sso] .custom{ display:flex; gap:8px; margin-top:10px; }
@@ -145,7 +167,7 @@
       display:inline-flex; align-items:center; justify-content:center;
       background:#ffd60a; color:#000; font-weight:800;
       font-size:15px; line-height:1;
-      padding:0 10px;  /* usato solo per n2/n3 */
+      padding:0 10px;  /* per n2/n3 */
       border-radius:999px;
       box-shadow:0 1px 0 rgba(255,255,255,.25) inset, 0 4px 12px rgba(0,0,0,.25);
       border:1px solid #e6c408;
@@ -156,15 +178,7 @@
 
     [data-sso] .summary{ margin-top:10px; font-size:12px; opacity:.75; }
 
-    [data-sso] .bar{
-      position:fixed; left:0; right:0; bottom:0;
-      backdrop-filter:blur(6px);
-      background:rgba(0,0,0,.96);
-      border-top:1px solid var(--border);
-      padding:10px 12px calc(10px + env(safe-area-inset-bottom));
-      display:flex; gap:10px; z-index:2147483000;
-    }
-    [data-sso] .bar .btn{ flex:1; }
+    .spacer{ height:1px; }
 
     [data-sso] .demo-badge{
       position:fixed; top:10px; right:10px; background:#333; color:#fff;
@@ -177,10 +191,12 @@
 <body>
   <div data-sso>
     <header>
-  <h1>Scanner Stoccaggio Ordini</h1>
-  <div class="subtitle">Beta 4</div>
-  <small>Scansiona, organizza e trova subito le spese al momento del ritiro</small>
-</header>
+      <div class="title-row">
+        <h1>Scanner Stoccaggio Ordini</h1>
+        <span class="beta-pill">Beta 4.1</span>
+      </div>
+      <div class="subtitle">Scansioni le spese in pochi secondi e le trovi subito al momento del ritiro!</div>
+    </header>
 
     <div class="wrap">
       <!-- STEP 1 -->
@@ -222,14 +238,22 @@
         <div class="controls">
           <button id="btnScan" class="btn primary">Avvia scansione</button>
 
-          <!-- Nuovo tastino tondo torcia -->
+          <!-- Tasto tondo torcia con icona più “skeuomorfica” -->
           <button id="btnTorch" class="icon-btn" title="Torcia" aria-label="Torcia">
-            <!-- icona torcia (SVG) -->
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path d="M8 2h8" />
-              <path d="M6 6h12l-2 4a4 4 0 0 0-.4 1.7V14a4 4 0 0 1-4 4h-1a4 4 0 0 1-4-4v-2.3c0-.6-.14-1.2-.4-1.7L6 6z"/>
-              <path d="M10 10h4" />
+            <!-- Flashlight skeuomorfica: corpo + fascio -->
+            <svg viewBox="0 0 64 64" aria-hidden="true">
+              <!-- fascio -->
+              <defs>
+                <linearGradient id="beam" x1="0" x2="1" y1="0" y2="0">
+                  <stop offset="0" stop-color="#fff" stop-opacity="0.75"/>
+                  <stop offset="1" stop-color="#fff" stop-opacity="0.0"/>
+                </linearGradient>
+              </defs>
+              <polygon points="36,26 62,16 62,48 36,38" fill="url(#beam)" />
+              <!-- corpo torcia -->
+              <rect x="10" y="22" width="28" height="20" rx="6" ry="6" fill="#2d2f34" stroke="#141518" stroke-width="2"/>
+              <rect x="12" y="28" width="10" height="8" rx="2" ry="2" fill="#0a84ff"/>
+              <circle cx="38" cy="32" r="6" fill="#cfd4da" stroke="#0b0c0d" stroke-width="2"/>
             </svg>
           </button>
         </div>
@@ -254,10 +278,16 @@
         </div>
       </div>
 
-      <div class="bar">
-        <button id="btnCopy" class="btn primary">Termina e copia</button>
-        <button id="btnClear" class="btn danger">Svuota</button>
+      <!-- STEP 4 -->
+      <div class="section" id="section4">
+        <div class="step-title"><span class="step-badge" id="badge4">4</span> Termina</div>
+        <div class="controls">
+          <button id="btnCopy" class="btn primary">Termina e copia</button>
+          <button id="btnClear" class="btn danger">Svuota</button>
+        </div>
       </div>
+
+      <div class="spacer"></div>
     </div>
   </div>
 
@@ -272,6 +302,7 @@
     const badge1 = root.querySelector('#badge1');
     const badge2 = root.querySelector('#badge2');
     const badge3 = root.querySelector('#badge3');
+    const badge4 = root.querySelector('#badge4');
     const selectedZoneBox = root.querySelector('#selectedZone');
     const video = root.querySelector('#video');
     const placeholder = root.querySelector('#placeholder');
@@ -285,8 +316,43 @@
     let stream = null;
     let videoTrack = null; // traccia per la torcia
 
+    // === AUDIO ===
+    const AC = window.AudioContext || window.webkitAudioContext;
+    let audioCtx = null;
+    function ensureAC(){
+      if (!audioCtx) audioCtx = new AC();
+      return audioCtx;
+    }
+    // suono generico
+    function playTone(freq=880, dur=0.16, type='sine', gain=0.2){
+      try{
+        const ac = ensureAC();
+        const o = ac.createOscillator();
+        const g = ac.createGain();
+        o.type = type;
+        o.frequency.value = freq;
+        o.connect(g); g.connect(ac.destination);
+        const now = ac.currentTime;
+        g.gain.setValueAtTime(0.0001, now);
+        g.gain.exponentialRampToValueAtTime(gain, now + 0.01);
+        g.gain.exponentialRampToValueAtTime(0.0001, now + dur);
+        o.start(now);
+        o.stop(now + dur + 0.02);
+      }catch(_){}
+    }
+    // pacchetto suoni richiesti
+    function soundZoneChange(){ playTone(660, 0.10, 'triangle', 0.18); }     // cambio zona
+    function soundScanOK(){ playTone(880, 0.16, 'sine', 0.22); }             // primo numero
+    function soundScanDuplicate(){ playTone(440, 0.20, 'square', 0.20); }    // duplicato
+
     // STEP 1
     badge1.classList.add('pulse');
+
+    function markActive(sectionId){
+      document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+      const sec = document.getElementById(sectionId);
+      if (sec) sec.classList.add('active');
+    }
 
     function select(z){
       currentZone = z;
@@ -318,6 +384,9 @@
 
       document.getElementById('section1').classList.add('active');
       selectedZoneBox.classList.add('active');
+
+      // suono cambio zona
+      soundZoneChange();
     }
 
     function pillClassFor(num){
@@ -337,6 +406,11 @@
         s.textContent = n;
         list.appendChild(s);
       }
+      // summary
+      const total = arr.length;
+      const unique = new Set(arr).size;
+      const summary = root.querySelector('#summary');
+      if (summary) summary.textContent = total ? `${unique} numeri in memoria` : '';
     }
 
     function addScanned(val){
@@ -345,6 +419,10 @@
       if (!data[currentZone].includes(val)) {
         data[currentZone].push(val);
         renderList();
+        soundScanOK();
+      } else {
+        // duplicato
+        soundScanDuplicate();
       }
     }
 
@@ -401,7 +479,7 @@
         }
 
         // UI on
-        document.getElementById('section2').classList.add('active');
+        markActive('section2');
         video.style.display='block';
         placeholder.style.display='none';
 
@@ -466,14 +544,11 @@
       renderList();
       currentZone = null;
 
+      [badge1,badge2,badge3,badge4].forEach(b=>{ b.classList.remove('done','pulse'); });
       badge1.classList.add('pulse');
-      badge1.classList.remove('done');
-      badge2.classList.remove('pulse','done');
-      badge3.classList.remove('pulse','done');
 
-      document.getElementById('section1').classList.remove('active');
-      document.getElementById('section2').classList.remove('active');
-      document.getElementById('section3').classList.remove('active');
+      document.getElementById('section1').classList.add('active');
+      ['section2','section3','section4'].forEach(id=>document.getElementById(id).classList.remove('active'));
 
       video.style.display='none';
       placeholder.style.display='block';
@@ -488,6 +563,7 @@
       document.getElementById('section3').classList.add('active');
       badge3.classList.remove('pulse');
       badge3.classList.add('done');
+      badge4.classList.add('done');
       alert('Demo: qui copieresti negli appunti il payload');
     });
 
@@ -499,28 +575,9 @@
   })();
   </script>
 
-  <!-- QR scanner + beep -->
+  <!-- QR scanner (ZXing) -->
   <script type="module">
     import { BrowserQRCodeReader } from "https://cdn.jsdelivr.net/npm/@zxing/browser@0.0.10/+esm";
-
-    const AC = window.AudioContext || window.webkitAudioContext;
-    let audioCtx = null;
-    function playBeep() {
-      try {
-        if (!audioCtx) audioCtx = new AC();
-        const o = audioCtx.createOscillator();
-        const g = audioCtx.createGain();
-        o.type = "sine";
-        o.frequency.value = 880;
-        o.connect(g); g.connect(audioCtx.destination);
-        const now = audioCtx.currentTime;
-        g.gain.setValueAtTime(0.0001, now);
-        g.gain.exponentialRampToValueAtTime(0.2, now + 0.01);
-        g.gain.exponentialRampToValueAtTime(0.0001, now + 0.15);
-        o.start(now);
-        o.stop(now + 0.16);
-      } catch(_) {}
-    }
 
     const qrReader = new BrowserQRCodeReader();
     let qrControls = null;
@@ -532,7 +589,6 @@
           const text = result.getText();
           if (text && text !== lastText) {
             lastText = text;
-            playBeep();
             try { onResult(text); } catch(e) { console.error(e); }
             setTimeout(()=>{ lastText = ""; }, 800);
           }
