@@ -40,7 +40,7 @@
       margin-top:6px; font-size:15px; font-weight:600; color:#ddd; opacity:.9;
     }
 
-    /* Immagini con confronto (2 immagini) */
+    /* Immagine singola (ridotta del 30%: 40% -> 28%) */
     [data-sso] .hero-img-wrap{
       display:flex; flex-direction:column; align-items:center; margin-top:14px; margin-bottom:10px; gap:12px;
     }
@@ -49,14 +49,9 @@
       to { transform:translateX(0); opacity:1; }
     }
     [data-sso] .hero-img-wrap img.alt{
-      width:40%; max-width:360px; height:auto; border-radius:12px; display:block;
+      width:28%; max-width:252px; height:auto; border-radius:12px; display:block;
       box-shadow:0 10px 30px rgba(0,0,0,.25);
       animation:slideInRight .6s ease-out both;
-    }
-    [data-sso] .hero-img-wrap img.alt2{
-      width:45%; max-width:420px; height:auto; border-radius:12px; display:block;
-      box-shadow:0 10px 30px rgba(0,0,0,.2);
-      animation:slideInRight .6s .05s ease-out both;
     }
 
     /* Pillola Beta 7.2 */
@@ -109,7 +104,7 @@
 
     /* Torch */
     [data-sso] .torch-wrap{ display:flex; align-items:center; gap:6px; }
-    [data-sso] .torch-label{ font-size:10px; line-height:1.05; text-align:right; opacity:.85; text-transform:lowercase; }
+    [data-sso] .torch-label{ font-size:13px; line-height:1.05; text-align:right; opacity:.9; text-transform:lowercase; } /* +3px */
     [data-sso] .torch-label strong{ display:block; }
 
     /* Bottone tondo torcia: bianco (off) / giallo (on) + cono ruotato 180° e inclinato -6° */
@@ -150,7 +145,7 @@
     [data-sso] .seg-label{ font-size:13px; opacity:.85; min-width:72px; transition:all .2s ease; }
     [data-sso] .seg-label.active{ color:#00d07c; font-weight:800; opacity:1; text-shadow:0 0 10px rgba(120,255,180,.65); }
 
-    /* Chips “CARNE/SCALE” più scuri */
+    /* Chips “CARNE/SCALE” (scure come SOPRA/SOTTO) */
     [data-sso] .chips{ display:flex; gap:8px; margin-top:12px; flex-wrap:wrap; }
     [data-sso] .chip{
       background:#121214; color:#fff; padding:10px 12px; border-radius:999px; font-size:14px; border:1px solid var(--border);
@@ -189,10 +184,10 @@
       content:"La scansione è in pausa"; position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
       backdrop-filter:blur(6px) brightness(.7); color:#fff; font-weight:800; letter-spacing:.6px;
     }
-    /* Overlay: guida QR */
+    /* Overlay: guida QR (ingrandita 200% e opacità +5%) */
     [data-sso] .qr-guide{
       position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
-      height:30%; width:auto; opacity:.1; display:none; pointer-events:none;
+      height:60%; width:auto; opacity:.15; display:none; pointer-events:none;
     }
 
     /* Messaggio duplicati: più largo, max 2 righe */
@@ -208,14 +203,16 @@
 
     [data-sso] video{ display:none; width:100%; height:100%; object-fit:cover; object-position:center; background:#000; }
 
-    /* Placeholder centrato: icone + due righe */
+    /* Placeholder centrato verticalmente, contenuti allineati a sinistra con icone + grandi e 15px dal bordo sinistro */
     [data-sso] .placeholder{
       width:100%; height:100%; border:1px dashed var(--border);
       border-radius:12px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px;
-      color:#aaa; text-align:center; padding:12px;
+      color:#aaa; text-align:left; padding:12px;
     }
-    [data-sso] .ph-row{ display:flex; align-items:center; gap:8px; justify-content:center; }
-    [data-sso] .ph-icon{ width:18px; height:18px; opacity:.9; }
+    [data-sso] .ph-row{
+      display:flex; align-items:center; gap:8px; justify-content:flex-start; width:100%; padding-left:15px;
+    }
+    [data-sso] .ph-icon{ width:36px; height:36px; opacity:.9; } /* 100% più grandi (18 -> 36) */
 
     [data-sso] .box{ border:1px solid var(--border); border-radius:12px; padding:12px; background:#0b0b0b; margin-top:10px; }
     [data-sso] .label{ font-size:12px; opacity:.7; margin-bottom:4px; }
@@ -260,16 +257,11 @@
 
     @keyframes radar-sweep{0%{background-position:0% 50%;}50%{background-position:200% 50%;}100%{background-position:0% 50%;}}
 
-    /* Step 5: bordo gradiente permanente + dissolvenza testo iniziale (2s) */
+    /* Step 5: bordo gradiente permanente (già definito) */
     @keyframes glow-border {
       0%{ border-color:#8a2be2; box-shadow:0 0 0 rgba(0,0,0,0); }
       50%{ border-color:#ff7f50; box-shadow:0 0 14px rgba(255,165,0,.35); }
       100%{ border-color:#ffd60a; box-shadow:0 0 0 rgba(0,0,0,0); }
-    }
-    @keyframes text-fade {
-      0%{ opacity:.3; filter:blur(1px); }
-      50%{ opacity:1; filter:none; }
-      100%{ opacity:.85; }
     }
     .gradient-border { border-image: linear-gradient(90deg,#8a2be2,#ff7f50,#ffd60a) 1; animation: glow-border 2s ease forwards; }
 
@@ -294,8 +286,7 @@
       <div class="subtitle">Scansiona le spese in pochi secondi e trovale subito al momento del ritiro!</div>
 
       <div class="hero-img-wrap">
-        <img class="alt" src="https://static.wixstatic.com/media/9d749b_4e7e462b0d2e40448664f342bb2cd2b5~mv2.png/v1/fill/w_116,h_126,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/shopper%20bottega_anteprima_edited_edited_.png" alt="Immagine alternativa 1" />
-        <img class="alt2" src="https://static.wixstatic.com/media/9d749b_250983286df245428d6cedaa6c1c311e~mv2.png/v1/fill/w_226,h_170,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/9d749b_250983286df245428d6cedaa6c1c311e~mv2.png" alt="Immagine alternativa 2" />
+        <img class="alt" src="https://static.wixstatic.com/media/9d749b_4e7e462b0d2e40448664f342bb2cd2b5~mv2.png/v1/fill/w_116,h_126,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/shopper%20bottega_anteprima_edited_edited_.png" alt="Immagine alternativa" />
       </div>
 
       <div class="beta-row"><span class="beta-pill">Beta 7.2</span></div>
@@ -424,7 +415,7 @@
       <div class="section" id="section5" style="display:none">
         <div class="step-title"><span class="step-badge" id="badge5">5</span> Invio</div>
         <div class="box" id="step5Box">
-          <!-- Contenuto dinamico inserito via JS (progress bar + messaggi + bottone nuova scansione) -->
+          <!-- progress dinamico -->
         </div>
       </div>
 
@@ -606,10 +597,6 @@
     // --- Inserimento manuale ---
     let manualBuffer = "";
     function refreshManualDisplay(){ keyDisplay.textContent = manualBuffer.length ? manualBuffer : '—'; }
-
-    const toggleKeypadBtn = document.getElementById('toggleKeypad');
-    const keypad = document.getElementById('keypad');
-    const keyDisplay = document.getElementById('keyDisplay');
 
     toggleKeypadBtn.addEventListener('click', ()=>{
       if (!currentZone){
@@ -794,7 +781,7 @@
         await videoTrack.applyConstraints({ advanced: [{ torch: !current }] });
         const on = !current;
         btnTorch.classList.toggle('torch-on', on);
-        document.getElementById('torchState').textContent = on ? 'ON' : 'OFF';
+        torchState.textContent = on ? 'ON' : 'OFF';
       } catch (e) { console.error(e); }
     });
 
@@ -848,13 +835,13 @@
       // flags
       hasEverStarted = false;
       scanningLocked = false;
-      lockZoneSelectors(false);
+      lockZoneSelectors(false); // *** Fix: riabilita selettori al reset ***
       setActionButtonsEnabled(false);
       setScanButton_start();
 
       // torcia
       btnTorch.classList.remove('torch-on');
-      document.getElementById('torchState').textContent = 'OFF';
+      torchState.textContent = 'OFF';
 
       // keypad
       keypad.classList.remove('show');
@@ -886,7 +873,6 @@
     ];
 
     function startStep5Progress(){
-      // Contenuto UI
       step5Box.innerHTML = `
         <div class="progress-wrap">
           <div class="progress-outer"><div class="progress-inner" id="pInner"></div></div>
@@ -919,31 +905,28 @@
           clearInterval(msgTimer);
           pMsg.textContent = 'Completato ✔︎';
           pDone.style.display = 'flex';
-          // wire “Nuova scansione”
-          const btnNew = document.getElementById('btnNew');
-          btnNew.addEventListener('click', async ()=>{
+          document.getElementById('btnNew').addEventListener('click', async ()=>{
             await fullReset(true);
             step5.style.display = 'none';
             window.scrollTo({ top:0, behavior:'smooth' });
           });
         }
-      }, 120); // ~12s max in media, ma con salti random (puoi ridurre)
+      }, 120);
     }
 
-    // "Termina e invia": copia payload, mostra Step 5 (bordo gradiente), avvia progress, scroll a Step 5
+    // "Termina e invia": copia payload, mostra Step 5 e progress
     btnCopy.addEventListener('click', async ()=>{
       await copyCurrentPayloadToClipboard();
 
       // chiudi keypad e azzera UI della zona attuale (senza full reset globale)
       keypad.classList.remove('show'); manualBuffer = ""; keyDisplay.textContent = '—';
-      // svuota dati della zona corrente e UI del blocco 3
       if (currentZone && data[currentZone]) delete data[currentZone];
       list.innerHTML = '<em style="opacity:.7">Nessun numero</em>';
       document.getElementById('summary').textContent = '0 ordini in memoria';
 
       // mostra step 5
       step5.style.display = '';
-      step5.classList.add('gradient-border'); // bordo gradiente persistente
+      step5.classList.add('gradient-border');
       markActive('section5'); if (badge5) badge5.classList.add('done');
 
       // avvia progress e messaggi
@@ -952,6 +935,9 @@
       // scroll verso Step 5
       step5.scrollIntoView({ behavior:'smooth', block:'start' });
     });
+
+    /* --- FIX: abilita selezione zone al primo avvio --- */
+    lockZoneSelectors(false);
 
     window.addEventListener('pagehide', async ()=>{ await stopCamera(); }, { once:true });
     window.addEventListener('beforeunload', async ()=>{ await stopCamera(); }, { once:true });
