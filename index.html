@@ -91,12 +91,12 @@
     [data-sso] .ghost{ background:var(--muted); }
     [data-sso] .danger{ background:var(--danger); }
     [data-sso] .success{ background:var(--success); color:#001f0f; } /* verde */
-    /* stati per il tasto scan: manteniamo stessa dimensione (stessi padding/font) */
-    [data-sso] .btn.pause{ background:#3a3a3c; color:#fff; }  /* scansione attiva -> tasto dice Pausa */
-    [data-sso] .btn.resume{ background:var(--success); color:#001f0f; }   /* scansione in pausa -> tasto dice Riprendi */
-    [data-sso] .pause-ico{ margin-left:8px; font-weight:900; }
+    /* stati per il tasto scan */
+    [data-sso] .btn.pause{ background:#5a5a5e; color:#fff; }   /* grigio più chiaro */
+    [data-sso] .btn.resume{ background:var(--success); color:#001f0f; }   /* verde */
+    [data-sso] .pause-ico, [data-sso] .play-ico{ margin-left:8px; font-weight:900; }
 
-    /* Bottone tondo torcia (iOS-like) + fascio luce quando attiva */
+    /* Bottone tondo torcia (iOS-like) + fascio luce invertito (180°) */
     [data-sso] .icon-btn{
       width:44px; height:44px; border-radius:999px; position:relative;
       border:1px solid #2c2c2e;
@@ -107,9 +107,9 @@
     }
     [data-sso] .icon-btn:active{ transform:scale(.97); }
     [data-sso] .icon-btn svg{ width:22px; height:22px; display:block; }
-    /* Fascio: triangolo sfumato ~10° verso l’alto */
+    /* Cono sfumato ~10°, ruotato 180° */
     [data-sso] .icon-btn.torch-on::after{
-      content:""; position:absolute; left:50%; bottom:44px; transform:translateX(-50%);
+      content:""; position:absolute; left:50%; bottom:44px; transform:translateX(-50%) rotate(180deg);
       width:12px; height:0; border-left:60px solid transparent; border-right:60px solid transparent;
       border-bottom:160px solid rgba(255, 244, 200, .18);
       filter:blur(2px);
@@ -249,10 +249,10 @@
       <div class="subtitle">Scansiona le spese in pochi secondi e trovale subito al momento del ritiro!</div>
 
       <div class="hero-img-wrap">
-        <img src="https://static.wixstatic.com/media/9d749b_22dbb5d7e3ab47fd846979c245d7a600~mv2.jpeg/v1/crop/x_173,y_296,w_1017,h_427/fill/w_475,h_200,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/9d749b_22dbb5d7e3ab47fd846979c245d7a600~mv2.jpeg" alt="Immagine promozionale" />
+        <img src="https://static.wixstatic.com/media/9d749b_c55ce2c8dc7c439cb7fbd8fd6cf7bac5~mv2.png" alt="Immagine promozionale" />
       </div>
 
-      <div class="beta-row"><span class="beta-pill">Beta 6</span></div>
+      <div class="beta-row"><span class="beta-pill">Beta 4.1</span></div>
     </header>
 
     <div class="wrap">
@@ -295,7 +295,7 @@
         <div class="controls">
           <button id="btnScan" class="btn primary">Avvia scansione</button>
 
-          <!-- Tasto tondo torcia, icona stile iOS-like + fascio -->
+          <!-- Tasto tondo torcia, icona stile iOS-like + cono invertito -->
           <button id="btnTorch" class="icon-btn" title="Torcia" aria-label="Torcia">
             <!-- Flashlight iOS-like -->
             <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -349,7 +349,7 @@
         <div class="step-title"><span class="step-badge" id="badge4">4</span> Termina</div>
         <div class="controls">
           <button id="btnCopy" class="btn success" disabled>Termina e invia</button>
-          <button id="btnClear" class="btn danger" disabled>Svuota</button>
+          <button id="btnClear" class="btn danger" disabled>Svuota e ricomincia</button>
         </div>
       </div>
 
@@ -692,8 +692,8 @@
 
     /* ===== Stato bottone scansione =====
        start()  -> blu  "Avvia scansione"
-       active() -> grigio "Pausa scansione ⏸"  (scansione attiva)
-       paused() -> verde  "Riprendi scansione" (scansione in pausa)
+       active() -> grigio chiaro "Pausa scansione ⏸"  (scansione attiva)
+       paused() -> verde "Riprendi scansione ▶" (scansione in pausa)
     */
     function setScanButton_start(){
       btnScan.textContent = 'Avvia scansione';
@@ -706,7 +706,7 @@
       btnScan.classList.add('pause');
     }
     function setScanButton_paused(){
-      btnScan.textContent = 'Riprendi scansione';
+      btnScan.innerHTML = 'Riprendi scansione <span class="play-ico">▶</span>';
       btnScan.classList.remove('primary','pause');
       btnScan.classList.add('resume','success');
     }
@@ -723,15 +723,15 @@
         return;
       }
       if (!qrPaused){
-        // Metti in pausa: ferma lettura, overlay, bottone diventa "Riprendi scansione" (verde)
+        // Metti in pausa
         qrPaused = true;
         if (window.stopQR) window.stopQR();
         qrRunning = false;
         videoWrap.classList.add('paused');
-        setScanButton_paused();
+        setScanButton_paused();          // verde con ▶
         setActionButtonsEnabled(true);
       } else {
-        // Riprendi: riattiva lettura, rimuovi overlay, bottone torna "Pausa scansione ⏸" (grigio)
+        // Riprendi
         if (window.startQR){
           window.startQR(video, (text)=>{
             if (qrPaused) return;
@@ -743,7 +743,7 @@
         }
         qrPaused = false;
         videoWrap.classList.remove('paused');
-        setScanButton_active();
+        setScanButton_active();          // grigio chiaro con ⏸
         setActionButtonsEnabled(true);
       }
     });
@@ -763,7 +763,7 @@
         const settings = videoTrack.getSettings && videoTrack.getSettings();
         const current = settings && settings.torch ? true : false;
         await videoTrack.applyConstraints({ advanced: [{ torch: !current }] });
-        // toggla fascio simulato
+        // toggla cono simulato
         torchOn = !current;
         btnTorch.classList.toggle('torch-on', torchOn);
       } catch (e) {
@@ -771,10 +771,9 @@
       }
     });
 
-    btnClear.addEventListener('click', async ()=>{
-      await stopCamera();
+    // Reset completo
+    function fullReset(){
       for (const k in data) delete data[k];
-      renderList();
       currentZone = null;
 
       [badge1,badge2,badge3,badge4,badge5].forEach(b=>{ if(b) b.classList.remove('done','pulse'); });
@@ -799,14 +798,40 @@
       setActionButtonsEnabled(false);
       setScanButton_start();
 
+      // torcia UI
+      btnTorch.classList.remove('torch-on');
+
       // nascondi step 5 se aperto
       const s5 = document.getElementById('section5');
       if (s5) s5.style.display='none';
+
+      // chiudi keypad
+      keypad.classList.remove('show');
+      manualBuffer = "";
+      keyDisplay.textContent = '—';
+    }
+
+    btnClear.addEventListener('click', async ()=>{
+      await stopCamera();
+      fullReset(); // come primo avvio
     });
 
-    // "Termina e invia": mostra Step 5 (prima nascosto)
+    // "Termina e invia": mostra Step 5, chiude keypad e deseleziona zona
     btnCopy.addEventListener('click', async ()=>{
       await stopCamera();
+
+      // chiudi keypad
+      keypad.classList.remove('show');
+      manualBuffer = "";
+      keyDisplay.textContent = '—';
+
+      // deseleziona zona
+      currentZone = null;
+      root.querySelectorAll('.opt,.chip').forEach(b=>b.classList.remove('active'));
+      selectedZoneBox.classList.remove('active');
+      loc.textContent = 'Nessuna zona selezionata';
+      zoneLine.textContent = '—';
+
       document.getElementById('section3').classList.add('active');
       badge3.classList.remove('pulse');
       badge3.classList.add('done');
@@ -820,10 +845,10 @@
       }
     });
 
-    window.addEventListener('pagehide', ()=>stopCamera(), { once:true });
-    window.addEventListener('beforeunload', ()=>stopCamera(), { once:true });
-    document.addEventListener('visibilitychange', ()=>{
-      if (document.visibilityState === 'hidden') stopCamera();
+    window.addEventListener('pagehide', async ()=>{ await stopCamera(); }, { once:true });
+    window.addEventListener('beforeunload', async ()=>{ await stopCamera(); }, { once:true });
+    document.addEventListener('visibilitychange', async ()=>{
+      if (document.visibilityState === 'hidden') await stopCamera();
     });
   })();
   </script>
