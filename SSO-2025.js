@@ -1,6 +1,6 @@
 (function(){
-  // SSO Scanner — beta3 (trasformazione 1:1 dal tuo HTML in singolo JS)
-  // Nessun Custom Element / Shadow DOM. Compatibile Wix. API: SSOScanner.init(mount), SSOScanner.destroy(mount)
+  
+  // SSO Scanner — beta3
 
   const $ = (r, s) => (r || document).querySelector(s);
   const $$ = (r, s) => Array.from((r || document).querySelectorAll(s));
