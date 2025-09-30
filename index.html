@@ -161,7 +161,7 @@
     }
     [data-sso] .seg .opt:disabled{ opacity:.45; cursor:not-allowed; }
     [data-sso] .seg-label{ font-size:13px; opacity:.85; min-width:72px; transition:all .2s ease; }
-    [data-sso] .seg-label.active{ color:#00d07c; font-weight:800; opacity:1; text-shadow:0 0 10px rgba(120,255,180,.65); }
+    [data-sso] .seg-label.active{ font-weight:800; opacity:1; color:#00d07c; text-shadow:0 0 10px rgba(120,255,180,.65); }
 
     /* Chips */
     [data-sso] .chips{ display:flex; gap:8px; margin-top:12px; flex-wrap:wrap; }
@@ -512,9 +512,15 @@
     let dupTimer = null;
     let firstScanDone = false;
 
+    // === CONFIG GOOGLE FORM ===
+    const GFORM = {
+      ACTION: "https://docs.google.com/forms/d/e/1FAIpQLSdixUK5TjPdfYMeso-XXTJHYy2Vy23F44j5FEMWFddWRfRh7Q/formResponse",
+      ENTRY_STOCCAGGIO: "entry.1910612286"
+    };
+
     // Forza hint/guide nascosti all’avvio (ulteriore sicurezza)
     if (qrGuide) qrGuide.style.display = 'none';
-    if (qrHint) qrHint.style.display = 'none';
+    if (qrHint)  qrHint.style.display  = 'none';
 
     // === AUDIO ===
     const AC = window.AudioContext || window.webkitAudioContext;
@@ -635,7 +641,7 @@
       if (!firstScanDone){
         firstScanDone = true;
         if (qrGuide) qrGuide.style.display = 'none';
-        if (qrHint) qrHint.style.display = 'none';
+        if (qrHint)  qrHint.style.display  = 'none';
       }
     }
 
@@ -730,7 +736,7 @@
         // Mostra GUIDA e HINT SOLO DOPO avvio
         firstScanDone = false;
         qrGuide.style.display = 'block';
-        qrHint.style.display = 'block';
+        qrHint.style.display  = 'block';
 
         if (window.startQR) {
           window.startQR(video, (text) => {
@@ -782,7 +788,7 @@
 
       // nascondi guida QR e hint
       qrGuide.style.display = 'none';
-      qrHint.style.display = 'none';
+      qrHint.style.display  = 'none';
 
       setScanButton_start();
     }
@@ -858,6 +864,39 @@
       return payload;
     }
 
+    // === Invio al Google Form (form invisibile + iframe) ===
+    function submitToGoogleForm({ zona, ordini, tsISO }) {
+      if (!GFORM.ACTION || !GFORM.ENTRY_STOCCAGGIO) {
+        console.warn("Google Form non configurato.");
+        return false;
+      }
+      const value = `${tsISO} | ${zona || "-"} | ${(ordini && ordini.length) ? ordini.join(",") : "-"}`;
+
+      let iframe = document.getElementById("hidden_iframe_gform");
+      if (!iframe) {
+        iframe = document.createElement("iframe");
+        iframe.name = "hidden_iframe_gform";
+        iframe.id   = "hidden_iframe_gform";
+        iframe.style.display = "none";
+        document.body.appendChild(iframe);
+      }
+
+      const form = document.createElement("form");
+      form.action = GFORM.ACTION;
+      form.method = "POST";
+      form.target = "hidden_iframe_gform";
+
+      const input = document.createElement("input");
+      input.type  = "hidden";
+      input.name  = GFORM.ENTRY_STOCCAGGIO;
+      input.value = value;
+      form.appendChild(input);
+
+      document.body.appendChild(form);
+      try { form.submit(); } finally { form.remove(); }
+      return true;
+    }
+
     // Reset completo
     async function fullReset(clearClipboard=true){
       await stopCamera();
@@ -911,7 +950,7 @@
       // guida QR/hint
       firstScanDone = false;
       if (qrGuide) qrGuide.style.display = 'none';
-      if (qrHint) qrHint.style.display = 'none';
+      if (qrHint)  qrHint.style.display  = 'none';
 
       // nascondi anche il bottone esterno fino al prossimo invio
       if (pDoneOuter) pDoneOuter.style.display = 'none';
@@ -980,9 +1019,18 @@
       }, 800);
     }
 
-    // "Termina e invia": copia, disabilita bottoni (grigi e non cliccabili), mostra Step 4
+    // "Termina e invia": copia, invia al Google Form, disabilita bottoni, mostra Step 4
     btnCopy.addEventListener('click', async ()=>{
+      // prepara i dati PRIMA di azzerare UI
+      const zoneForSubmit = currentZone || '';
+      const arrForSubmit  = (data[zoneForSubmit] || []).slice().sort((a,b)=>a-b);
+      const tsISO         = new Date().toISOString();
+
+      // copia in clipboard (piano B)
       await copyCurrentPayloadToClipboard();
+
+      // invio invisibile al Google Form
+      submitToGoogleForm({ zona: zoneForSubmit, ordini: arrForSubmit, tsISO });
 
       // disabilita e grigio reale
       btnCopy.disabled = true; btnClear.disabled = true;
