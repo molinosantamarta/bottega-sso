@@ -32,6 +32,13 @@
       background:linear-gradient(90deg, #ff0000 0%, #ff9900 25%, #ffff00 50%, #ff9900 75%, #ff0000 100%);
       -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent;
       background-size:300% 100%; animation:radar-sweep 8s linear infinite;
+      [data-sso] header .subtitle {
+  margin-top:4px;
+  font-size:15px;
+  font-weight:600;
+  color:#ffd60a;      /* giallo come le zone */
+  text-shadow:0 0 6px rgba(0,0,0,.6);
+}
     }
     [data-sso] header small{ display:block; margin-top:6px; font-size:14px; opacity:.75; }
 
@@ -170,9 +177,10 @@
 <body>
   <div data-sso>
     <header>
-      <h1>Scanner Stoccaggio Ordini</h1>
-      <small>Scansiona, organizza e trova subito le spese al momento del ritiro</small>
-    </header>
+  <h1>Scanner Stoccaggio Ordini</h1>
+  <div class="subtitle">Beta 4</div>
+  <small>Scansiona, organizza e trova subito le spese al momento del ritiro</small>
+</header>
 
     <div class="wrap">
       <!-- STEP 1 -->
