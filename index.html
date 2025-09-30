@@ -26,6 +26,9 @@
       background:var(--bg);
       color:var(--fg);
       font-family:-apple-system,system-ui,Segoe UI,Roboto,sans-serif;
+      /* Boost leggibilità su mobile (Safari/Chrome) */
+      -webkit-text-size-adjust:115%;
+      text-size-adjust:115%;
     }
     [data-sso] .wrap{ padding:12px 12px 40px; max-width:760px; margin:0 auto; }
 
@@ -45,6 +48,10 @@
       position:relative;
     }
     @keyframes slideInRight { from { transform:translateX(60px); opacity:0; } to { transform:translateX(0); opacity:1; } }
+
+    /* Spostamento richiesto: entrambe +6px a destra */
+    [data-sso] .hero-img-wrap img{ position:relative; left:6px; }
+
     /* Immagine 1 (bottega) +30% (da 25.2% a ~32.8%) */
     [data-sso] .hero-img-wrap img.alt{
       width:32.8%; max-width:295px; height:auto; border-radius:12px; display:block;
@@ -52,7 +59,8 @@
       animation:slideInRight .6s ease-out both;
       z-index:2;
     }
-    /* GIF aumentata del 50% (da 21% a 31.5%), sovrapposta leggermente */
+    /* GIF aumentata del 50% (da 21% a 31.5%), sovrapposta leggermente
+       + spostata 4px più in basso come richiesto */
     [data-sso] .hero-img-wrap img.altB{
       width:31.5%; max-width:284px; height:auto; border-radius:12px; display:block;
       box-shadow:0 10px 30px rgba(0,0,0,.2);
@@ -60,6 +68,7 @@
       margin-left:-3%;
       z-index:1;
       opacity:.95;
+      top:4px; /* 4px più in basso */
     }
 
     /* Pillola Beta 7.6 */
@@ -90,8 +99,9 @@
     [data-sso] .controls.nowrap{ flex-wrap:nowrap; }
     [data-sso] .controls .spacer{ flex:1; }
     [data-sso] .controls.split .btn{ flex:1; } /* i due bottoni si dividono lo spazio */
-    /* Bottoni finali step 3: font -3px */
-    #section3 .controls.split .btn{ font-size:13px; }
+
+    /* Bottoni finali step 3: testo invariato a 13px, +50% altezza via padding */
+    #section3 .controls.split .btn{ font-size:13px; padding:21px 16px; } /* 14px -> 21px */
 
     [data-sso] .btn{
       padding:14px 16px; border:0; border-radius:12px; font-size:16px; font-weight:700; color:#fff; cursor:pointer;
@@ -214,9 +224,10 @@
 
     [data-sso] video{ display:none; width:100%; height:100%; object-fit:cover; object-position:center; background:#000; }
 
-    /* Placeholder centrato */
+    /* Placeholder CENTRATO PERFETTAMENTE nell'area (assoluto + inset) */
     [data-sso] .placeholder{
-      width:100%; height:100%; border:1px dashed var(--border);
+      position:absolute; inset:0;
+      border:1px dashed var(--border);
       border-radius:12px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px;
       color:#aaa; text-align:center; padding:12px;
     }
@@ -280,8 +291,28 @@
     .progress-outer{ width:100%; height:12px; border-radius:999px; background:#161616; border:1px solid #333; overflow:hidden; }
     .progress-inner{ height:100%; width:0%; background:linear-gradient(90deg,#6a5acd,#1e90ff); transition:width .1s linear; }
     .progress-msg{ margin-top:10px; font-size:13px; opacity:.95; min-height:20px; text-align:center; }
+
+    /* Bottone "Nuova scansione" ora FUORI dal contenitore interno */
     .progress-done{ margin-top:12px; display:flex; justify-content:center; }
     .progress-done .btn-yellow{ padding:12px 16px; font-weight:900; color:#000; border-radius:12px; }
+
+    /* Boost tipografico mirato su mobile */
+    @media (max-width:600px){
+      [data-sso] header h1{ font-size:23px; }
+      [data-sso] header .subtitle{ font-size:16px; }
+      [data-sso] .step-title{ font-size:15px; }
+      [data-sso] .seg .opt{ font-size:15px; }
+      [data-sso] .seg-label{ font-size:14px; }
+      [data-sso] .chip{ font-size:15px; }
+      [data-sso] .custom input, [data-sso] .custom button{ font-size:15px; }
+      [data-sso] .torch-label{ font-size:16px; }
+      [data-sso] .label{ font-size:13px; }
+      [data-sso] .zone-line{ font-size:16px; }
+      [data-sso] .summary{ font-size:13px; }
+      #section3 .controls.split .btn{ font-size:14px; } /* testo leggermente più grande su mobile */
+      [data-sso] .qr-hint{ font-size:14px; }
+      [data-sso] .dup-msg{ font-size:14px; }
+    }
   </style>
 </head>
 <body>
@@ -357,6 +388,7 @@
           <div id="qrHint" class="qr-hint" style="display:none">scansiona il codice sul biglietto insieme alla spesa</div>
           <video id="video" playsinline muted></video>
 
+          <!-- Placeholder centrato assoluto -->
           <div id="placeholder" class="placeholder">
             <div class="ph-row">
               <!-- icona fotocamera -->
@@ -420,9 +452,13 @@
 
       <!-- STEP 4 -->
       <div class="section" id="section4" style="display:none">
-        <div class="step-title"><span class="step-badge" id="badge4">4</span> Invio</div>
+        <div class="step-title"><span class="step-badge" id="badge4">4</span> Invio scansioni</div>
         <div class="box gradient-border" id="step4Box">
           <!-- progress dinamico -->
+        </div>
+        <!-- Bottone SPOSTATO fuori dal contenitore interno -->
+        <div class="progress-done" id="pDoneOuter" style="display:none">
+          <button id="btnNew" class="btn btn-yellow">Nuova scansione</button>
         </div>
       </div>
 
@@ -456,6 +492,8 @@
     const torchState = document.getElementById('torchState');
     const step4 = document.getElementById('section4');
     const step4Box = document.getElementById('step4Box');
+    const pDoneOuter = document.getElementById('pDoneOuter');          /* << nuovo contenitore esterno */
+    const btnNewExternal = document.getElementById('btnNew');          /* << bottone esterno */
 
     // Manual keypad
     const toggleKeypadBtn = document.getElementById('toggleKeypad');
@@ -874,6 +912,9 @@
       firstScanDone = false;
       if (qrGuide) qrGuide.style.display = 'none';
       if (qrHint) qrHint.style.display = 'none';
+
+      // nascondi anche il bottone esterno fino al prossimo invio
+      if (pDoneOuter) pDoneOuter.style.display = 'none';
     }
 
     // Cancella e rifai
@@ -897,15 +938,11 @@
         <div class="progress-wrap">
           <div class="progress-outer"><div class="progress-inner" id="pInner"></div></div>
           <div class="progress-msg" id="pMsg">Inizializzo…</div>
-          <div class="progress-done" id="pDone" style="display:none">
-            <button id="btnNew" class="btn btn-yellow">Nuova scansione</button>
-          </div>
         </div>
       `;
 
       const pInner = document.getElementById('pInner');
       const pMsg = document.getElementById('pMsg');
-      const pDone = document.getElementById('pDone');
 
       let pct = 0;
 
@@ -919,12 +956,16 @@
           setTimeout(()=>{
             pInner.style.width = '100%';
             pMsg.textContent = 'Completato ✔︎';
-            pDone.style.display = 'flex';
-            document.getElementById('btnNew').addEventListener('click', async ()=>{
-              await fullReset(true);
-              step4.style.display = 'none';
-              window.scrollTo({ top:0, behavior:'smooth' });
-            });
+            // mostra il bottone esterno
+            if (pDoneOuter) pDoneOuter.style.display = 'flex';
+            // bind click "Nuova scansione" (esterno)
+            if (btnNewExternal){
+              btnNewExternal.onclick = async ()=>{
+                await fullReset(true);
+                step4.style.display = 'none';
+                window.scrollTo({ top:0, behavior:'smooth' });
+              };
+            }
           }, 4000);
         }
         pInner.style.width = pct + '%';
