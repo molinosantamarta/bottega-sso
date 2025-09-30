@@ -22,6 +22,7 @@
       --border:#2c2c2e;
       --success:#22c55e;
       --torch-on:#ffd60a;
+      --yellow:#ffd60a;
       background:var(--bg);
       color:var(--fg);
       font-family:-apple-system,system-ui,Segoe UI,Roboto,sans-serif;
@@ -39,7 +40,7 @@
       margin-top:6px; font-size:15px; font-weight:600; color:#ddd; opacity:.9;
     }
 
-    /* Immagini con confronto: prima esistente + nuova sotto */
+    /* Immagini con confronto (2 immagini) */
     [data-sso] .hero-img-wrap{
       display:flex; flex-direction:column; align-items:center; margin-top:14px; margin-bottom:10px; gap:12px;
     }
@@ -58,7 +59,7 @@
       animation:slideInRight .6s .05s ease-out both;
     }
 
-    /* Pillola Beta 7.1 */
+    /* Pillola Beta 7.2 */
     [data-sso] .beta-row{ display:flex; justify-content:center; margin-top:14px; }
     [data-sso] .beta-pill{
       display:inline-flex; align-items:center; justify-content:center;
@@ -99,17 +100,19 @@
     [data-sso] .ghost{ background:var(--muted); }
     [data-sso] .danger{ background:var(--danger); }
     [data-sso] .success{ background:var(--success); color:#001f0f; }
+    .btn-yellow{ background:var(--yellow); color:#000; }
+
     /* stati per il tasto scan */
     [data-sso] .btn.pause{ background:#5a5a5e; color:#fff; }   /* grigio più chiaro */
     [data-sso] .btn.resume{ background:var(--success); color:#001f0f; }   /* verde */
     [data-sso] .pause-ico, [data-sso] .play-ico{ margin-left:8px; font-weight:900; }
 
-    /* Torch wrap allineata a destra, label 10px su due righe */
+    /* Torch */
     [data-sso] .torch-wrap{ display:flex; align-items:center; gap:6px; }
     [data-sso] .torch-label{ font-size:10px; line-height:1.05; text-align:right; opacity:.85; text-transform:lowercase; }
     [data-sso] .torch-label strong{ display:block; }
 
-    /* Bottone tondo torcia: bianco (off) / giallo (on) + cono invertito */
+    /* Bottone tondo torcia: bianco (off) / giallo (on) + cono ruotato 180° e inclinato -6° */
     [data-sso] .icon-btn{
       width:44px; height:44px; border-radius:999px; position:relative;
       border:1px solid #2c2c2e;
@@ -121,9 +124,9 @@
     [data-sso] .icon-btn.torch-on{ background:var(--torch-on); color:#111; border-color:#d8be07; }
     [data-sso] .icon-btn:active{ transform:scale(.97); }
     [data-sso] .icon-btn svg{ width:22px; height:22px; display:block; }
-    /* Cono sfumato ~10°, ruotato 180° */
     [data-sso] .icon-btn.torch-on::after{
-      content:""; position:absolute; left:50%; bottom:44px; transform:translateX(-50%) rotate(180deg);
+      content:""; position:absolute; left:50%; bottom:44px;
+      transform:translateX(-50%) rotate(180deg) rotate(-6deg);
       width:12px; height:0; border-left:60px solid transparent; border-right:60px solid transparent;
       border-bottom:160px solid rgba(255, 244, 200, .18);
       filter:blur(2px);
@@ -147,11 +150,16 @@
     [data-sso] .seg-label{ font-size:13px; opacity:.85; min-width:72px; transition:all .2s ease; }
     [data-sso] .seg-label.active{ color:#00d07c; font-weight:800; opacity:1; text-shadow:0 0 10px rgba(120,255,180,.65); }
 
+    /* Chips “CARNE/SCALE” più scuri */
     [data-sso] .chips{ display:flex; gap:8px; margin-top:12px; flex-wrap:wrap; }
-    [data-sso] .chip{ background:#2a2a2d; color:#fff; padding:10px 12px; border-radius:999px; font-size:14px; border:0; cursor:pointer; white-space:nowrap; transition:all .2s ease; }
+    [data-sso] .chip{
+      background:#121214; color:#fff; padding:10px 12px; border-radius:999px; font-size:14px; border:1px solid var(--border);
+      cursor:pointer; white-space:nowrap; transition:all .2s ease;
+    }
     [data-sso] .chip.active{
       background:linear-gradient(180deg, #b8ffd4, #a4f5c4);
       color:#003b1f; font-weight:900; box-shadow:0 6px 18px rgba(120,255,180,.35), inset 0 1px 0 rgba(255,255,255,.35);
+      border-color:transparent;
     }
     [data-sso] .chip:disabled{ opacity:.45; cursor:not-allowed; }
 
@@ -263,12 +271,20 @@
       50%{ opacity:1; filter:none; }
       100%{ opacity:.85; }
     }
-    /* bordo gradiente che sostituisce quello verde e resta */
-    [data-sso] .gradient-border {
-      border-image: linear-gradient(90deg,#8a2be2,#ff7f50,#ffd60a) 1;
-      animation: glow-border 2s ease forwards;
+    .gradient-border { border-image: linear-gradient(90deg,#8a2be2,#ff7f50,#ffd60a) 1; animation: glow-border 2s ease forwards; }
+
+    /* Progress bar step 5 */
+    .progress-wrap{ margin-top:6px; }
+    .progress-outer{
+      width:100%; height:12px; border-radius:999px; background:#161616; border:1px solid #333; overflow:hidden;
     }
-    [data-sso] .gradient-border .box { animation: text-fade 2s ease forwards; }
+    .progress-inner{
+      height:100%; width:0%; background:linear-gradient(90deg,#8a2be2,#ff7f50,#ffd60a);
+      transition:width .08s linear;
+    }
+    .progress-msg{ margin-top:10px; font-size:13px; opacity:.9; min-height:20px; text-align:center; }
+    .progress-done{ margin-top:12px; display:flex; justify-content:center; }
+    .progress-done .btn-yellow{ padding:12px 16px; border-radius:999px; font-weight:900; }
   </style>
 </head>
 <body>
@@ -282,7 +298,7 @@
         <img class="alt2" src="https://static.wixstatic.com/media/9d749b_250983286df245428d6cedaa6c1c311e~mv2.png/v1/fill/w_226,h_170,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/9d749b_250983286df245428d6cedaa6c1c311e~mv2.png" alt="Immagine alternativa 2" />
       </div>
 
-      <div class="beta-row"><span class="beta-pill">Beta 7.1</span></div>
+      <div class="beta-row"><span class="beta-pill">Beta 7.2</span></div>
     </header>
 
     <div class="wrap">
@@ -407,8 +423,8 @@
       <!-- STEP 5 -->
       <div class="section" id="section5" style="display:none">
         <div class="step-title"><span class="step-badge" id="badge5">5</span> Invio</div>
-        <div class="box">
-          Qui ci sarà il modulo Google che comunicherà con il database del foglio Google degli ordini, sezione stoccaggio. Script ancora da costruire, Pepe ci sta lavorando su.
+        <div class="box" id="step5Box">
+          <!-- Contenuto dinamico inserito via JS (progress bar + messaggi + bottone nuova scansione) -->
         </div>
       </div>
 
@@ -440,6 +456,8 @@
     const btnCopy = root.querySelector('#btnCopy');
     const btnTorch = document.getElementById('btnTorch');
     const torchState = document.getElementById('torchState');
+    const step5 = document.getElementById('section5');
+    const step5Box = document.getElementById('step5Box');
 
     // Manual keypad
     const toggleKeypadBtn = document.getElementById('toggleKeypad');
@@ -455,7 +473,6 @@
     let qrRunning = false;
     let hasEverStarted = false;
     let scanningLocked = false;
-    let torchOn = false;
     let dupTimer = null;
 
     // === AUDIO ===
@@ -561,7 +578,6 @@
     }
 
     function showDuplicateOverlay(){
-      if (!dupMsg) return;
       dupMsg.classList.add('show');
       clearTimeout(dupTimer);
       dupTimer = setTimeout(()=>dupMsg.classList.remove('show'), 1200);
@@ -573,14 +589,8 @@
     }
 
     function addScanned(val){
-      if (!currentZone){
-        alert('Seleziona prima una zona.');
-        return;
-      }
-      if (val < 1 || val > 999) {
-        alert('Sono ammessi solo valori da 1 a 999.');
-        return;
-      }
+      if (!currentZone){ alert('Seleziona prima una zona.'); return; }
+      if (val < 1 || val > 999) { alert('Sono ammessi solo valori da 1 a 999.'); return; }
       if (!data[currentZone]) data[currentZone] = [];
       if (!data[currentZone].includes(val)) {
         data[currentZone].push(val);
@@ -597,6 +607,10 @@
     let manualBuffer = "";
     function refreshManualDisplay(){ keyDisplay.textContent = manualBuffer.length ? manualBuffer : '—'; }
 
+    const toggleKeypadBtn = document.getElementById('toggleKeypad');
+    const keypad = document.getElementById('keypad');
+    const keyDisplay = document.getElementById('keyDisplay');
+
     toggleKeypadBtn.addEventListener('click', ()=>{
       if (!currentZone){
         alert('Seleziona prima una zona per poter inserire manualmente.');
@@ -612,19 +626,13 @@
       const k = e.target.closest('.key');
       if (!k) return;
       const act = k.dataset.act;
-      if (act === 'back'){
-        manualBuffer = manualBuffer.slice(0,-1);
-        refreshManualDisplay();
-        return;
-      }
+      if (act === 'back'){ manualBuffer = manualBuffer.slice(0,-1); refreshManualDisplay(); return; }
       if (act === 'ok'){
         if (!manualBuffer) return;
         const n = parseInt(manualBuffer, 10);
         if (Number.isFinite(n) && n >= 1 && n <= 999) { addScanned(n); }
         else { alert('Inserisci un valore da 1 a 999.'); }
-        manualBuffer = "";
-        refreshManualDisplay();
-        return;
+        manualBuffer = ""; refreshManualDisplay(); return;
       }
       const digit = k.textContent.trim();
       if (/^\d$/.test(digit)){
@@ -636,20 +644,14 @@
     // Selettori zona (bloccabili dopo avvio)
     root.querySelectorAll('#segNegozio .opt, #segCamion .opt, .chip').forEach(btn=>{
       btn.addEventListener('click', ()=>{
-        if (scanningLocked){
-          alert('Non puoi cambiare zona dopo aver avviato la scansione.');
-          return;
-        }
+        if (scanningLocked){ alert('Non puoi cambiare zona dopo aver avviato la scansione.'); return; }
         root.querySelectorAll('.opt, .chip').forEach(b=>b.classList.remove('active'));
         btn.classList.add('active');
         select(btn.dataset.zone);
       });
     });
     root.querySelector('#useCustom').addEventListener('click', ()=>{
-      if (scanningLocked){
-        alert('Non puoi cambiare zona dopo aver avviato la scansione.');
-        return;
-      }
+      if (scanningLocked){ alert('Non puoi cambiare zona dopo aver avviato la scansione.'); return; }
       const v = (root.querySelector('#customZone').value||'').trim(); if (!v) return;
       root.querySelectorAll('.opt,.chip').forEach(b=>b.classList.remove('active'));
       select(v);
@@ -657,27 +659,22 @@
 
     // === Camera / QR ===
     async function openCamera(){
-      if (!currentZone){
-        alert('Seleziona una zona.');
-        return;
-      }
+      if (!currentZone){ alert('Seleziona una zona.'); return; }
       try{
         const constraints = {
           audio:false,
           video:{ facingMode:{ ideal:'environment' }, width:{ ideal:1920 }, height:{ ideal:1080 } }
         };
 
-        video.setAttribute('playsinline','');
-        video.setAttribute('muted','');
-        video.muted = true;
-
+        video.setAttribute('playsinline',''); video.setAttribute('muted',''); video.muted = true;
         await stopCamera();
 
         if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
           throw new Error('getUserMedia non disponibile (HTTPS? permessi bloccati?)');
         }
 
-        stream = await navigator.mediaDevices.getUserMedia(constraints);
+        const streamLocal = await navigator.mediaDevices.getUserMedia(constraints);
+        stream = streamLocal;
         video.srcObject = stream;
         await video.play();
         videoTrack = stream.getVideoTracks()[0];
@@ -699,9 +696,7 @@
         video.style.display='block';
         placeholder.style.display='none';
 
-        badge2.classList.remove('pulse');
-        badge2.classList.add('done');
-        badge3.classList.add('pulse');
+        badge2.classList.remove('pulse'); badge2.classList.add('done'); badge3.classList.add('pulse');
 
         hasEverStarted = true;
         scanningLocked = true;
@@ -727,8 +722,7 @@
 
     async function stopCamera(){
       if (window.stopQR) window.stopQR();
-      qrRunning = false;
-      qrPaused = false;
+      qrRunning = false; qrPaused = false;
       videoWrap.classList.remove('paused');
 
       if (stream){ for (const t of stream.getTracks()) t.stop(); stream = null; }
@@ -800,8 +794,7 @@
         await videoTrack.applyConstraints({ advanced: [{ torch: !current }] });
         const on = !current;
         btnTorch.classList.toggle('torch-on', on);
-        torchOn = on;
-        torchState.textContent = torchOn ? 'ON' : 'OFF';
+        document.getElementById('torchState').textContent = on ? 'ON' : 'OFF';
       } catch (e) { console.error(e); }
     });
 
@@ -861,7 +854,7 @@
 
       // torcia
       btnTorch.classList.remove('torch-on');
-      torchOn = false; torchState.textContent = 'OFF';
+      document.getElementById('torchState').textContent = 'OFF';
 
       // keypad
       keypad.classList.remove('show');
@@ -872,31 +865,92 @@
     btnClear.addEventListener('click', async ()=>{
       await fullReset(true);
       // nascondi Step 5
-      const s5 = document.getElementById('section5');
-      if (s5) s5.style.display='none';
+      if (step5) step5.style.display='none';
+      window.scrollTo({ top:0, behavior:'smooth' });
     });
 
-    // "Termina e invia": copia payload, mostra Step 5 con bordo gradiente permanente, scroll, e reset per nuova scansione (senza pulire la clipboard)
+    // === STEP 5: progress bar + messaggi + nuova scansione ===
+    const progressMessages = [
+      'Stabilisco handshake con il server…',
+      'Sincronizzo timestamp NTP…',
+      'Cripto-cose che suonano importanti…',
+      'Allocazione buffer di rete…',
+      'Ottimizzo il flusso dei pacchetti…',
+      'Ricompilo la realtà quantistica…',
+      'Se non funziona, vai in chiesina ad accendere un cero 🙏',
+      'Compressione ordini con algoritmo loseless-ish…',
+      'Calibro i fotoni della fibra…',
+      'Faccio amicizia con i DNS…',
+      'Rallento per passare davanti al capo…',
+      'Respiro e conto fino a 3…'
+    ];
+
+    function startStep5Progress(){
+      // Contenuto UI
+      step5Box.innerHTML = `
+        <div class="progress-wrap">
+          <div class="progress-outer"><div class="progress-inner" id="pInner"></div></div>
+          <div class="progress-msg" id="pMsg">Inizializzo…</div>
+          <div class="progress-done" id="pDone" style="display:none">
+            <button id="btnNew" class="btn btn-yellow">Nuova scansione</button>
+          </div>
+        </div>
+      `;
+
+      const pInner = document.getElementById('pInner');
+      const pMsg = document.getElementById('pMsg');
+      const pDone = document.getElementById('pDone');
+
+      let pct = 0;
+      let msgIdx = 0;
+
+      const msgTimer = setInterval(()=>{
+        pMsg.textContent = progressMessages[msgIdx % progressMessages.length];
+        msgIdx++;
+      }, 600);
+
+      const incTimer = setInterval(()=>{
+        pct += Math.floor(Math.random()*7) + 3; // +3..+9
+        if (pct > 100) pct = 100;
+        pInner.style.width = pct + '%';
+
+        if (pct >= 100){
+          clearInterval(incTimer);
+          clearInterval(msgTimer);
+          pMsg.textContent = 'Completato ✔︎';
+          pDone.style.display = 'flex';
+          // wire “Nuova scansione”
+          const btnNew = document.getElementById('btnNew');
+          btnNew.addEventListener('click', async ()=>{
+            await fullReset(true);
+            step5.style.display = 'none';
+            window.scrollTo({ top:0, behavior:'smooth' });
+          });
+        }
+      }, 120); // ~12s max in media, ma con salti random (puoi ridurre)
+    }
+
+    // "Termina e invia": copia payload, mostra Step 5 (bordo gradiente), avvia progress, scroll a Step 5
     btnCopy.addEventListener('click', async ()=>{
       await copyCurrentPayloadToClipboard();
 
-      // chiudi keypad e deseleziona zona a vista
-      keypad.classList.remove('show');
-      manualBuffer = ""; keyDisplay.textContent = '—';
+      // chiudi keypad e azzera UI della zona attuale (senza full reset globale)
+      keypad.classList.remove('show'); manualBuffer = ""; keyDisplay.textContent = '—';
+      // svuota dati della zona corrente e UI del blocco 3
+      if (currentZone && data[currentZone]) delete data[currentZone];
+      list.innerHTML = '<em style="opacity:.7">Nessun numero</em>';
+      document.getElementById('summary').textContent = '0 ordini in memoria';
 
-      // mostra step 5 con bordo gradiente permanente
-      const s5 = document.getElementById('section5');
-      if (s5){
-        s5.style.display = '';
-        s5.classList.add('gradient-border'); // sostituisce il bordo verde e resta
-        markActive('section5');
-        if (badge5) badge5.classList.add('done');
-        // scroll verso Step 5
-        s5.scrollIntoView({ behavior:'smooth', block:'start' });
-      }
+      // mostra step 5
+      step5.style.display = '';
+      step5.classList.add('gradient-border'); // bordo gradiente persistente
+      markActive('section5'); if (badge5) badge5.classList.add('done');
 
-      // pulizia per nuova scansione ma NON pulire la clipboard
-      await fullReset(false);
+      // avvia progress e messaggi
+      startStep5Progress();
+
+      // scroll verso Step 5
+      step5.scrollIntoView({ behavior:'smooth', block:'start' });
     });
 
     window.addEventListener('pagehide', async ()=>{ await stopCamera(); }, { once:true });
