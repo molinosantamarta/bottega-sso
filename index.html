@@ -52,13 +52,12 @@
 
     [data-sso] .selected-zone{ margin-top:10px; padding:10px 12px; border-radius:12px; background:#111; border:1px solid var(--border); display:flex; align-items:center; gap:8px; font-weight:600; transition:background .3s ease, box-shadow .3s ease, color .3s ease; }
     [data-sso] .selected-zone.active{ background:#ffd60a; color:#000; box-shadow:0 4px 14px rgba(0,0,0,.25); }
+
     [data-sso] .selected-dot{ width:10px; height:10px; border-radius:999px; background:var(--ok); display:inline-block; }
 
     [data-sso] video{ width:100%; aspect-ratio:16/9; background:#000; border-radius:12px; margin-top:10px; display:none; }
     [data-sso] .placeholder{ width:100%; aspect-ratio:16/9; border-radius:12px; border:1px dashed var(--border); display:flex; align-items:center; justify-content:center; color:#aaa; margin-top:10px; text-align:center; padding:0 12px; }
-    @media (max-width:600px){
-      [data-sso] video, [data-sso] .placeholder{ height:56vw; aspect-ratio:auto; }
-    }
+    @media (max-width:600px){ [data-sso] video, [data-sso] .placeholder{ height:56vw; aspect-ratio:auto; } }
 
     [data-sso] .box{ border:1px solid var(--border); border-radius:12px; padding:12px; background:#111; margin-top:10px; }
     [data-sso] .label{ font-size:12px; opacity:.7; margin-bottom:4px; }
@@ -163,28 +162,12 @@
     const btnScan = root.querySelector('#btnScan');
     const btnClear = root.querySelector('#btnClear');
     const btnCopy = root.querySelector('#btnCopy');
-    
-    document.getElementById('btnTorch').addEventListener('click', async ()=>{
-  try {
-    if (!videoTrack) return;
-    const caps = videoTrack.getCapabilities && videoTrack.getCapabilities();
-    if (!caps || !caps.torch) {
-      alert('Torcia non supportata su questo dispositivo');
-      return;
-    }
-    const settings = videoTrack.getSettings();
-    const current = !!settings.torch;
-    await videoTrack.applyConstraints({ advanced: [{ torch: !current }] });
-  } catch (e) {
-    console.error(e);
-  }
-});
+    const btnTorch = document.getElementById('btnTorch');
 
     let currentZone = null;
     const data = {};
     let stream = null;
-    let videoTrack = null; // serve per controllare la torcia
-    
+    let videoTrack = null; // traccia per la torcia
 
     // STEP 1
     badge1.classList.add('pulse');
@@ -229,13 +212,13 @@
     }
 
     function addScanned(val){
-  if (!currentZone) return;
-  if (!data[currentZone]) data[currentZone] = [];
-  if (!data[currentZone].includes(val)) {
-    data[currentZone].push(val);
-    renderList();
-  }
-}
+      if (!currentZone) return;
+      if (!data[currentZone]) data[currentZone] = [];
+      if (!data[currentZone].includes(val)) {
+        data[currentZone].push(val);
+        renderList();
+      }
+    }
 
     root.querySelectorAll('#segNegozio .opt, #segCamion .opt, .chip').forEach(btn=>{
       btn.addEventListener('click', ()=>{
@@ -278,20 +261,16 @@
         stream = await navigator.mediaDevices.getUserMedia(constraints);
         video.srcObject = stream;
         await video.play();
-        videoTrack = stream.getVideoTracks()[0]; // salvo la traccia video per la torcia
-        // Avvia lettura QR usando il video già in riproduzione
-if (window.startQR) {
-  window.startQR(video, (text) => {
-    // QUI decidi cosa fare coi dati letti
-    // Esempio 1: prendo tutto il testo così com'è
-    // addScanned(text);
+        videoTrack = stream.getVideoTracks()[0]; // traccia per torcia
 
-    // Esempio 2 (come nel tuo flusso “numeri”): estraggo solo numeri
-    const match = text.match(/\d+/g);
-    if (!match) return;
-    for (const m of match) addScanned(parseInt(m, 10));
-  });
-}
+        // Avvia lettura QR usando il video già in riproduzione
+        if (window.startQR) {
+          window.startQR(video, (text) => {
+            const match = text.match(/\d+/g);
+            if (!match) return;
+            for (const m of match) addScanned(parseInt(m, 10));
+          });
+        }
 
         // UI on
         document.getElementById('section2').classList.add('active');
@@ -315,19 +294,44 @@ if (window.startQR) {
     }
 
     async function stopCamera(){
+      // ferma QR se attivo
+      if (window.stopQR) window.stopQR();
+
+      // spegni stream
       if (stream){
         for (const t of stream.getTracks()) t.stop();
         stream = null;
       }
       try{ video.pause(); }catch(_){}
       video.srcObject = null;
+
+      // reset torcia/traccia
+      videoTrack = null;
     }
 
     btnScan.addEventListener('click', openCamera);
 
+    // Torcia
+    btnTorch.addEventListener('click', async ()=>{
+      try {
+        if (!videoTrack) return;
+        const caps = videoTrack.getCapabilities && videoTrack.getCapabilities();
+        if (!caps || !caps.torch) {
+          alert('Torcia non supportata su questo dispositivo');
+          return;
+        }
+        const settings = videoTrack.getSettings && videoTrack.getSettings();
+        const current = settings && settings.torch ? true : false;
+        await videoTrack.applyConstraints({ advanced: [{ torch: !current }] });
+      } catch (e) {
+        console.error(e);
+      }
+    });
+
     btnClear.addEventListener('click', async ()=>{
       await stopCamera();
-      for (const k in data) delete data[k]; renderList();
+      for (const k in data) delete data[k];
+      renderList();
       currentZone = null;
 
       badge1.classList.add('pulse');
@@ -362,60 +366,52 @@ if (window.startQR) {
     });
   })();
   </script>
-  
+
   <!-- QR scanner + beep -->
-<script type="module">
-  // Importa ZXing dal CDN (ESM)
-  import { BrowserQRCodeReader } from "https://cdn.jsdelivr.net/npm/@zxing/browser@0.0.10/+esm";
+  <script type="module">
+    import { BrowserQRCodeReader } from "https://cdn.jsdelivr.net/npm/@zxing/browser@0.0.10/+esm";
 
-  // Piccolo helper per il beep (WebAudio). Riusa sempre lo stesso AudioContext.
-  const AC = window.AudioContext || window.webkitAudioContext;
-  let audioCtx = null;
-  function playBeep() {
-    try {
-      if (!audioCtx) audioCtx = new AC();
-      const o = audioCtx.createOscillator();
-      const g = audioCtx.createGain();
-      o.type = "sine";
-      o.frequency.value = 880;          // tono
-      o.connect(g); g.connect(audioCtx.destination);
-      const now = audioCtx.currentTime;
-      g.gain.setValueAtTime(0.0001, now);
-      g.gain.exponentialRampToValueAtTime(0.2, now + 0.01);
-      g.gain.exponentialRampToValueAtTime(0.0001, now + 0.15);
-      o.start(now);
-      o.stop(now + 0.16);
-    } catch(_) {}
-  }
+    const AC = window.AudioContext || window.webkitAudioContext;
+    let audioCtx = null;
+    function playBeep() {
+      try {
+        if (!audioCtx) audioCtx = new AC();
+        const o = audioCtx.createOscillator();
+        const g = audioCtx.createGain();
+        o.type = "sine";
+        o.frequency.value = 880;
+        o.connect(g); g.connect(audioCtx.destination);
+        const now = audioCtx.currentTime;
+        g.gain.setValueAtTime(0.0001, now);
+        g.gain.exponentialRampToValueAtTime(0.2, now + 0.01);
+        g.gain.exponentialRampToValueAtTime(0.0001, now + 0.15);
+        o.start(now);
+        o.stop(now + 0.16);
+      } catch(_) {}
+    }
 
-  // Istanza del reader e controlli
-  const qrReader = new BrowserQRCodeReader();
-  let qrControls = null;
-  let lastText = "";
+    const qrReader = new BrowserQRCodeReader();
+    let qrControls = null;
+    let lastText = "";
 
-  // Espongo due funzioni globali che il tuo script può chiamare
-  window.startQR = async function(videoEl, onResult){
-    // Usa il video già in play: nessun nuovo getUserMedia
-    // decodeFromVideoElement() legge i frame del <video>
-    qrControls = await qrReader.decodeFromVideoElement(videoEl, (result, err, controls) => {
-      if (result) {
-        const text = result.getText();
-        if (text && text !== lastText) {        // anti-ripetizione immediata
-          lastText = text;
-          playBeep();
-          try { onResult(text); } catch(e) { console.error(e); }
-          // reset dopo un attimo per ri-leggere lo stesso QR se serve
-          setTimeout(()=>{ lastText = ""; }, 800);
+    window.startQR = async function(videoEl, onResult){
+      qrControls = await qrReader.decodeFromVideoElement(videoEl, (result, err) => {
+        if (result) {
+          const text = result.getText();
+          if (text && text !== lastText) {
+            lastText = text;
+            playBeep();
+            try { onResult(text); } catch(e) { console.error(e); }
+            setTimeout(()=>{ lastText = ""; }, 800);
+          }
         }
-      }
-      // gli errori di decodifica per frame sono normali; li ignoriamo
-    });
-  };
+      });
+    };
 
-  window.stopQR = function(){
-    try { if (qrControls) qrControls.stop(); } catch(_) {}
-    qrControls = null;
-  };
-</script>
+    window.stopQR = function(){
+      try { if (qrControls) qrControls.stop(); } catch(_) {}
+      qrControls = null;
+    };
+  </script>
 </body>
 </html>
