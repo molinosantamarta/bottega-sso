@@ -50,13 +50,13 @@
     @keyframes slideInRight { from { transform:translateX(60px); opacity:0; } to { transform:translateX(0); opacity:1; } }
 
     /* Spostamento richiesto: entrambe +6px a destra */
-    [data-sso] .hero-img-wrap img{ position:relative; left:6px; }
+    [data-sso] .hero-img-wrap img{ position:relative; left:7px; }
 
-    /* Immagine 1 (bottega) +30% (da 25.2% a ~32.8%) */
+    /* Immagine 1 (bottega) */
     [data-sso] .hero-img-wrap img.alt{
       width:32.8%; max-width:295px; height:auto; border-radius:12px; display:block;
       box-shadow:0 10px 30px rgba(0,0,0,.25);
-      animation:slideInRight .6s ease-out both;
+      animation:slideInRight .9s ease-out both;
       z-index:2;
     }
     /* GIF aumentata del 50% (da 21% a 31.5%), sovrapposta leggermente
@@ -68,7 +68,7 @@
       margin-left:-3%;
       z-index:1;
       opacity:.95;
-      top:4px; /* 4px più in basso */
+      top:6px; /* 4px più in basso */
     }
 
     /* Pillola Beta 7.6 */
@@ -101,7 +101,7 @@
     [data-sso] .controls.split .btn{ flex:1; } /* i due bottoni si dividono lo spazio */
 
     /* Bottoni finali step 3: testo invariato a 13px, +50% altezza via padding */
-    #section3 .controls.split .btn{ font-size:13px; padding:21px 16px; } /* 14px -> 21px */
+    #section3 .controls.split .btn{ font-size:16px; padding:21px 16px; } /* 14px -> 21px */
 
     [data-sso] .btn{
       padding:14px 16px; border:0; border-radius:12px; font-size:16px; font-weight:700; color:#fff; cursor:pointer;
@@ -201,7 +201,7 @@
     }
 
     /* Overlay: guida QR + testo (mostrati SOLO dopo avvio) */
-    [data-sso] .qr-guide{ position:absolute; left:50%; top:45%; transform:translate(-50%,-50%); height:30%; width:auto; opacity:1; display:none; pointer-events:none; }
+    [data-sso] .qr-guide{ position:absolute; left:50%; top:85%; transform:translate(-50%,-50%); height:30%; width:auto; opacity:1; display:none; pointer-events:none; }
     [data-sso] .qr-hint{
       position:absolute; left:50%; top:66%; transform:translate(-50%,-50%);
       max-width:80%; width:80%;
