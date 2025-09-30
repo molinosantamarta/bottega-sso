@@ -120,6 +120,7 @@
         <div class="step-title"><span class="step-badge" id="badge2">2</span> Avvia scansione</div>
         <div class="controls">
           <button id="btnScan" class="btn primary">Avvia scansione</button>
+          <button id="btnTorch" class="btn ghost">Torcia</button>
         </div>
         <video id="video" playsinline muted></video>
         <div id="placeholder" class="placeholder">
@@ -162,10 +163,28 @@
     const btnScan = root.querySelector('#btnScan');
     const btnClear = root.querySelector('#btnClear');
     const btnCopy = root.querySelector('#btnCopy');
+    
+    document.getElementById('btnTorch').addEventListener('click', async ()=>{
+  try {
+    if (!videoTrack) return;
+    const caps = videoTrack.getCapabilities && videoTrack.getCapabilities();
+    if (!caps || !caps.torch) {
+      alert('Torcia non supportata su questo dispositivo');
+      return;
+    }
+    const settings = videoTrack.getSettings();
+    const current = !!settings.torch;
+    await videoTrack.applyConstraints({ advanced: [{ torch: !current }] });
+  } catch (e) {
+    console.error(e);
+  }
+});
 
     let currentZone = null;
     const data = {};
     let stream = null;
+    let videoTrack = null; // serve per controllare la torcia
+    
 
     // STEP 1
     badge1.classList.add('pulse');
@@ -209,6 +228,15 @@
       for (const n of arr){ const s = document.createElement('span'); s.className='pill'; s.textContent=n; list.appendChild(s); }
     }
 
+    function addScanned(val){
+  if (!currentZone) return;
+  if (!data[currentZone]) data[currentZone] = [];
+  if (!data[currentZone].includes(val)) {
+    data[currentZone].push(val);
+    renderList();
+  }
+}
+
     root.querySelectorAll('#segNegozio .opt, #segCamion .opt, .chip').forEach(btn=>{
       btn.addEventListener('click', ()=>{
         root.querySelectorAll('.opt, .chip').forEach(b=>b.classList.remove('active'));
@@ -250,6 +278,20 @@
         stream = await navigator.mediaDevices.getUserMedia(constraints);
         video.srcObject = stream;
         await video.play();
+        videoTrack = stream.getVideoTracks()[0]; // salvo la traccia video per la torcia
+        // Avvia lettura QR usando il video già in riproduzione
+if (window.startQR) {
+  window.startQR(video, (text) => {
+    // QUI decidi cosa fare coi dati letti
+    // Esempio 1: prendo tutto il testo così com'è
+    // addScanned(text);
+
+    // Esempio 2 (come nel tuo flusso “numeri”): estraggo solo numeri
+    const match = text.match(/\d+/g);
+    if (!match) return;
+    for (const m of match) addScanned(parseInt(m, 10));
+  });
+}
 
         // UI on
         document.getElementById('section2').classList.add('active');
@@ -320,5 +362,60 @@
     });
   })();
   </script>
+  
+  <!-- QR scanner + beep -->
+<script type="module">
+  // Importa ZXing dal CDN (ESM)
+  import { BrowserQRCodeReader } from "https://cdn.jsdelivr.net/npm/@zxing/browser@0.0.10/+esm";
+
+  // Piccolo helper per il beep (WebAudio). Riusa sempre lo stesso AudioContext.
+  const AC = window.AudioContext || window.webkitAudioContext;
+  let audioCtx = null;
+  function playBeep() {
+    try {
+      if (!audioCtx) audioCtx = new AC();
+      const o = audioCtx.createOscillator();
+      const g = audioCtx.createGain();
+      o.type = "sine";
+      o.frequency.value = 880;          // tono
+      o.connect(g); g.connect(audioCtx.destination);
+      const now = audioCtx.currentTime;
+      g.gain.setValueAtTime(0.0001, now);
+      g.gain.exponentialRampToValueAtTime(0.2, now + 0.01);
+      g.gain.exponentialRampToValueAtTime(0.0001, now + 0.15);
+      o.start(now);
+      o.stop(now + 0.16);
+    } catch(_) {}
+  }
+
+  // Istanza del reader e controlli
+  const qrReader = new BrowserQRCodeReader();
+  let qrControls = null;
+  let lastText = "";
+
+  // Espongo due funzioni globali che il tuo script può chiamare
+  window.startQR = async function(videoEl, onResult){
+    // Usa il video già in play: nessun nuovo getUserMedia
+    // decodeFromVideoElement() legge i frame del <video>
+    qrControls = await qrReader.decodeFromVideoElement(videoEl, (result, err, controls) => {
+      if (result) {
+        const text = result.getText();
+        if (text && text !== lastText) {        // anti-ripetizione immediata
+          lastText = text;
+          playBeep();
+          try { onResult(text); } catch(e) { console.error(e); }
+          // reset dopo un attimo per ri-leggere lo stesso QR se serve
+          setTimeout(()=>{ lastText = ""; }, 800);
+        }
+      }
+      // gli errori di decodifica per frame sono normali; li ignoriamo
+    });
+  };
+
+  window.stopQR = function(){
+    try { if (qrControls) qrControls.stop(); } catch(_) {}
+    qrControls = null;
+  };
+</script>
 </body>
 </html>
