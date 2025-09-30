@@ -45,20 +45,20 @@
       position:relative;
     }
     @keyframes slideInRight { from { transform:translateX(60px); opacity:0; } to { transform:translateX(0); opacity:1; } }
-    /* Immagine 1 (bottega) +30% (da 25.2% a ~32.8%) */
+    /* Immagine 1 (bottega) */
     [data-sso] .hero-img-wrap img.alt{
       width:32.8%; max-width:295px; height:auto; border-radius:12px; display:block;
-      box-shadow:0 10px 30px rgba(0,0,0,.25);
+      box-shadow:0 10px 30px rgba(0,0,0,.25); margin-left:9%;
       animation:slideInRight .6s ease-out both;
-      z-index:2;
+      z-index:1;
     }
-    /* GIF aumentata del 50% (da 21% a 31.5%), sovrapposta leggermente */
+    /* GIF  */
     [data-sso] .hero-img-wrap img.altB{
       width:40%; max-width:284px; height:auto; border-radius:12px; display:block;
       box-shadow:0 10px 30px rgba(0,0,0,.2);
       animation:slideInRight .6s .05s ease-out both;
-      margin-left:-6%;
-      z-index:1;
+      margin-left:-3%;
+      z-index:2;
       opacity:.95;
     }
 
