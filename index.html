@@ -21,6 +21,7 @@
       --chip:#1f1f22;
       --border:#2c2c2e;
       --success:#22c55e; /* verde per azioni positive */
+      --torch-on:#ffd60a;
       background:var(--bg);
       color:var(--fg);
       font-family:-apple-system,system-ui,Segoe UI,Roboto,sans-serif;
@@ -42,16 +43,22 @@
       opacity:.9;
     }
 
-    /* Immagine tra sottotitolo e pillola beta */
+    /* Immagini tra sottotitolo e pillola beta */
     [data-sso] .hero-img-wrap{
-      display:flex; justify-content:center; margin-top:14px; margin-bottom:10px;
+      display:flex; flex-direction:column; align-items:center; margin-top:14px; margin-bottom:10px; gap:12px;
     }
-    [data-sso] .hero-img-wrap img{
-      width:50%; max-width:380px; height:auto; border-radius:12px; display:block;
+    /* Prima immagine: +50% rispetto a prima (da 50% -> 75%) */
+    [data-sso] .hero-img-wrap img.main{
+      width:75%; max-width:570px; height:auto; border-radius:12px; display:block;
       box-shadow:0 10px 30px rgba(0,0,0,.35);
     }
+    /* Seconda immagine: dimensione auto, ben visibile ma più piccola */
+    [data-sso] .hero-img-wrap img.alt{
+      width:40%; max-width:360px; height:auto; border-radius:12px; display:block;
+      box-shadow:0 10px 30px rgba(0,0,0,.25);
+    }
 
-    /* Pillola Beta 4.1 sotto l'immagine (margine maggiore) */
+    /* Pillola Beta 6.2 sotto le immagini */
     [data-sso] .beta-row{ display:flex; justify-content:center; margin-top:14px; }
     [data-sso] .beta-pill{
       display:inline-flex; align-items:center; justify-content:center;
@@ -96,15 +103,16 @@
     [data-sso] .btn.resume{ background:var(--success); color:#001f0f; }   /* verde */
     [data-sso] .pause-ico, [data-sso] .play-ico{ margin-left:8px; font-weight:900; }
 
-    /* Bottone tondo torcia (iOS-like) + fascio luce invertito (180°) */
+    /* Bottone tondo torcia: bianco (off) / giallo (on) + cono invertito */
     [data-sso] .icon-btn{
       width:44px; height:44px; border-radius:999px; position:relative;
       border:1px solid #2c2c2e;
-      background:radial-gradient(100% 100% at 50% 0%, #2a2a2d 0%, #141416 100%);
+      background:#fff; color:#000;
       display:inline-flex; align-items:center; justify-content:center; cursor:pointer;
-      box-shadow:inset 0 1px 0 rgba(255,255,255,.06), 0 4px 10px rgba(0,0,0,.35);
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.6), 0 4px 10px rgba(0,0,0,.35);
       overflow:visible;
     }
+    [data-sso] .icon-btn.torch-on{ background:var(--torch-on); color:#111; border-color:#d8be07; }
     [data-sso] .icon-btn:active{ transform:scale(.97); }
     [data-sso] .icon-btn svg{ width:22px; height:22px; display:block; }
     /* Cono sfumato ~10°, ruotato 180° */
@@ -154,7 +162,7 @@
     [data-sso] .selected-zone.active{ background:#ffd60a; color:#000; box-shadow:0 4px 14px rgba(0,0,0,.25); }
     [data-sso] .selected-dot{ width:10px; height:10px; border-radius:999px; background:var(--ok); display:inline-block; }
 
-    /* Video wrapper per crop + stato pausa (overlay) */
+    /* Video wrapper per crop + stato pausa (overlay) + messaggio "già scansionato" */
     [data-sso] .video-wrap{
       width:100%;
       aspect-ratio:16/9;
@@ -173,6 +181,14 @@
       backdrop-filter:blur(6px) brightness(.7);
       color:#fff; font-weight:800; letter-spacing:.6px;
     }
+    [data-sso] .dup-msg{
+      position:absolute; left:50%; top:10%; transform:translateX(-50%);
+      background:rgba(0,0,0,.65); color:#fff; padding:8px 12px; border-radius:999px; font-weight:800; letter-spacing:.3px;
+      opacity:0; pointer-events:none; transition:opacity .2s ease;
+      border:1px solid rgba(255,255,255,.2);
+    }
+    [data-sso] .dup-msg.show{ opacity:1; }
+
     [data-sso] video{
       display:none;
       width:100%;
@@ -249,10 +265,11 @@
       <div class="subtitle">Scansiona le spese in pochi secondi e trovale subito al momento del ritiro!</div>
 
       <div class="hero-img-wrap">
-        <img src="https://static.wixstatic.com/media/9d749b_c55ce2c8dc7c439cb7fbd8fd6cf7bac5~mv2.png" alt="Immagine promozionale" />
+        <img class="main" src="https://static.wixstatic.com/media/9d749b_c55ce2c8dc7c439cb7fbd8fd6cf7bac5~mv2.png" alt="Immagine principale" />
+        <img class="alt" src="https://static.wixstatic.com/media/9d749b_4e7e462b0d2e40448664f342bb2cd2b5~mv2.png/v1/fill/w_116,h_126,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/shopper%20bottega_anteprima_edited_edited_.png" alt="Immagine alternativa" />
       </div>
 
-      <div class="beta-row"><span class="beta-pill">Beta 4.1</span></div>
+      <div class="beta-row"><span class="beta-pill">Beta 6.2</span></div>
     </header>
 
     <div class="wrap">
@@ -295,13 +312,12 @@
         <div class="controls">
           <button id="btnScan" class="btn primary">Avvia scansione</button>
 
-          <!-- Tasto tondo torcia, icona stile iOS-like + cono invertito -->
+          <!-- Tasto tondo torcia (Ionicons-like), bianco/off – giallo/on + cono invertito -->
           <button id="btnTorch" class="icon-btn" title="Torcia" aria-label="Torcia">
-            <!-- Flashlight iOS-like -->
-            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <path d="M6 5h12a1 1 0 0 1 .8 1.6L17 9H7L5.2 6.6A1 1 0 0 1 6 5Z" fill="#cfd4da" stroke="#0b0c0d" stroke-width="1.2"/>
-              <rect x="8" y="9" width="8" height="10" rx="2.2" fill="#2d2f34" stroke="#141518" stroke-width="1.2"/>
-              <rect x="10" y="11.6" width="4" height="2.8" rx="1" fill="#0a84ff"/>
+            <!-- Icona tipo Ionicons ios-flashlight -->
+            <svg viewBox="0 0 512 512" aria-hidden="true">
+              <path d="M128 96h256v64l-64 96v128a64 64 0 0 1-64 64h-0a64 64 0 0 1-64-64V256l-64-96V96z" fill="currentColor"/>
+              <rect x="208" y="48" width="96" height="24" rx="12" fill="currentColor"/>
             </svg>
           </button>
         </div>
@@ -312,6 +328,7 @@
           <div id="placeholder" class="placeholder">
             La fotocamera comparirà qui dopo aver cliccato “Avvia scansione”.
           </div>
+          <div id="dupMsg" class="dup-msg">già scansionato, passa al prossimo</div>
         </div>
       </div>
 
@@ -382,6 +399,7 @@
     const videoWrap = document.getElementById('videoWrap');
     const video = root.querySelector('#video');
     const placeholder = root.querySelector('#placeholder');
+    const dupMsg = document.getElementById('dupMsg');
     const btnScan = root.querySelector('#btnScan');
     const btnClear = root.querySelector('#btnClear');
     const btnCopy = root.querySelector('#btnCopy');
@@ -402,6 +420,7 @@
     let hasEverStarted = false;
     let scanningLocked = false; // blocca cambio zona dopo avvio
     let torchOn = false;
+    let dupTimer = null;
 
     // === AUDIO ===
     const AC = window.AudioContext || window.webkitAudioContext;
@@ -506,6 +525,13 @@
       }
     }
 
+    function showDuplicateOverlay(){
+      if (!dupMsg) return;
+      dupMsg.classList.add('show');
+      clearTimeout(dupTimer);
+      dupTimer = setTimeout(()=>dupMsg.classList.remove('show'), 1200);
+    }
+
     function addScanned(val){
       if (!currentZone){
         alert('Seleziona prima una zona.');
@@ -523,6 +549,7 @@
         setActionButtonsEnabled(true);
       } else {
         soundScanDuplicate();
+        showDuplicateOverlay();
       }
     }
 
@@ -763,7 +790,7 @@
         const settings = videoTrack.getSettings && videoTrack.getSettings();
         const current = settings && settings.torch ? true : false;
         await videoTrack.applyConstraints({ advanced: [{ torch: !current }] });
-        // toggla cono simulato
+        // toggla stato UI
         torchOn = !current;
         btnTorch.classList.toggle('torch-on', torchOn);
       } catch (e) {
@@ -771,11 +798,20 @@
       }
     });
 
-    // Reset completo
-    function fullReset(){
-      for (const k in data) delete data[k];
-      currentZone = null;
+    // Reset completo + svuota clipboard
+    async function fullReset(){
+      // ferma camera
+      await stopCamera();
 
+      // svuota dati
+      for (const k in data) delete data[k];
+      list.innerHTML = '<em style="opacity:.7">Nessun numero</em>';
+      const summary = root.querySelector('#summary'); if (summary) summary.textContent = '';
+
+      // prova a svuotare clipboard
+      try { await navigator.clipboard.writeText(''); } catch(_) {}
+
+      // reset UI step/badge
       [badge1,badge2,badge3,badge4,badge5].forEach(b=>{ if(b) b.classList.remove('done','pulse'); });
       badge1.classList.add('pulse');
 
@@ -785,13 +821,20 @@
         if (el && id!=='section1') el.classList.remove('active');
       });
 
+      // reset camera box
       video.style.display='none';
       placeholder.style.display='block';
+      videoWrap.classList.remove('paused');
+      dupMsg.classList.remove('show');
+
+      // reset zona
+      currentZone = null;
       loc.textContent = 'Nessuna zona selezionata';
       zoneLine.textContent = '—';
       selectedZoneBox.classList.remove('active');
       root.querySelectorAll('.opt,.chip').forEach(b=>b.classList.remove('active'));
 
+      // abilitazioni
       hasEverStarted = false;
       scanningLocked = false;
       lockZoneSelectors(false);
@@ -801,19 +844,18 @@
       // torcia UI
       btnTorch.classList.remove('torch-on');
 
-      // nascondi step 5 se aperto
-      const s5 = document.getElementById('section5');
-      if (s5) s5.style.display='none';
-
       // chiudi keypad
       keypad.classList.remove('show');
       manualBuffer = "";
       keyDisplay.textContent = '—';
+
+      // nascondi step 5
+      const s5 = document.getElementById('section5');
+      if (s5) s5.style.display='none';
     }
 
     btnClear.addEventListener('click', async ()=>{
-      await stopCamera();
-      fullReset(); // come primo avvio
+      await fullReset(); // come primo avvio + clipboard pulita
     });
 
     // "Termina e invia": mostra Step 5, chiude keypad e deseleziona zona
