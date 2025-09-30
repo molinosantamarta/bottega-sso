@@ -1,3 +1,13 @@
+Ecco il codice completo aggiornato con tutte le modifiche richieste:
+	•	Beta 7.6
+	•	Testo nella zona fotocamera alla prima attivazione: centrato col QR, larghezza 80%, max 2 righe.
+	•	Immagini header: la prima -10%, la gif +400%, leggermente sovrapposte e centrate.
+	•	Blocco 4 inglobato nel blocco 3: i pulsanti Termina e invia / Cancella e rifai ora stanno in fondo allo Step 3, stanno sulla stessa riga e si dividono tutto lo spazio.
+	•	Dopo Termina e invia i due pulsanti diventano grigi e non cliccabili (non solo sbiaditi).
+	•	Alla seconda scansione non resta selezionata la zona della prima (la selezione viene azzerata).
+	•	Ex “Step 5” ora è Step 4, animazione più veloce (50%), meno frasi, la frase della chiesina resta per 4 secondi prima della conclusione e del bottone Nuova scansione.
+	•	Testi già applicati nelle versioni precedenti restano invariati.
+
 <!doctype html>
 <html lang="it">
 <head>
@@ -36,31 +46,33 @@
       -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent;
       background-size:300% 100%; animation:radar-sweep 8s linear infinite;
     }
-    [data-sso] header .subtitle {
-      margin-top:6px; font-size:15px; font-weight:600; color:#ddd; opacity:.9;
-    }
+    [data-sso] header .subtitle { margin-top:6px; font-size:15px; font-weight:600; color:#ddd; opacity:.9; }
 
-    /* Immagini header: due affiancate e centrate */
+    /* Immagini header: due affiancate, sovrapposte leggermente e centrate */
     [data-sso] .hero-img-wrap{
       display:flex; flex-direction:row; align-items:center; justify-content:center;
-      margin-top:14px; margin-bottom:10px; gap:16px;
+      margin-top:14px; margin-bottom:10px; gap:0;
+      position:relative;
     }
-    @keyframes slideInRight {
-      from { transform:translateX(60px); opacity:0; }
-      to { transform:translateX(0); opacity:1; }
-    }
+    @keyframes slideInRight { from { transform:translateX(60px); opacity:0; } to { transform:translateX(0); opacity:1; } }
+    /* Immagine 1 (bottega) -10% rispetto a prima (28% -> 25.2%) */
     [data-sso] .hero-img-wrap img.alt{
-      width:28%; max-width:252px; height:auto; border-radius:12px; display:block;
+      width:25.2%; max-width:226px; height:auto; border-radius:12px; display:block;
       box-shadow:0 10px 30px rgba(0,0,0,.25);
       animation:slideInRight .6s ease-out both;
+      z-index:2;
     }
+    /* GIF +400% rispetto a prima (14% -> 70%), sovrapposta leggermente sotto a sx */
     [data-sso] .hero-img-wrap img.altB{
-      width:14%; max-width:126px; height:auto; border-radius:12px; display:block;
+      width:70%; max-width:630px; height:auto; border-radius:12px; display:block;
       box-shadow:0 10px 30px rgba(0,0,0,.2);
       animation:slideInRight .6s .05s ease-out both;
+      margin-left:-6%;
+      z-index:1;
+      opacity:.95;
     }
 
-    /* Pillola Beta 7.5 */
+    /* Pillola Beta 7.6 */
     [data-sso] .beta-row{ display:flex; justify-content:center; margin-top:14px; }
     [data-sso] .beta-pill{
       display:inline-flex; align-items:center; justify-content:center;
@@ -80,25 +92,22 @@
     [data-sso] .step-title{ font-size:14px; opacity:.9; margin-bottom:16px; display:flex; align-items:center; gap:8px; }
     [data-sso] .step-badge{ background:#1f1f22; color:#fff; border-radius:999px; padding:2px 8px; font-size:12px; transition:all .2s ease; border:1px solid #2a2a2d; }
     [data-sso] .step-badge.done{ background:linear-gradient(180deg,#eafff2,#b8ffd4); color:#073; font-weight:900; border-color:#a4f5c4; text-shadow:0 0 6px rgba(120,255,180,.6); }
-
-    @keyframes pulse-badge {
-      0%,100%{ transform:translateZ(0) scale(1); box-shadow:0 0 0 0 rgba(10,132,255,.0);}
-      50%{ transform:translateZ(0) scale(1.1); box-shadow:0 0 0 6px rgba(10,132,255,.15);}
-    }
+    @keyframes pulse-badge { 0%,100%{ transform:scale(1); box-shadow:0 0 0 0 rgba(10,132,255,0);} 50%{ transform:scale(1.1); box-shadow:0 0 0 6px rgba(10,132,255,.15);} }
     [data-sso] .step-badge.pulse{ animation:pulse-badge 1.2s ease-in-out infinite; background:linear-gradient(180deg, #0a84ff, #0569c9); }
 
     /* Controlli */
     [data-sso] .controls{ display:flex; gap:10px; align-items:center; }
     [data-sso] .controls.nowrap{ flex-wrap:nowrap; }
     [data-sso] .controls .spacer{ flex:1; }
+    [data-sso] .controls.split .btn{ flex:1; } /* i due bottoni in fondo allo step 3 si dividono lo spazio */
 
     [data-sso] .btn{
       padding:14px 16px; border:0; border-radius:12px; font-size:16px; font-weight:700; color:#fff; cursor:pointer;
       transition: filter .15s ease, opacity .15s ease, background-color .15s ease, color .15s ease;
     }
-    [data-sso] .btn:disabled{ opacity:.45; cursor:not-allowed; filter:grayscale(0.5); }
+    [data-sso] .btn:disabled{ opacity:.7; cursor:not-allowed; filter:none; }
     [data-sso] .primary{ background:var(--accent); }
-    [data-sso] .ghost{ background:var(--muted); }
+    [data-sso] .ghost{ background:#4b4b4e; color:#ddd; } /* grigio “vero” quando disabilitato */
     [data-sso] .danger{ background:var(--danger); }
     [data-sso] .success{ background:var(--success); color:#001f0f; }
     .btn-yellow{ background:var(--yellow); color:#000; }
@@ -113,7 +122,7 @@
     [data-sso] .torch-label{ font-size:15px; line-height:1.05; text-align:right; opacity:.9; text-transform:lowercase; }
     [data-sso] .torch-label strong{ display:block; }
 
-    /* Bottone tondo torcia (cono dritto) */
+    /* Bottone tondo torcia */
     [data-sso] .icon-btn{
       width:44px; height:44px; border-radius:999px; position:relative;
       border:1px solid #2c2c2e;
@@ -179,30 +188,27 @@
 
     /* Video wrapper + overlays */
     [data-sso] .video-wrap{
-      width:100%;
-      aspect-ratio:16/9;
-      border-radius:12px; overflow:hidden; border:1px solid var(--border);
-      margin-top:10px; background:#000; position:relative;
-      display:block;
+      width:100%; aspect-ratio:16/9; border-radius:12px; overflow:hidden; border:1px solid var(--border);
+      margin-top:10px; background:#000; position:relative; display:block;
     }
     @media (max-width:600px){ [data-sso] .video-wrap{ height:56vw; aspect-ratio:auto; } }
     [data-sso] .video-wrap.paused::after{
       content:"La scansione è in pausa"; position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
       backdrop-filter:blur(6px) brightness(.7); color:#fff; font-weight:800; letter-spacing:.6px;
     }
-    /* Overlay: guida QR (30% altezza, opacità 1.0) */
-    [data-sso] .qr-guide{
-      position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
-      height:30%; width:auto; opacity:1; display:none; pointer-events:none;
-    }
+
+    /* Overlay: guida QR + testo centrati insieme (80% larghezza, max 2 righe) */
+    [data-sso] .qr-guide{ position:absolute; left:50%; top:45%; transform:translate(-50%,-50%); height:30%; width:auto; opacity:1; display:none; pointer-events:none; }
     [data-sso] .qr-hint{
-      position:absolute; left:50%; bottom:10px; transform:translateX(-50%);
-      color:#fff; font-weight:800; font-size:12px; letter-spacing:.2px;
-      background:rgba(0,0,0,.45); padding:6px 10px; border-radius:10px; border:1px solid rgba(255,255,255,.2);
-      display:none;
+      position:absolute; left:50%; top:66%; transform:translate(-50%,-50%);
+      max-width:80%; width:80%;
+      color:#fff; font-weight:800; font-size:13px; letter-spacing:.2px; line-height:1.25;
+      background:rgba(0,0,0,.45); padding:8px 12px; border-radius:10px; border:1px solid rgba(255,255,255,.2);
+      display:none; text-align:center;
+      display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;
     }
 
-    /* Messaggio duplicati (testo aggiornato con punto) */
+    /* Messaggio duplicati (con punto finale) */
     [data-sso] .dup-msg{
       position:absolute; left:50%; top:8%; transform:translateX(-50%);
       width:90%; max-width:680px; padding:10px 14px; border-radius:14px;
@@ -215,15 +221,13 @@
 
     [data-sso] video{ display:none; width:100%; height:100%; object-fit:cover; object-position:center; background:#000; }
 
-    /* Placeholder: gap icona-testo 12px (4px in più) */
+    /* Placeholder */
     [data-sso] .placeholder{
       width:100%; height:100%; border:1px dashed var(--border);
       border-radius:12px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px;
       color:#aaa; text-align:left; padding:12px;
     }
-    [data-sso] .ph-row{
-      display:flex; align-items:center; gap:12px; justify-content:flex-start; width:100%; padding-left:15px;
-    }
+    [data-sso] .ph-row{ display:flex; align-items:center; gap:12px; justify-content:flex-start; width:100%; padding-left:15px; }
     [data-sso] .ph-icon{ width:36px; height:36px; opacity:.9; }
 
     [data-sso] .box{ border:1px solid var(--border); border-radius:12px; padding:12px; background:#0b0b0b; margin-top:10px; }
@@ -269,23 +273,14 @@
 
     @keyframes radar-sweep{0%{background-position:0% 50%;}50%{background-position:200% 50%;}100%{background-position:0% 50%;}}
 
-    /* Step 5: bordo gradiente violetto/blu */
-    @keyframes glow-border {
-      0%{ border-color:#6a5acd; box-shadow:0 0 0 rgba(0,0,0,0); }
-      50%{ border-color:#1e90ff; box-shadow:0 0 14px rgba(30,144,255,.35); }
-      100%{ border-color:#6a5acd; box-shadow:0 0 0 rgba(0,0,0,0); }
-    }
+    /* Step 4: bordo gradiente violetto/blu */
+    @keyframes glow-border { 0%{ border-color:#6a5acd; box-shadow:0 0 0 rgba(0,0,0,0); } 50%{ border-color:#1e90ff; box-shadow:0 0 14px rgba(30,144,255,.35); } 100%{ border-color:#6a5acd; box-shadow:0 0 0 rgba(0,0,0,0); } }
     .gradient-border { border-image: linear-gradient(90deg,#6a5acd,#1e90ff) 1; animation: glow-border 2s ease forwards; }
 
-    /* Progress bar step 5 (viola/blu + più lento) */
+    /* Progress bar step 4 (viola/blu, più veloce) */
     .progress-wrap{ margin-top:6px; }
-    .progress-outer{
-      width:100%; height:12px; border-radius:999px; background:#161616; border:1px solid #333; overflow:hidden;
-    }
-    .progress-inner{
-      height:100%; width:0%; background:linear-gradient(90deg,#6a5acd,#1e90ff);
-      transition:width .12s linear;
-    }
+    .progress-outer{ width:100%; height:12px; border-radius:999px; background:#161616; border:1px solid #333; overflow:hidden; }
+    .progress-inner{ height:100%; width:0%; background:linear-gradient(90deg,#6a5acd,#1e90ff); transition:width .1s linear; }
     .progress-msg{ margin-top:10px; font-size:13px; opacity:.95; min-height:20px; text-align:center; }
     .progress-done{ margin-top:12px; display:flex; justify-content:center; }
     .progress-done .btn-yellow{ padding:12px 16px; font-weight:900; color:#000; } /* radius come .btn (12px) */
@@ -298,11 +293,11 @@
       <div class="subtitle">Scansiona le spese in pochi secondi e trovale subito al momento del ritiro!</div>
 
       <div class="hero-img-wrap">
-        <img class="alt" src="https://static.wixstatic.com/media/9d749b_4e7e462b0d2e40448664f342bb2cd2b5~mv2.png/v1/fill/w_116,h_126,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/shopper%20bottega_anteprima_edited_edited_.png" alt="Immagine alternativa" />
+        <img class="alt" src="https://static.wixstatic.com/media/9d749b_4e7e462b0d2e40448664f342bb2cd2b5~mv2.png/v1/fill/w_116,h_126,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/shopper%20bottega_anteprima_edited_edited_.png" alt="Immagine 1" />
         <img class="altB" src="https://community.appinventor.mit.edu/uploads/default/original/3X/c/2/c21a68fb6312af849c89a657cd12c56faf74dc8e.gif" alt="Animazione" />
       </div>
 
-      <div class="beta-row"><span class="beta-pill">Beta 7.5</span></div>
+      <div class="beta-row"><span class="beta-pill">Beta 7.6</span></div>
     </header>
 
     <div class="wrap">
@@ -413,22 +408,19 @@
               </div>
             </div>
           </div>
+
+          <!-- Azioni CONCLUSA la scansione: inglobate nel blocco 3 -->
+          <div class="controls split" style="margin-top:12px;">
+            <button id="btnCopy" class="btn success" disabled>Termina e invia</button>
+            <button id="btnClear" class="btn danger" disabled>Cancella e rifai</button>
+          </div>
         </div>
       </div>
 
-      <!-- STEP 4 -->
-      <div class="section" id="section4">
-        <div class="step-title"><span class="step-badge" id="badge4">4</span> Concludi scansione</div>
-        <div class="controls nowrap">
-          <button id="btnCopy" class="btn success" disabled>Termina e invia</button>
-          <button id="btnClear" class="btn danger" disabled>Cancella e rifai</button>
-        </div>
-      </div>
-
-      <!-- STEP 5 -->
-      <div class="section" id="section5" style="display:none">
-        <div class="step-title"><span class="step-badge" id="badge5">5</span> Invio</div>
-        <div class="box" id="step5Box">
+      <!-- STEP 4 (ex 5) -->
+      <div class="section" id="section4" style="display:none">
+        <div class="step-title"><span class="step-badge" id="badge4">4</span> Invio</div>
+        <div class="box" id="step4Box">
           <!-- progress dinamico -->
         </div>
       </div>
@@ -448,8 +440,7 @@
     const badge1 = root.querySelector('#badge1');
     const badge2 = root.querySelector('#badge2');
     const badge3 = root.querySelector('#badge3');
-    const badge4 = root.querySelector('#badge4');
-    const badge5 = document.getElementById('badge5');
+    const badge4 = document.getElementById('badge4');
     const selectedZoneBox = root.querySelector('#selectedZone');
     const videoWrap = document.getElementById('videoWrap');
     const video = root.querySelector('#video');
@@ -462,8 +453,8 @@
     const btnCopy = root.querySelector('#btnCopy');
     const btnTorch = document.getElementById('btnTorch');
     const torchState = document.getElementById('torchState');
-    const step5 = document.getElementById('section5');
-    const step5Box = document.getElementById('step5Box');
+    const step4 = document.getElementById('section4');
+    const step4Box = document.getElementById('step4Box');
 
     // Manual keypad
     const toggleKeypadBtn = document.getElementById('toggleKeypad');
@@ -485,17 +476,12 @@
     // === AUDIO ===
     const AC = window.AudioContext || window.webkitAudioContext;
     let audioCtx = null;
-    function ensureAC(){
-      if (!audioCtx) audioCtx = new AC();
-      return audioCtx;
-    }
+    function ensureAC(){ if (!audioCtx) audioCtx = new AC(); return audioCtx; }
     function playTone(freq=880, dur=0.16, type='sine', gain=0.2, delay=0){
       try{
         const ac = ensureAC();
-        const o = ac.createOscillator();
-        const g = ac.createGain();
-        o.type = type; o.frequency.value = freq;
-        o.connect(g); g.connect(ac.destination);
+        const o = ac.createOscillator(), g = ac.createGain();
+        o.type = type; o.frequency.value = freq; o.connect(g); g.connect(ac.destination);
         const now = ac.currentTime + (delay||0);
         g.gain.setValueAtTime(0.0001, now);
         g.gain.exponentialRampToValueAtTime(gain, now + 0.01);
@@ -514,6 +500,13 @@
       document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
       const sec = document.getElementById(sectionId);
       if (sec) sec.classList.add('active');
+    }
+
+    function clearZoneSelectionsUI(){
+      root.querySelectorAll('.opt,.chip').forEach(b=>b.classList.remove('active'));
+      selectedZoneBox.classList.remove('active');
+      loc.textContent = 'Nessuna zona selezionata';
+      zoneLine.textContent = '—';
     }
 
     function select(z){
@@ -636,8 +629,7 @@
       }
     });
     keypad.addEventListener('click', (e)=>{
-      const k = e.target.closest('.key');
-      if (!k) return;
+      const k = e.target.closest('.key'); if (!k) return;
       const act = k.dataset.act;
       if (act === 'back'){ manualBuffer = manualBuffer.slice(0,-1); refreshManualDisplay(); return; }
       if (act === 'ok'){
@@ -692,7 +684,7 @@
         await video.play();
         videoTrack = stream.getVideoTracks()[0];
 
-        // mostra la guida QR e il suggerimento
+        // mostra la guida QR e il suggerimento (centrati) alla PRIMA attivazione
         firstScanDone = false;
         qrGuide.style.display = 'block';
         qrHint.style.display = 'block';
@@ -838,12 +830,12 @@
       }
 
       // reset step/badge
-      [badge1,badge2,badge3,badge4,badge5].forEach(b=>{ if(b) b.classList.remove('done','pulse'); });
+      [badge1,badge2,badge3,badge4].forEach(b=>{ if(b) b.classList.remove('done','pulse'); });
       badge1.classList.add('pulse');
 
       // UI sections
       document.getElementById('section1').classList.add('active');
-      ['section2','section3','section4'].forEach(id=>{
+      ['section2','section3'].forEach(id=>{
         const el = document.getElementById(id);
         if (el && id!=='section1') el.classList.remove('active');
       });
@@ -854,12 +846,9 @@
       videoWrap.classList.remove('paused');
       dupMsg.classList.remove('show');
 
-      // zona
+      // zona selezione (NON deve restare evidenziata)
       currentZone = null;
-      loc.textContent = 'Nessuna zona selezionata';
-      zoneLine.textContent = '—';
-      selectedZoneBox.classList.remove('active');
-      root.querySelectorAll('.opt,.chip').forEach(b=>b.classList.remove('active'));
+      clearZoneSelectionsUI();
 
       // flags
       hasEverStarted = false;
@@ -885,28 +874,21 @@
     // Cancella e rifai
     btnClear.addEventListener('click', async ()=>{
       await fullReset(true);
-      if (step5) step5.style.display='none';
+      if (step4) step4.style.display='none';
       window.scrollTo({ top:0, behavior:'smooth' });
     });
 
-    // === STEP 5: progress bar + messaggi + nuova scansione (ancora più lento) ===
+    // === STEP 4: progress bar + messaggi + nuova scansione (50% più veloce, chiesina 4s finale) ===
     const progressMessages = [
       'Stabilisco handshake con il server…',
       'Sincronizzo timestamp NTP…',
       'Operazioni crittografiche avanzate…',
-      'Allocazione buffer di rete…',
       'Ottimizzo il flusso dei pacchetti…',
-      'Ricompilo la realtà quantistica…',
-      'Se non funziona, vai in chiesina ad accendere un cero.',
-      'Compressione ordini con algoritmo lossless-ish…',
-      'Calibro i fotoni della fibra…',
-      'Faccio amicizia con i DNS…',
-      'Rallento per passare davanti al capo…',
-      'Respiro e conto fino a 3…'
+      'Se non funziona, vai in chiesina ad accendere un cero.' /* questa resta 4s alla fine */
     ];
 
-    function startStep5Progress(){
-      step5Box.innerHTML = `
+    function startStep4Progress(){
+      step4Box.innerHTML = `
         <div class="progress-wrap">
           <div class="progress-outer"><div class="progress-inner" id="pInner"></div></div>
           <div class="progress-msg" id="pMsg">Inizializzo…</div>
@@ -921,39 +903,47 @@
       const pDone = document.getElementById('pDone');
 
       let pct = 0;
-      let msgIdx = 0;
 
-      const msgTimer = setInterval(()=>{
-        pMsg.textContent = progressMessages[msgIdx % progressMessages.length];
-        msgIdx++;
-      }, 1700); // ancora più tempo per leggere
-
+      // Avanzamento più rapido fino ~96%
       const incTimer = setInterval(()=>{
-        pct += Math.floor(Math.random()*2) + 1; // +1..+2
-        if (pct > 100) pct = 100;
-        pInner.style.width = pct + '%';
-
-        if (pct >= 100){
+        pct += Math.floor(Math.random()*4) + 3; // +3..+6 (più veloce ~50%)
+        if (pct >= 96) {
+          pct = 96;
           clearInterval(incTimer);
-          clearInterval(msgTimer);
-          pMsg.textContent = 'Completato ✔︎';
-          pDone.style.display = 'flex';
-          document.getElementById('btnNew').addEventListener('click', async ()=>{
-            await fullReset(true);        // come "Cancella e rifai"
-            step5.style.display = 'none'; // nascondi step5
-            window.scrollTo({ top:0, behavior:'smooth' });
-          });
+          // mostra frase chiesina per 4 secondi
+          pMsg.textContent = progressMessages[progressMessages.length-1];
+          setTimeout(()=>{
+            // chiudi a 100%
+            pInner.style.width = '100%';
+            pMsg.textContent = 'Completato ✔︎';
+            pDone.style.display = 'flex';
+            document.getElementById('btnNew').addEventListener('click', async ()=>{
+              await fullReset(true);        // come "Cancella e rifai"
+              step4.style.display = 'none'; // nascondi step4
+              window.scrollTo({ top:0, behavior:'smooth' });
+            });
+          }, 4000);
         }
-      }, 350);
+        pInner.style.width = pct + '%';
+      }, 120); // più veloce
+
+      // messaggi ciclici (senza chiesina, che è fissa alla fine)
+      let msgIdx = 0;
+      const cycle = setInterval(()=>{
+        if (pct >= 96){ clearInterval(cycle); return; }
+        pMsg.textContent = progressMessages[msgIdx % (progressMessages.length-1)];
+        msgIdx++;
+      }, 800);
     }
 
-    // "Termina e invia": copia, disabilita bottoni step4 (grigi), mostra Step 5 rallentato
+    // "Termina e invia": copia, disabilita bottoni (grigi e non cliccabili), mostra Step 4
     btnCopy.addEventListener('click', async ()=>{
       await copyCurrentPayloadToClipboard();
 
-      // disabilita bottoni step 4 e “ingrigisci”
-      btnCopy.disabled = true;
-      btnClear.disabled = true;
+      // disabilita e grigio “reale”
+      btnCopy.disabled = true; btnClear.disabled = true;
+      btnCopy.classList.remove('success'); btnCopy.classList.add('ghost');
+      btnClear.classList.remove('danger'); btnClear.classList.add('ghost');
 
       // chiudi keypad e azzera UI della zona attuale
       keypad.classList.remove('show'); manualBuffer = ""; keyDisplay.textContent = '—';
@@ -961,16 +951,26 @@
       list.innerHTML = '<em style="opacity:.7">Nessun numero</em>';
       document.getElementById('summary').textContent = '0 ordini in memoria';
 
-      // mostra step 5
-      step5.style.display = '';
-      step5.classList.add('gradient-border');
-      markActive('section5'); if (badge5) badge5.classList.add('done');
+      // azzera selezione zona per non tenerla illuminata nella prossima scansione
+      clearZoneSelectionsUI();
+      currentZone = null;
+      scanningLocked = false;
+      lockZoneSelectors(false);
 
-      // avvia progress e messaggi
-      startStep5Progress();
+      // evidenzia passaggio allo step 4
+      badge3.classList.remove('pulse'); badge3.classList.add('done');
+      if (badge4) badge4.classList.add('pulse');
 
-      // scroll verso Step 5
-      step5.scrollIntoView({ behavior:'smooth', block:'start' });
+      // mostra step 4
+      step4.style.display = '';
+      step4.classList.add('gradient-border');
+      markActive('section4');
+
+      // avvia progress
+      startStep4Progress();
+
+      // scroll verso Step 4
+      step4.scrollIntoView({ behavior:'smooth', block:'start' });
     });
 
     /* --- Abilita selezione zone al primo avvio --- */
