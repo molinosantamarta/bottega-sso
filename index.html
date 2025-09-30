@@ -90,8 +90,21 @@
     [data-sso] .controls.nowrap{ flex-wrap:nowrap; }
     [data-sso] .controls .spacer{ flex:1; }
     [data-sso] .controls.split .btn{ flex:1; } /* i due bottoni si dividono lo spazio */
-    /* Bottoni finali step 3: font -3px */
-    #section3 .controls.split .btn{ font-size:13px; }
+    
+    @media (max-width: 420px){
+  #section3 .controls.split .btn{
+    padding-top:24px;
+    padding-bottom:24px;
+  }
+}
+    /* Blocchi 3: Termina e invia / Cancella e rifai */
+#section3 .controls.split .btn{
+  font-size:16px;           /* uguale agli altri */
+  padding-top:28px;         /* 14px x 2 = spessore doppio */
+  padding-bottom:28px;      /* idem */
+  /* opzionale per uniformare: */
+  line-height:1; 
+}}
 
     [data-sso] .btn{
       padding:14px 16px; border:0; border-radius:12px; font-size:16px; font-weight:700; color:#fff; cursor:pointer;
