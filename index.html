@@ -5,71 +5,165 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>SSO Scanner – Standalone</title>
   <style>
+    /* Reset pagina e sfondo nero pieno */
+    html, body { height:100%; background:#000; }
+    body { margin:0; }
+
     [data-sso] { color-scheme: dark; }
     [data-sso] :where(*) { box-sizing: border-box; }
-    [data-sso] { --bg:#0b0b0b; --fg:#fff; --muted:#1c1c1e; --accent:#0a84ff; --danger:#ff453a; --ok:#34c759; --chip:#1f1f22; --border:#2c2c2e; background:var(--bg); color:var(--fg); font-family:-apple-system,system-ui,Segoe UI,Roboto,sans-serif; }
+    [data-sso] {
+      --bg:#000;            /* nero pieno */
+      --fg:#fff;
+      --muted:#1c1c1e;
+      --accent:#0a84ff;
+      --danger:#ff453a;
+      --ok:#34c759;
+      --chip:#1f1f22;
+      --border:#2c2c2e;
+      background:var(--bg);
+      color:var(--fg);
+      font-family:-apple-system,system-ui,Segoe UI,Roboto,sans-serif;
+    }
     [data-sso] .wrap{ padding:12px 12px 110px; max-width:760px; margin:0 auto; }
 
-    [data-sso] header{ padding:16px 16px 12px; text-align:center; border-bottom:1px solid #222; }
-    [data-sso] header h1{ margin:0; font-size:22px; font-weight:900; line-height:1.3; color:transparent; background:linear-gradient(90deg, #ff0000 0%, #ff9900 25%, #ffff00 50%, #ff9900 75%, #ff0000 100%); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; background-size:300% 100%; animation:radar-sweep 8s linear infinite; }
+    [data-sso] header{ padding:16px 16px 12px; text-align:center; border-bottom:1px solid #111; }
+    [data-sso] header h1{
+      margin:0; font-size:22px; font-weight:900; line-height:1.3; color:transparent;
+      background:linear-gradient(90deg, #ff0000 0%, #ff9900 25%, #ffff00 50%, #ff9900 75%, #ff0000 100%);
+      -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent;
+      background-size:300% 100%; animation:radar-sweep 8s linear infinite;
+    }
     [data-sso] header small{ display:block; margin-top:6px; font-size:14px; opacity:.75; }
 
     [data-sso] .section{ margin-top:20px; border-radius:12px; padding:10px; transition:background .3s ease; }
-    [data-sso] .section.active{ background:rgba(52,199,89,.12); }
+    [data-sso] .section.active{ background:rgba(52,199,89,.08); }
     [data-sso] .step-title{ font-size:14px; opacity:.85; margin-bottom:16px; display:flex; align-items:center; gap:8px; }
     [data-sso] .step-badge{ background:#2a2a2d; color:#fff; border-radius:999px; padding:2px 8px; font-size:12px; transition:all .2s ease; }
     [data-sso] .step-badge.done{ background:var(--ok); color:#000; font-weight:800; }
 
-    @keyframes pulse-badge { 0%,100%{ transform:translateZ(0) scale(1); box-shadow:0 0 0 0 rgba(10,132,255,.0);} 50%{ transform:translateZ(0) scale(1.1); box-shadow:0 0 0 6px rgba(10,132,255,.15);} }
+    @keyframes pulse-badge {
+      0%,100%{ transform:translateZ(0) scale(1); box-shadow:0 0 0 0 rgba(10,132,255,.0);}
+      50%{ transform:translateZ(0) scale(1.1); box-shadow:0 0 0 6px rgba(10,132,255,.15);}
+    }
     [data-sso] .step-badge.pulse{ animation:pulse-badge 1.2s ease-in-out infinite; background:linear-gradient(180deg, #0a84ff, #0569c9); }
 
-    [data-sso] .controls{ display:flex; flex-direction:column; gap:10px; }
-    @media (min-width:700px){ [data-sso] .controls{ flex-direction:row; } }
+    /* Barra controlli: tasto principale + tasto tondo torcia */
+    [data-sso] .controls{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+    @media (max-width:699px){ [data-sso] .controls{ flex-direction:row; } }
 
-    [data-sso] .btn{ padding:14px 16px; border:0; border-radius:12px; font-size:16px; font-weight:700; color:#fff; cursor:pointer; width:100%; }
-    [data-sso] .primary{ background:var(--accent); }
+    [data-sso] .btn{ padding:14px 16px; border:0; border-radius:12px; font-size:16px; font-weight:700; color:#fff; cursor:pointer; }
+    [data-sso] .primary{ background:var(--accent); flex:1; }
     [data-sso] .ghost{ background:var(--muted); }
     [data-sso] .danger{ background:var(--danger); }
-    @media (min-width:700px){ [data-sso] .btn{ width:auto; } .primary{ flex:1; } }
+    /* nuovo bottone tondo per torcia */
+    [data-sso] .icon-btn{
+      width:44px; height:44px; border-radius:999px; border:1px solid var(--border);
+      background:#121214; display:inline-flex; align-items:center; justify-content:center; cursor:pointer;
+    }
+    [data-sso] .icon-btn:active{ transform:scale(.97); }
+    [data-sso] .icon-btn svg{ width:22px; height:22px; display:block; }
 
     [data-sso] .seg-row{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-bottom:12px; }
-    [data-sso] .seg{ display:flex; background:#161618; border:1px solid var(--border); border-radius:999px; overflow:auto; -webkit-overflow-scrolling:touch; transition:all .2s ease; }
+    [data-sso] .seg{ display:flex; background:#121214; border:1px solid var(--border); border-radius:999px; overflow:auto; -webkit-overflow-scrolling:touch; transition:all .2s ease; }
     [data-sso] .seg::-webkit-scrollbar{ display:none; }
-    [data-sso] .seg.active{ border-color:rgba(52,199,89,.9); background:linear-gradient(180deg, rgba(52,199,89,.15), rgba(52,199,89,.05)); box-shadow:0 8px 24px rgba(52,199,89,.28), inset 0 1px 0 rgba(255,255,255,.15); }
+    [data-sso] .seg.active{
+      border-color:rgba(52,199,89,.9);
+      background:linear-gradient(180deg, rgba(52,199,89,.15), rgba(52,199,89,.05));
+      box-shadow:0 8px 24px rgba(52,199,89,.28), inset 0 1px 0 rgba(255,255,255,.08);
+    }
     [data-sso] .seg .opt{ padding:8px 12px; font-size:14px; border:0; background:transparent; color:#fff; cursor:pointer; white-space:nowrap; transition:all .2s ease; }
-    [data-sso] .seg .opt.active{ background:linear-gradient(180deg, rgba(52,199,89,1), rgba(52,199,89,.85)); color:#000; font-weight:800; box-shadow:0 6px 18px rgba(52,199,89,.45), inset 0 1px 0 rgba(255,255,255,.25); border-radius:999px; }
+    [data-sso] .seg .opt.active{
+      background:linear-gradient(180deg, rgba(52,199,89,1), rgba(52,199,89,.85));
+      color:#000; font-weight:800; border-radius:999px; box-shadow:0 6px 18px rgba(52,199,89,.45), inset 0 1px 0 rgba(255,255,255,.25);
+    }
     [data-sso] .seg-label{ font-size:13px; opacity:.8; min-width:72px; transition:all .2s ease; }
     [data-sso] .seg-label.active{ color:var(--ok); font-weight:800; opacity:1; text-shadow:0 0 8px rgba(52,199,89,.6); }
 
     [data-sso] .chips{ display:flex; gap:8px; margin-top:12px; flex-wrap:wrap; }
     [data-sso] .chip{ background:#2a2a2d; color:#fff; padding:10px 12px; border-radius:999px; font-size:14px; border:0; cursor:pointer; white-space:nowrap; transition:all .2s ease; }
-    [data-sso] .chip.active{ background:linear-gradient(180deg, rgba(52,199,89,1), rgba(52,199,89,.85)); color:#000; font-weight:800; box-shadow:0 6px 18px rgba(52,199,89,.45), inset 0 1px 0 rgba(255,255,255,.25); }
+    [data-sso] .chip.active{
+      background:linear-gradient(180deg, rgba(52,199,89,1), rgba(52,199,89,.85));
+      color:#000; font-weight:800; box-shadow:0 6px 18px rgba(52,199,89,.45), inset 0 1px 0 rgba(255,255,255,.25);
+    }
 
     [data-sso] .custom{ display:flex; gap:8px; margin-top:10px; }
     [data-sso] .custom input{ flex:1; padding:8px 12px; border-radius:999px; border:1px solid var(--border); background:#161618; color:#fff; font-size:14px; }
     [data-sso] .custom input::placeholder{ color:#aaa; }
     [data-sso] .custom button{ padding:12px 14px; border-radius:999px; border:0; background:var(--muted); color:#fff; font-weight:700; cursor:pointer; }
 
-    [data-sso] .selected-zone{ margin-top:10px; padding:10px 12px; border-radius:12px; background:#111; border:1px solid var(--border); display:flex; align-items:center; gap:8px; font-weight:600; transition:background .3s ease, box-shadow .3s ease, color .3s ease; }
+    [data-sso] .selected-zone{
+      margin-top:10px; padding:10px 12px; border-radius:12px; background:#111; border:1px solid var(--border);
+      display:flex; align-items:center; gap:8px; font-weight:600; transition:background .3s ease, box-shadow .3s ease, color .3s ease;
+    }
     [data-sso] .selected-zone.active{ background:#ffd60a; color:#000; box-shadow:0 4px 14px rgba(0,0,0,.25); }
-
     [data-sso] .selected-dot{ width:10px; height:10px; border-radius:999px; background:var(--ok); display:inline-block; }
 
-    [data-sso] video{ width:100%; aspect-ratio:16/9; background:#000; border-radius:12px; margin-top:10px; display:none; }
-    [data-sso] .placeholder{ width:100%; aspect-ratio:16/9; border-radius:12px; border:1px dashed var(--border); display:flex; align-items:center; justify-content:center; color:#aaa; margin-top:10px; text-align:center; padding:0 12px; }
-    @media (max-width:600px){ [data-sso] video, [data-sso] .placeholder{ height:56vw; aspect-ratio:auto; } }
+    /* Video wrapper per crop verticale */
+    [data-sso] .video-wrap{
+      width:100%;
+      aspect-ratio:16/9;
+      border-radius:12px;
+      overflow:hidden;
+      border:1px solid var(--border);
+      margin-top:10px;
+      background:#000;
+    }
+    @media (max-width:600px){
+      [data-sso] .video-wrap{ height:56vw; aspect-ratio:auto; }
+    }
+    [data-sso] video{
+      display:none;
+      width:100%;
+      height:100%;
+      object-fit:cover;         /* riempie & croppa verticalmente */
+      object-position:center;
+      background:#000;
+    }
+    [data-sso] .placeholder{
+      width:100%;
+      height:100%;
+      border:1px dashed var(--border);
+      border-radius:12px;
+      display:flex; align-items:center; justify-content:center;
+      color:#aaa; text-align:center; padding:0 12px;
+    }
 
-    [data-sso] .box{ border:1px solid var(--border); border-radius:12px; padding:12px; background:#111; margin-top:10px; }
+    [data-sso] .box{ border:1px solid var(--border); border-radius:12px; padding:12px; background:#0b0b0b; margin-top:10px; }
     [data-sso] .label{ font-size:12px; opacity:.7; margin-bottom:4px; }
     [data-sso] .zone-line{ font-size:15px; font-weight:700; margin-bottom:8px; }
-    [data-sso] .list{ display:flex; flex-wrap:wrap; gap:6px; min-height:44px; }
-    [data-sso] .pill{ padding:8px 12px; border-radius:999px; background:var(--chip); font-size:15px; }
+    [data-sso] .list{ display:flex; flex-wrap:wrap; gap:8px; min-height:44px; }
+
+    /* PALLINI ADATTIVI (1/2/3 cifre), centrati, gialli con testo nero */
+    [data-sso] .pill{
+      display:inline-flex; align-items:center; justify-content:center;
+      background:#ffd60a; color:#000; font-weight:800;
+      font-size:15px; line-height:1;
+      padding:0 10px;  /* usato solo per n2/n3 */
+      border-radius:999px;
+      box-shadow:0 1px 0 rgba(255,255,255,.25) inset, 0 4px 12px rgba(0,0,0,.25);
+      border:1px solid #e6c408;
+    }
+    [data-sso] .pill.n1{ width:36px; height:36px; padding:0; }            /* cerchio perfetto 1 cifra */
+    [data-sso] .pill.n2{ min-width:40px; height:36px; }                   /* pill per 2 cifre */
+    [data-sso] .pill.n3{ min-width:48px; height:36px; }                   /* pill per 3 cifre */
+
     [data-sso] .summary{ margin-top:10px; font-size:12px; opacity:.75; }
 
-    [data-sso] .bar{ position:fixed; left:0; right:0; bottom:0; backdrop-filter:blur(6px); background:rgba(15,15,15,.96); border-top:1px solid var(--border); padding:10px 12px calc(10px + env(safe-area-inset-bottom)); display:flex; gap:10px; z-index:2147483000; }
+    [data-sso] .bar{
+      position:fixed; left:0; right:0; bottom:0;
+      backdrop-filter:blur(6px);
+      background:rgba(0,0,0,.96);
+      border-top:1px solid var(--border);
+      padding:10px 12px calc(10px + env(safe-area-inset-bottom));
+      display:flex; gap:10px; z-index:2147483000;
+    }
     [data-sso] .bar .btn{ flex:1; }
 
-    [data-sso] .demo-badge{ position:fixed; top:10px; right:10px; background:#333; color:#fff; font:12px/1 -apple-system,system-ui,Segoe UI,Roboto,sans-serif; padding:6px 8px; border-radius:8px; opacity:.8; }
+    [data-sso] .demo-badge{
+      position:fixed; top:10px; right:10px; background:#333; color:#fff;
+      font:12px/1 -apple-system,system-ui,Segoe UI,Roboto,sans-serif;
+      padding:6px 8px; border-radius:8px; opacity:.8;
+    }
     @keyframes radar-sweep{0%{background-position:0% 50%;}50%{background-position:200% 50%;}100%{background-position:0% 50%;}}
   </style>
 </head>
@@ -119,11 +213,25 @@
         <div class="step-title"><span class="step-badge" id="badge2">2</span> Avvia scansione</div>
         <div class="controls">
           <button id="btnScan" class="btn primary">Avvia scansione</button>
-          <button id="btnTorch" class="btn ghost">Torcia</button>
+
+          <!-- Nuovo tastino tondo torcia -->
+          <button id="btnTorch" class="icon-btn" title="Torcia" aria-label="Torcia">
+            <!-- icona torcia (SVG) -->
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M8 2h8" />
+              <path d="M6 6h12l-2 4a4 4 0 0 0-.4 1.7V14a4 4 0 0 1-4 4h-1a4 4 0 0 1-4-4v-2.3c0-.6-.14-1.2-.4-1.7L6 6z"/>
+              <path d="M10 10h4" />
+            </svg>
+          </button>
         </div>
-        <video id="video" playsinline muted></video>
-        <div id="placeholder" class="placeholder">
-          La fotocamera comparirà qui dopo “Avvia scansione”.
+
+        <!-- Wrappa il video per il crop -->
+        <div class="video-wrap" id="videoWrap">
+          <video id="video" playsinline muted></video>
+          <div id="placeholder" class="placeholder">
+            La fotocamera comparirà qui dopo “Avvia scansione”.
+          </div>
         </div>
       </div>
 
@@ -204,11 +312,23 @@
       selectedZoneBox.classList.add('active');
     }
 
+    function pillClassFor(num){
+      const len = String(num).length;
+      if (len === 1) return 'pill n1';
+      if (len === 2) return 'pill n2';
+      return 'pill n3';
+    }
+
     function renderList(){
       list.innerHTML='';
       const arr = (data[currentZone]||[]).slice().sort((a,b)=>a-b);
       if (!arr.length){ list.innerHTML = '<em style="opacity:.7">Nessun numero</em>'; return; }
-      for (const n of arr){ const s = document.createElement('span'); s.className='pill'; s.textContent=n; list.appendChild(s); }
+      for (const n of arr){
+        const s = document.createElement('span');
+        s.className = pillClassFor(n);
+        s.textContent = n;
+        list.appendChild(s);
+      }
     }
 
     function addScanned(val){
@@ -243,7 +363,7 @@
       try{
         const constraints = {
           audio:false,
-          video:{ facingMode:{ ideal:'environment' }, width:{ ideal:1280 }, height:{ ideal:720 } }
+          video:{ facingMode:{ ideal:'environment' }, width:{ ideal:1920 }, height:{ ideal:1080 } }
         };
 
         // iOS: playsinline + muted
@@ -311,10 +431,14 @@
 
     btnScan.addEventListener('click', openCamera);
 
-    // Torcia
+    // Torcia (bottone tondo accanto ad Avvia)
     btnTorch.addEventListener('click', async ()=>{
       try {
-        if (!videoTrack) return;
+        if (!videoTrack) {
+          // se non c'è ancora una traccia, provo ad aprire la camera e poi togglo
+          await openCamera();
+          if (!videoTrack) return;
+        }
         const caps = videoTrack.getCapabilities && videoTrack.getCapabilities();
         if (!caps || !caps.torch) {
           alert('Torcia non supportata su questo dispositivo');
