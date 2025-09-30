@@ -68,7 +68,7 @@
       margin-left:-3%;
       z-index:1;
       opacity:.95;
-      top:15px; /*  più in basso */
+      top:6px; /* 4px più in basso */
     }
 
     /* Pillola Beta */
@@ -100,8 +100,8 @@
     [data-sso] .controls .spacer{ flex:1; }
     [data-sso] .controls.split .btn{ flex:1; } /* i due bottoni si dividono lo spazio */
 
-    /* Bottoni finali step 3: , +50% altezza via padding */
-    #section3 .controls.split .btn{ font-size:16px; padding:21px 16px; } /* 14px -> 21px */
+    /* Bottoni finali step 3: uguale font-size di “Aggiungi” (18px) + 50% altezza via padding */
+    #section3 .controls.split .btn{ font-size:18px; padding:21px 16px; }
 
     [data-sso] .btn{
       padding:14px 16px; border:0; border-radius:12px; font-size:16px; font-weight:700; color:#fff; cursor:pointer;
@@ -123,7 +123,7 @@
     /* Torch */
     [data-sso] .torch-wrap{ display:flex; align-items:center; gap:7px; }
     [data-sso] .torch-label{ font-size:15px; line-height:1.05; text-align:right; opacity:.9; text-transform:lowercase; }
-    [data-sso] .torch-label strong{ display:block; }
+    [data-sso] .torch-label strong{ display:block; text-transform:uppercase; } /* ON/OFF sempre maiuscolo */
 
     /* Bottone tondo torcia */
     [data-sso] .icon-btn{
@@ -309,7 +309,7 @@
       [data-sso] .label{ font-size:13px; }
       [data-sso] .zone-line{ font-size:16px; }
       [data-sso] .summary{ font-size:16px; }
-      #section3 .controls.split .btn{ font-size:14px; } /* testo leggermente più grande su mobile */
+      #section3 .controls.split .btn{ font-size:18px; } /* coerente anche su mobile */
       [data-sso] .qr-hint{ font-size:14px; }
       [data-sso] .dup-msg{ font-size:14px; }
     }
@@ -326,7 +326,7 @@
         <img class="altB" src="https://community.appinventor.mit.edu/uploads/default/original/3X/c/2/c21a68fb6312af849c89a657cd12c56faf74dc8e.gif" alt="Animazione" />
       </div>
 
-      <div class="beta-row"><span class="beta-pill">Beta 7.9</span></div>
+      <div class="beta-row"><span class="beta-pill">Beta 7.11</span></div>
     </header>
 
     <div class="wrap">
@@ -385,7 +385,7 @@
         <div class="video-wrap" id="videoWrap">
           <!-- Guida e hint: devono essere nascosti finché non parte la scansione -->
           <img id="qrGuide" class="qr-guide" style="display:none" src="https://upload.wikimedia.org/wikipedia/commons/d/d0/QR_code_for_mobile_English_Wikipedia.svg" alt="Guida QR" />
-          <div id="qrHint" class="qr-hint" style="display:none">scansiona il codice sul biglietto insieme alla spesa</div>
+          <div id="qrHint" class="qr-hint" style="display:none">scansiona il codice QR del biglietto sulla spesa</div>
           <video id="video" playsinline muted></video>
 
           <!-- Placeholder centrato assoluto -->
@@ -414,7 +414,7 @@
 
       <!-- STEP 3 -->
       <div class="section" id="section3">
-        <div class="step-title"><span class="step-badge" id="badge3">3</span> Verifica numeri letti</div>
+        <div class="step-title"><span class="step-badge" id="badge3">3</span> Verifica e Conferma</div>
         <div class="box">
           <div class="label">Zona</div>
           <div class="zone-line" id="zoneLine">—</div>
@@ -845,7 +845,7 @@
         await videoTrack.applyConstraints({ advanced: [{ torch: !current }] });
         const on = !current;
         btnTorch.classList.toggle('torch-on', on);
-        torchState.textContent = on ? 'ON' : 'OFF';
+        torchState.textContent = on ? 'ON' : 'OFF'; // sempre MAIUSCOLO
       } catch (e) { console.error(e); }
     });
 
