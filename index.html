@@ -3,108 +3,113 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>SSO – Switcher (Scanner + Stoccaggio)</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
+  <title>SSO – Demo 9.4</title>
   <style>
-    html,body {height:100%; margin:0; font-family:-apple-system,system-ui,Segoe UI,Roboto,sans-serif; background:linear-gradient(180deg,#f9f9f9,#ececec); color:#111;}
-    .x-wrap {padding:calc(72px + env(safe-area-inset-top)) 16px 24px; max-width:820px; margin:0 auto;}
-    [data-view]{display:none}
-    [data-view].active{display:block}
+    /* Base dark OLED */
+    html,body{height:100%;background:#000;margin:0;font-family:-apple-system,system-ui,Segoe UI,Roboto,sans-serif;color:#eaeaea}
+    .x-wrap{padding:8px 16px 24px;max-width:760px;margin:0 auto;}
 
-    /* Header */
-    header{text-align:center; padding:32px 16px 20px;}
-    header h1{margin:0;font-size:26px;font-weight:800;color:#000;}
-    header .subtitle{margin-top:8px;font-size:15px;font-weight:500;color:#444;opacity:.9;}
-    .hero-img-wrap{display:flex;justify-content:center;align-items:center;position:relative;margin-top:18px;}
-    .hero-img-wrap img{max-width:140px;border-radius:12px;}
-    .hero-img-wrap img:first-child{position:relative;z-index:1;margin-right:-20px;}
-    .hero-img-wrap img:last-child{position:relative;z-index:2;margin-left:-20px;}
+    header{text-align:center;padding:18px 12px 10px;}
+    header h1{margin:0;font-size:20px;font-weight:800;color:#fff;}
+    header .subtitle{margin-top:6px;font-size:13px;font-weight:500;color:#bdbdbd;opacity:.95;}
 
-    /* Version pill */
-    .beta-row{display:flex;justify-content:center;margin-top:14px;}
-    .beta-pill{display:inline-flex;align-items:center;justify-content:center;padding:6px 12px;border-radius:999px;background:#ffd60a;color:#000;font-weight:700;font-size:12px;box-shadow:0 1px 0 rgba(255,255,255,.25) inset,0 4px 12px rgba(0,0,0,.15);border:1px solid #e6c408;letter-spacing:.2px;}
+    .beta-row{display:flex;justify-content:center;margin-top:8px}
+    .beta-pill{display:inline-flex;align-items:center;justify-content:center;padding:5px 10px;border-radius:999px;background:#ffd60a;color:#000;font-weight:800;font-size:11px;box-shadow:0 1px 0 rgba(255,255,255,.25) inset,0 4px 12px rgba(0,0,0,.25);border:1px solid #e6c408}
 
-    /* Tabbar sotto al sottotitolo */
-    .x-tabbar{margin-top:24px;display:flex;justify-content:center;}
-    .x-tabbar-inner{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;width:92%;max-width:460px;padding:12px 16px;border-radius:26px;background:rgba(255,255,255,.35);backdrop-filter:saturate(180%) blur(20px);border:1px solid rgba(200,200,200,.45);}
-    .x-tab{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:14px;border-radius:20px;text-decoration:none;cursor:pointer;color:#555;border:1px solid transparent;-webkit-tap-highlight-color:transparent;font-size:14px;font-weight:600;}
-    .x-tab[aria-selected="true"]{color:#000;background:rgba(255,255,255,.75);border-color:rgba(0,0,0,.1);box-shadow:0 4px 18px rgba(0,0,0,.08);}
-    .x-icon{width:48px;height:48px;border-radius:18px;overflow:hidden;}
+    /* Immagini affiancate con overlap negativo */
+    .hero-img-wrap{display:flex;align-items:center;justify-content:center;margin-top:12px;gap:-4px}
+    .hero-img-wrap img{width:140px;max-width:160px;height:auto;border-radius:12px}
 
-    /* Placeholder riquadri */
-    .card{margin-top:24px;border-radius:18px;padding:32px;background:rgba(255,255,255,.45);backdrop-filter:blur(20px) saturate(180%);border:1px solid rgba(0,0,0,.08);min-height:120px;}
-      /* Gruppo immagini centrato come oggetto unico, con micro-shift a destra */
-    :root{ --pair-shift: 24px; }
-    .hero-center{ display:flex; justify-content:center; margin-top:18px; }
-    .hero-group{ position:relative; display:inline-flex; align-items:center; gap:0; left:var(--pair-shift); }
-    /* Controbilancio per mantenere il gruppo centrato all'asse della pagina/pillolina */
-    .hero-center{ transform:translateX(calc(var(--pair-shift) * -1)); }
-    .hero-group img{ max-width:140px; border-radius:12px; }
-    .hero-group img:first-child{ z-index:1; margin-right:-20px; position:relative; }
-    .hero-group img:last-child{ z-index:2; margin-left:-20px; position:relative; }
+    /* Tabbar: segmented control moderno, più stondato, contrasto soft (no bianco puro) */
+    .x-tabbar{margin-top:14px;display:flex;justify-content:center}
+    .x-tabbar-inner{
+      display:grid;grid-template-columns:repeat(2,1fr);gap:10px;width:92%;max-width:480px;padding:8px;
+      border-radius:38px; /* molto stondato */
+      background:#141416; /* scuro ma non nero per stacco */
+      border:1px solid rgba(255,255,255,.10);
+      box-shadow:0 12px 28px rgba(0,0,0,.35);
+    }
+    .x-tab{
+      display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:10px 12px;
+      border-radius:28px; /* pill più tonda */
+      text-decoration:none;cursor:pointer;-webkit-tap-highlight-color:transparent;
+      color:#c8c8ce;border:1px solid transparent;transition:background .15s ease, color .15s ease, border-color .15s ease, box-shadow .15s ease
+    }
+    .x-tab[aria-selected="true"]{
+      color:#fff; background:#2a2a2d; border-color:rgba(255,255,255,.16);
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.06), 0 6px 16px rgba(0,0,0,.35);
+    }
 
+    /* Bolla icona Lottie: fondo chiaro ma non bianco, per visibilità su nero */
+    .ico-bubble{width:42px;height:42px;border-radius:16px;display:flex;align-items:center;justify-content:center;
+      background:#e9e9ec;border:1px solid #d8d8dd;box-shadow:inset 0 1px 0 rgba(255,255,255,.6);
+    }
+    .x-tab[aria-selected="true"] .ico-bubble{ background:#f2f2f4; border-color:#e6e6ea; }
+
+    /* Card demo */
+    .card{margin-top:14px;border-radius:16px;padding:22px;background:#0b0b0c;border:1px solid rgba(255,255,255,.08);min-height:110px}
   </style>
 </head>
 <body>
-  <header>
-    <h1>SSO - Scanner Stoccaggio Ordini</h1>
-    <div class="subtitle">Scansiona e gestisci i tuoi ordini in pochi secondi</div>
-    <div class="hero-center">
-      <div class="hero-group" aria-label="Immagini introduttive">
-        <img src="https://static.wixstatic.com/media/9d749b_4e7e462b0d2e40448664f342bb2cd2b5~mv2.png/v1/fill/w_116,h_126,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/shopper%20bottega_anteprima_edited_edited_.png" alt="Anteprima" />
-        <img src="https://community.appinventor.mit.edu/uploads/default/original/3X/c/2/c21a68fb6312af849c89a657cd12c56faf74dc8e.gif" alt="Animazione" />
-      </div>
-    </div>
-    <div class="beta-row"><span class="beta-pill">Versione 8.1.3</span></div>
+  <div class="x-wrap">
+    <header>
+      <h1>SSO - Scanner Stoccaggio Ordini</h1>
+      <div class="subtitle">Scansiona le spese in pochi secondi e trovale subito al momento del ritiro!</div>
+      <div class="beta-row"><span class="beta-pill">Versione 8.1.3</span></div>
+    </header>
 
-    <!-- Tabbar sotto al sottotitolo -->
+    <div class="hero-img-wrap">
+      <img src="https://static.wixstatic.com/media/9d749b_4e7e462b0d2e40448664f342bb2cd2b5~mv2.png/v1/fill/w_116,h_126,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/shopper%20bottega_anteprima_edited_edited_.png" alt="Immagine 1" />
+      <img src="https://community.appinventor.mit.edu/uploads/default/original/3X/c/2/c21a68fb6312af849c89a657cd12c56faf74dc8e.gif" alt="Animazione" />
+    </div>
+
+    <!-- Tabbar / segmented control -->
     <nav class="x-tabbar" role="tablist" aria-label="Navigazione pagine">
       <div class="x-tabbar-inner">
         <a class="x-tab" role="tab" href="#a" data-tab="a" aria-selected="true">
-          <div class="x-icon" id="lottie-scanner"></div>
+          <span class="ico-bubble"><span id="lottie-scanner" style="width:30px;height:30px"></span></span>
           <span>Scanner</span>
         </a>
         <a class="x-tab" role="tab" href="#b" data-tab="b" aria-selected="false">
-          <div class="x-icon" id="lottie-stoccaggio"></div>
+          <span class="ico-bubble"><span id="lottie-stoccaggio" style="width:30px;height:30px"></span></span>
           <span>Stoccaggio</span>
         </a>
       </div>
     </nav>
-  </header>
 
-  <main class="x-wrap">
     <section id="view-a" data-view class="active">
       <div class="card"></div>
       <div class="card"></div>
       <div class="card"></div>
       <div class="card"></div>
     </section>
-    <section id="view-b" data-view>
-      <div class="card">Questa pagina è in fase di sviluppo, verrà rilasciata con la versione 10.0 - Pepe.</div>
+
+    <section id="view-b" data-view style="display:none">
+      <div style="max-width:820px;margin:18px auto 0;padding:16px 18px;border:1px dashed rgba(255,255,255,.35);border-radius:14px;background:#0b0b0c;color:#eaeaea;font:14px/1.45 -apple-system,system-ui,Segoe UI,Roboto,sans-serif">
+        questa pagina è in fase di sviluppo, verrà rilasciata con la versione 10.0 dell'app nei prossimi aggiornamenti.
+      </div>
     </section>
-  </main>
+  </div>
 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
   <script>
-    (function(){
-      const VIEWS=['a','b'];
-      const $=s=>document.querySelector(s);
-      const $$=s=>Array.from(document.querySelectorAll(s));
-      function activate(view){
-        if(!VIEWS.includes(view)) view='a';
-        $('#view-a').classList.toggle('active',view==='a');
-        $('#view-b').classList.toggle('active',view==='b');
-        $$('.x-tab').forEach(t=>t.setAttribute('aria-selected',t.dataset.tab===view?'true':'false'));
-      }
-      function onHashChange(){ activate((location.hash||'#a').slice(1)); }
-      document.querySelector('.x-tabbar-inner').addEventListener('click',e=>{ const a=e.target.closest('.x-tab'); if(!a) return; e.preventDefault(); history.replaceState(null,'','#'+a.dataset.tab); activate(a.dataset.tab); });
-      window.addEventListener('hashchange',onHashChange);
-      if(!location.hash) history.replaceState(null,'','#a');
-      onHashChange();
+    // Lottie icons (contrasto sempre buono grazie a .ico-bubble chiara)
+    lottie.loadAnimation({container:document.getElementById('lottie-scanner'),renderer:'svg',loop:true,autoplay:true,path:'./scanner.lotties.json'});
+    lottie.loadAnimation({container:document.getElementById('lottie-stoccaggio'),renderer:'svg',loop:true,autoplay:true,path:'./shopping-cart.lotties.json'});
 
-      // Lottie animations
-      lottie.loadAnimation({container:document.getElementById('lottie-scanner'),renderer:'svg',loop:true,autoplay:true,path:'./scanner.lotties.json'});
-      lottie.loadAnimation({container:document.getElementById('lottie-stoccaggio'),renderer:'svg',loop:true,autoplay:true,path:'./shopping-cart.lotties.json'});
-    })();
+    // Router super leggero
+    const VIEWS=['a','b'];
+    const $=s=>document.querySelector(s);
+    const $$=s=>Array.from(document.querySelectorAll(s));
+    function activate(view){
+      if(!VIEWS.includes(view)) view='a';
+      $('#view-a').style.display=view==='a'?'block':'none';
+      $('#view-b').style.display=view==='b'?'block':'none';
+      $$('.x-tab').forEach(t=>t.setAttribute('aria-selected',t.dataset.tab===view?'true':'false'));
+    }
+    document.querySelector('.x-tabbar-inner').addEventListener('click',e=>{
+      const a=e.target.closest('.x-tab'); if(!a) return; e.preventDefault(); activate(a.dataset.tab);
+    });
   </script>
 </body>
 </html>
