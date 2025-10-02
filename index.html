@@ -25,7 +25,7 @@
     /* Tabbar: segmented control moderno, stondato, con bolle Lottie */
     .x-tabbar{margin-top:8px;display:flex;justify-content:center;position:relative;top:-16px}
     .x-tabbar-inner{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;width:92%;max-width:480px;padding:8px;border-radius:38px;background:#f7f7f7;border:1px solid rgba(0,0,0,.1);box-shadow:0 12px 28px rgba(0,0,0,.15)}
-    .x-tab{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:10px 12px;border-radius:28px;text-decoration:none;cursor:pointer;-webkit-tap-highlight-color:transparent;color:#c8c8ce;border:1px solid transparent;transition:background .15s ease, color .15s ease, border-color .15s ease, box-shadow .15s ease}
+    .x-tab{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:10px 12px;border-radius:28px;text-decoration:none;cursor:pointer;-webkit-tap-highlight-color:transparent;color:#6b6b70;border:1px solid transparent;transition:background .15s ease, color .15s ease, border-color .15s ease, box-shadow .15s ease}
     .x-tab[aria-selected="true"]{background:#ffd60a;color:#000;font-weight:700;border-color:#e6c408;box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 6px 16px rgba(0,0,0,.35)}
 
     .ico-bubble{display:flex;align-items:center;justify-content:center;background:transparent;border:none;box-shadow:none;width:auto;height:auto;border-radius:0}
@@ -64,12 +64,12 @@
     <nav class="x-tabbar" role="tablist" aria-label="Navigazione pagine">
       <div class="x-tabbar-inner">
         <a class="x-tab" role="tab" href="#a" data-tab="a" aria-selected="true">
-          <span class="ico-bubble"><span id="lottie-scanner" style="width:45px;height:45px"></span></span>
+          <span class="ico-bubble"><span id="lottie-scanner" style="width:68px;height:68px"></span></span>
           <span>Scanner</span>
         </a>
         <a class="x-tab" role="tab" href="#b" data-tab="b" aria-selected="false">
-          <span class="ico-bubble"><span id="lottie-stoccaggio" style="width:45px;height:45px"></span></span>
-          <span style="color:#000">Stoccaggio</span>
+          <span class="ico-bubble"><span id="lottie-stoccaggio" style="width:68px;height:68px"></span></span>
+          <span>Stoccaggio</span>
         </a>
       </div>
     </nav>
@@ -91,7 +91,7 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
   <script>
-    // Lottie icons
+    // Lottie icons (dimensioni container 68×68 impostate inline sopra)
     lottie.loadAnimation({container:document.getElementById('lottie-scanner'),renderer:'svg',loop:true,autoplay:true,path:'./scanner.lotties.json'});
     lottie.loadAnimation({container:document.getElementById('lottie-stoccaggio'),renderer:'svg',loop:true,autoplay:true,path:'./shopping-cart.lotties.json'});
 
@@ -142,7 +142,6 @@
         const scripts = doc.querySelectorAll('script');
         for (const oldS of scripts) {
           const s = document.createElement('script');
-          // copia tipo e attributi principali
           if (oldS.type) s.type = oldS.type;
           if (oldS.noModule) s.noModule = true;
           if (oldS.defer) s.defer = true;
@@ -154,14 +153,12 @@
           } else {
             s.textContent = oldS.textContent || '';
           }
-          // IMPORTANTISSIMO: append nello stesso container per scope DOM
           section.appendChild(s);
         }
 
         section.dataset.loaded = 'true';
       } catch (err) {
         console.error('Errore nel caricamento di', url, err);
-        // fallback: messaggio semplice
         const nice = document.createElement('div');
         nice.style.cssText = 'margin:18px auto 0;padding:16px 18px;border:1px dashed rgba(255,255,255,.35);border-radius:14px;background:#0b0b0c;color:#eaeaea;font:14px/1.45 -apple-system,system-ui,Segoe UI,Roboto,sans-serif';
         nice.textContent = `Non riesco a caricare ${url}. Assicurati che il file esista su GitHub Pages ed abbia la stessa origine.`;
@@ -172,11 +169,9 @@
 
     async function activate(view){
       if(!VIEWS.includes(view)) view='a';
-      // carica on-demand la vista richiesta
       const section = view === 'a' ? $('#view-a') : $('#view-b');
       await loadExternalInto(section);
 
-      // attiva/disattiva viste e stato tab
       $('#view-a').classList.toggle('active',view==='a');
       $('#view-b').classList.toggle('active',view==='b');
       $$('.x-tab').forEach(t=>t.setAttribute('aria-selected',t.dataset.tab===view?'true':'false'));
