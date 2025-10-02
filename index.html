@@ -3,248 +3,6 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>SSO – Switcher (Scanner + Stoccaggio) — integrazione 1:1 via template ➜ iframe</title>
-
-  <!-- STILI SWITCHER TOP (glass) -->
-  <style>
-    /* Prefisso x- per evitare collisioni */
-    html,body{height:100%;background:#000}
-    body{margin:0;color:#fff;font-family:-apple-system,system-ui,Segoe UI,Roboto,sans-serif}
-
-    .x-wrap{min-height:100vh;padding:calc(72px + env(safe-area-inset-top)) 16px 24px}
-    [data-view]{display:none}
-    [data-view].active{display:block}
-
-    .x-tabbar{
-      position:fixed;left:0;right:0;top:0;z-index:1000;
-      display:flex;justify-content:center;
-      padding:calc(6px + env(safe-area-inset-top)) 12px 8px;
-    }
-    .x-tabbar-inner{
-      display:grid;grid-template-columns:repeat(2,1fr);gap:8px;
-      width:min(720px,92vw);padding:10px;border-radius:24px;
-      background:rgba(22,22,24,.28);backdrop-filter:saturate(160%) blur(20px);
-      -webkit-backdrop-filter:saturate(160%) blur(20px);
-      border:1px solid rgba(255,255,255,.18);
-    }
-    .x-tab{
-      display:flex;align-items:center;justify-content:center;gap:8px;
-      padding:10px 14px;border-radius:16px;text-decoration:none;cursor:pointer;
-      color:#bbb;border:1px solid transparent;-webkit-tap-highlight-color:transparent;
-    }
-    .x-tab[aria-selected="true"]{
-      color:#fff;background:rgba(255,255,255,.15);border-color:rgba(255,255,255,.22);
-    }
-    .x-icon{width:20px;text-align:center}
-    .x-lbl{font:13px/1.2 -apple-system,system-ui,Segoe UI,Roboto,sans-serif}
-
-    /* Pagina A in iframe a tutta larghezza/altezza */
-    #pageA-frame{
-      width:100%;min-height:calc(100vh - 120px);
-      border:0;border-radius:16px;overflow:hidden;
-      background:#000;
-    }
-    @media (min-width:900px){
-      #pageA-frame{min-height:calc(100vh - 96px);}
-    }
-  </style>
-</head>
-<body>
-
-  <!-- SWITCHER TOP -->
-  <nav class="x-tabbar" role="tablist" aria-label="Navigazione pagine">
-    <div class="x-tabbar-inner">
-      <a class="x-tab" role="tab" href="#a" data-tab="a" aria-selected="true">
-        <span class="x-icon" aria-hidden="true">📷</span><span class="x-lbl">Scanner</span>
-      </a>
-      <a class="x-tab" role="tab" href="#b" data-tab="b" aria-selected="false">
-        <span class="x-icon" aria-hidden="true">📋</span><span class="x-lbl">Stoccaggio</span>
-      </a>
-    </div>
-  </nav>
-
-  <!-- CONTENUTO 2 PAGINE -->
-  <main class="x-wrap">
-    <!-- PAGINA A: il TUO BLOCCO INTERO, INCOLLATO 1:1 dentro un iframe (srcdoc/template) -->
-    <section id="view-a" data-view class="active">
-      <iframe id="pageA-frame" title="SSO Scanner Pagina A (template ➜ iframe)"></iframe>
-    </section>
-
-    <!-- PAGINA B: riquadro tratteggiato come richiesto -->
-    <section id="view-b" data-view>
-      <div style="
-        max-width:820px;
-        margin:24px auto 0;
-        padding:18px 20px;
-        border:2px dashed #7a7a7a;
-        border-radius:16px;
-        background:#0b0b0b;
-        color:#eaeaea;
-        font:14px/1.45 -apple-system,system-ui,Segoe UI,Roboto,sans-serif;">
-        questa pagina è in fase di sviluppo, verrà rilasciata con la versione 10.0 dell'app nei prossimi aggiornamenti, tu non devi fare nulla, appena pronta la vedrai - Pepe.
-      </div>
-    </section>
-  </main>
-
-  <!-- ROUTER 2 PAGINE (non tocca la tua logica interna) -->
-  <script>
-    (function(){
-      const VIEWS = ['a','b'];
-      const $  = s => document.querySelector(s);
-      const $$ = s => Array.from(document.querySelectorAll(s));
-
-      function activate(view){
-        if (!VIEWS.includes(view)) view = 'a';
-        $('#view-a').classList.toggle('active', view==='a');
-        $('#view-b').classList.toggle('active', view==='b');
-        $$('.x-tab').forEach(t => t.setAttribute('aria-selected', t.dataset.tab===view ? 'true' : 'false'));
-        // Se passi a B e vuoi fermare la decodifica QR nel documento interno:
-        // const w = document.getElementById('pageA-frame')?.contentWindow; if(view==='b' && w?.stopQR){ try{ w.stopQR(); }catch(e){} }
-      }
-
-      function onHashChange(){ activate((location.hash || '#a').slice(1)); }
-
-      document.querySelector('.x-tabbar-inner').addEventListener('click', e => {
-        const a = e.target.closest('.x-tab'); if (!a) return;
-        e.preventDefault(); history.replaceState(null,'','#'+a.dataset.tab); activate(a.dataset.tab);
-      });
-
-      window.addEventListener('hashchange', onHashChange);
-      if (!location.hash) history.replaceState(null,'','#a');
-      onHashChange();
-    })();
-  </script>
-
-  <!-- A) METTI QUI DENTRO il TUO FILE COMPLETO 1:1 (nessun escape) -->
-  <template id="pageA-tpl">
-<<!doctype html>
-<html lang="it">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>SSO – Switcher (Scanner + Stoccaggio) — con Pagina A INCOLLATA 1:1</title>
-
-  <!-- === STILI SWITCHER TOP (glass) === -->
-  <style>
-    /* Prefisso x- per evitare collisioni */
-    html,body{height:100%;background:#000}
-    body{margin:0;color:#fff;font-family:-apple-system,system-ui,Segoe UI,Roboto,sans-serif}
-
-    .x-wrap{min-height:100vh;padding:calc(72px + env(safe-area-inset-top)) 16px 24px}
-    [data-view]{display:none}
-    [data-view].active{display:block}
-
-    .x-tabbar{
-      position:fixed;left:0;right:0;top:0;z-index:1000;
-      display:flex;justify-content:center;
-      padding:calc(6px + env(safe-area-inset-top)) 12px 8px;
-    }
-    .x-tabbar-inner{
-      display:grid;grid-template-columns:repeat(2,1fr);gap:8px;
-      width:min(720px,92vw);padding:10px;border-radius:24px;
-      background:rgba(22,22,24,.28);backdrop-filter:saturate(160%) blur(20px);
-      -webkit-backdrop-filter:saturate(160%) blur(20px);
-      border:1px solid rgba(255,255,255,.18);
-    }
-    .x-tab{
-      display:flex;align-items:center;justify-content:center;gap:8px;
-      padding:10px 14px;border-radius:16px;text-decoration:none;cursor:pointer;
-      color:#bbb;border:1px solid transparent;-webkit-tap-highlight-color:transparent;
-    }
-    .x-tab[aria-selected="true"]{
-      color:#fff;background:rgba(255,255,255,.15);border-color:rgba(255,255,255,.22);
-    }
-    .x-icon{width:20px;text-align:center}
-    .x-lbl{font:13px/1.2 -apple-system,system-ui,Segoe UI,Roboto,sans-serif}
-
-    /* Pagina A in iframe a tutta larghezza/altezza */
-    #pageA-frame{
-      width:100%;min-height:calc(100vh - 120px);
-      border:0;border-radius:16px;overflow:hidden;
-      background:#000;
-    }
-    @media (min-width:900px){
-      #pageA-frame{min-height:calc(100vh - 96px);}
-    }
-  </style>
-</head>
-<body>
-
-  <!-- === SWITCHER TOP === -->
-  <nav class="x-tabbar" role="tablist" aria-label="Navigazione pagine">
-    <div class="x-tabbar-inner">
-      <a class="x-tab" role="tab" href="#a" data-tab="a" aria-selected="true">
-        <span class="x-icon" aria-hidden="true">📷</span><span class="x-lbl">Scanner</span>
-      </a>
-      <a class="x-tab" role="tab" href="#b" data-tab="b" aria-selected="false">
-        <span class="x-icon" aria-hidden="true">📋</span><span class="x-lbl">Stoccaggio</span>
-      </a>
-    </div>
-  </nav>
-
-  <!-- === CONTENUTO 2 PAGINE === -->
-  <main class="x-wrap">
-    <!-- ============== PAGINA A: il TUO BLOCCO INTERO, INCOLLATO 1:1 dentro un iframe (srcdoc) ============== -->
-    <section id="view-a" data-view class="active">
-      <iframe id="pageA-frame" title="SSO Scanner Pagina A (srcdoc)"></iframe>
-    </section>
-
-   <!-- ============== PAGINA B: placeholder “in sviluppo” ============== -->
-<section id="view-b" data-view>
-  <div style="
-    max-width:820px;
-    margin:24px auto 0;
-    padding:18px 20px;
-    border:2px dashed #7a7a7a;
-    border-radius:16px;
-    background:#0b0b0b;
-    color:#eaeaea;
-    font:14px/1.45 -apple-system,system-ui,Segoe UI,Roboto,sans-serif;
-  ">
-    questa pagina è in fase di sviluppo, verrà rilasciata con la versione 10.0 dell'app nei prossimi aggiornamenti, tu non devi fare nulla, appena pronta la vedrai - Pepe.
-  </div>
-</section>
-
-  <!-- === ROUTER 2 PAGINE (non tocca la tua logica) === -->
-  <script>
-    (function(){
-      const VIEWS = ['a','b'];
-      const $  = s => document.querySelector(s);
-      const $$ = s => Array.from(document.querySelectorAll(s));
-
-      function activate(view){
-        if (!VIEWS.includes(view)) view = 'a';
-        $('#view-a').classList.toggle('active', view==='a');
-        $('#view-b').classList.toggle('active', view==='b');
-        $$('.x-tab').forEach(t => t.setAttribute('aria-selected', t.dataset.tab===view ? 'true' : 'false'));
-        // Nota: Pagina A è in iframe -> la sua camera/QR è isolata e non confligge con B.
-      }
-
-      function onHashChange(){ activate((location.hash || '#a').slice(1)); }
-
-      $('.x-tabbar-inner').addEventListener('click', e => {
-        const a = e.target.closest('.x-tab'); if (!a) return;
-        e.preventDefault(); history.replaceState(null,'','#'+a.dataset.tab); activate(a.dataset.tab);
-      });
-
-      window.addEventListener('hashchange', onHashChange);
-      if (!location.hash) history.replaceState(null,'','#a');
-      onHashChange();
-    })();
-  </script>
-
-  <!-- === INIEZIONE DEL TUO BLOCCO *INTEGRALE* NELL'IFRAME (srcdoc) === -->
-  <script>
-    (function(){
-      // ⚠️ Qui sotto c'è il TUO codice 1:1, senza tagli.
-      // Lo carico in <iframe srcdoc> per preservare DOCTYPE, <html>, <head>, CSS, JS e comportamenti.
-      // Per sicurezza, escapo '</script>' -> '<\/script>' per non chiudere questo <script>.
-      const fullDoc = `
-<!doctype html>
-<html lang="it">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>SSO - Scanner Stoccaggio Ordini — Mini-SPA (2 viste)</title>
 
   <!-- 👇 Stili SPA (leggeri, non toccano il tuo CSS interno) -->
@@ -1279,7 +1037,7 @@
               if (document.visibilityState === 'hidden') await stopCamera();
             });
           })();
-          <\/script>
+          </script>
 
           <!-- QR scanner (ZXing) -->
           <script type="module">
@@ -1306,7 +1064,7 @@
               try { if (qrControls) qrControls.stop(); } catch(_) {}
               qrControls = null;
             };
-          <\/script>
+          </script>
         </body>
         </html>
 
@@ -1359,62 +1117,98 @@
       if (!location.hash) location.replace('#A');
       applyRouteFromHash();
     })();
-  <\/script>
-</body>
-</html>
-`.replaceAll('</script>','<\/script>'); // escape di sicurezza
-
-      const iframe = document.getElementById('pageA-frame');
-      // Carico il documento completo dentro l’iframe senza toccare nulla
-      iframe.srcdoc = fullDoc;
-    })();
-  </script>
-</body>
-</html>>
-<html lang="it">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>SSO - Scanner Stoccaggio Ordini — Mini-SPA (2 viste)</title>
-  <!-- ▼▼▼ TUTTO il TUO CSS/HTML/JS originale. Nessuna modifica. ▼▼▼ -->
-  <style>
-    :root{ --spa-bg:#000; --spa-fg:#fff; --spa-muted:#1c1c1e; --spa-accent:#0a84ff; }
-    html, body { height:100%; background:#000; }
-    body { margin:0; color:var(--spa-fg); font-family:-apple-system,system-ui,Segoe UI,Roboto,sans-serif; }
-    #app { min-height:100dvh; position:relative; }
-    .view { display:none; }
-    .view.active { display:block; }
-    .tabbar { position:fixed; left:0; right:0; bottom:0; z-index:9999; height:64px; background:#0b0b0b; border-top:1px solid #111; display:flex; gap:8px; align-items:center; justify-content:space-around; padding:8px 10px; }
-    .tabbar .tab { flex:1; height:48px; border-radius:12px; border:1px solid #2c2c2e; background:#161618; color:#fff; font-weight:800; cursor:pointer; display:flex; align-items:center; justify-content:center; text-decoration:none; user-select:none; }
-    .tabbar .tab.active { background:linear-gradient(180deg, #b8ffd4, #a4f5c4); color:#003b1f; border-color:#98f0c0; box-shadow:0 6px 18px rgba(120,255,180,.35), inset 0 1px 0 rgba(255,255,255,.35); }
-    .spa-safe-bottom { padding-bottom:max(88px, env(safe-area-inset-bottom)); }
-  </style>
-</head>
-<body>
-  <!-- 🔽🔽🔽  INCOLLA QUI SOTTO il TUO BLOCCO INTERO così com'è (quello che mi hai mandato) 🔽🔽🔽 -->
-  <!--
-    ✅ Include: header, hero, STEP 1/2/3/4, TUTTO il CSS, lo script IIFE principale,
-    ✅ e lo <script type="module"> con ZXing (BrowserQRCodeReader), ecc.
-    ⚠️ Nota: non serve nessuna modifica: il documento vivrà isolato nell'iframe.
-  -->
-
-  <!-- …………………………………………………  TUO BLOCCO COMPLETO QUI  ………………………………………………… -->
-
-</body>
-</html>
-  </template>
-
-  <!-- B) Montaggio nell’iframe (document.write: esegue gli <script> interni) -->
-  <script>
-    (function(){
-      const iframe = document.getElementById('pageA-frame');
-      const tpl = document.getElementById('pageA-tpl');
-      if (!iframe || !tpl) return;
-      const doc = iframe.contentWindow.document;
-      doc.open();
-      doc.write(tpl.innerHTML);
-      doc.close();
-    })();
   </script>
 </body>
 </html>
+
+
+A questo blocco di codice vorrei che lo inserissi nella pagina 1 di uno switcher che adesso ti inserisco il codice di come inserirlo e come lo vorrei.
+
+
+<!-- === 1) MARKUP: aggiungi lo switcher + le due pagine ===
+     Inserisci QUESTO blocco DENTRO <body>, subito sotto la tua <header> (se c’è).
+     INCOLLA il TUO CODICE GRANDE al posto del commento in #view-a.
+-->
+<nav class="x-tabbar" role="tablist" aria-label="Navigazione pagine">
+  <div class="x-tabbar-inner">
+    <a class="x-tab" role="tab" href="#a" data-tab="a" aria-selected="true">
+      <span class="x-icon" aria-hidden="true">📷</span><span class="x-lbl">Scanner</span>
+    </a>
+    <a class="x-tab" role="tab" href="#b" data-tab="b" aria-selected="false">
+      <span class="x-icon" aria-hidden="true">📋</span><span class="x-lbl">Stoccaggio</span>
+    </a>
+  </div>
+</nav>
+
+<main class="x-wrap">
+  <!-- PAGINA A: incolla qui TUTTO il tuo codice grande (markup+script+stili inlined)
+       Se hai <script> a fondo pagina, lasciali pure dove sono. -->
+  <section id="view-a" data-view class="active">
+    <!-- ====== INCOLLA QUI IL TUO CODICE GRANDE ====== -->
+  </section>
+
+  <!-- PAGINA B: vuota (ci lavorerai dopo) -->
+  <section id="view-b" data-view></section>
+</main>
+
+<!-- === 2) STILI MINIMI: aggiungi nel tuo <head> (o nel tuo CSS globale) === -->
+<style>
+  /* Prefisso x- per evitare collisioni con i tuoi stili */
+  .x-wrap{ min-height:100vh; padding:calc(72px + env(safe-area-inset-top)) 16px 24px; }
+  [data-view]{ display:none; }
+  [data-view].active{ display:block; }
+
+  /* Top switcher “glass” leggero */
+  .x-tabbar{
+    position:fixed; left:0; right:0; top:0; z-index:1000;
+    display:flex; justify-content:center;
+    padding:calc(6px + env(safe-area-inset-top)) 12px 8px;
+  }
+  .x-tabbar-inner{
+    display:grid; grid-template-columns:repeat(2,1fr); gap:8px;
+    width:min(720px,92vw); padding:10px; border-radius:24px;
+    background:rgba(22,22,24,.28); backdrop-filter:saturate(160%) blur(20px);
+    -webkit-backdrop-filter:saturate(160%) blur(20px);
+    border:1px solid rgba(255,255,255,.18);
+  }
+  .x-tab{
+    display:flex; align-items:center; justify-content:center; gap:8px;
+    padding:10px 14px; border-radius:16px; text-decoration:none; cursor:pointer;
+    color:#bbb; border:1px solid transparent; -webkit-tap-highlight-color:transparent;
+  }
+  .x-tab[aria-selected="true"]{
+    color:#fff; background:rgba(255,255,255,.15); border-color:rgba(255,255,255,.22);
+  }
+  .x-icon{ width:20px; text-align:center }
+  .x-lbl{ font:13px/1.2 -apple-system,system-ui,Segoe UI,Roboto,sans-serif }
+</style>
+
+<!-- === 3) SCRIPT ROUTER: aggiungi PRIMA della chiusura </body> === -->
+<script>
+  // Router 2 pagine (senza ricaricare). Non tocca il tuo codice esistente.
+  (function(){
+    const VIEWS = ['a','b'];
+    const $ = s => document.querySelector(s);
+    const $$ = s => Array.from(document.querySelectorAll(s));
+
+    function activate(view){
+      if (!VIEWS.includes(view)) view = 'a';
+      $('#view-a').classList.toggle('active', view==='a');
+      $('#view-b').classList.toggle('active', view==='b');
+      $$('.x-tab').forEach(t => t.setAttribute('aria-selected', t.dataset.tab===view ? 'true' : 'false'));
+    }
+    function onHashChange(){
+      const view = (location.hash || '#a').slice(1);
+      activate(view);
+    }
+    // Click diretto (utile anche in embed)
+    $('.x-tabbar-inner').addEventListener('click', e => {
+      const a = e.target.closest('.x-tab'); if (!a) return;
+      e.preventDefault(); history.replaceState(null,'','#'+a.dataset.tab); activate(a.dataset.tab);
+    });
+
+    window.addEventListener('hashchange', onHashChange);
+    if (!location.hash) history.replaceState(null,'','#a');
+    onHashChange();
+  })();
+</script>
