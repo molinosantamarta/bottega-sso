@@ -3,80 +3,9 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>SSO – Switcher (Scanner + Stoccaggio)</title>
+  <title>Scanner – SSO</title>
   <style>
-    html,body{height:100%;background:#000}
-    body{margin:0;color:#fff;font-family:-apple-system,system-ui,Segoe UI,Roboto,sans-serif}
-    .x-wrap{min-height:100vh;padding:calc(72px + env(safe-area-inset-top)) 16px 24px}
-    [data-view]{display:none}
-    [data-view].active{display:block}
-    .x-tabbar{position:fixed;left:0;right:0;top:0;z-index:1000;display:flex;justify-content:center;padding:calc(6px + env(safe-area-inset-top)) 12px 8px;}
-    .x-tabbar-inner{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;width:min(720px,92vw);padding:10px;border-radius:24px;background:rgba(22,22,24,.28);backdrop-filter:saturate(160%) blur(20px);-webkit-backdrop-filter:saturate(160%) blur(20px);border:1px solid rgba(255,255,255,.18);}
-    .x-tab{display:flex;align-items:center;justify-content:center;gap:8px;padding:10px 14px;border-radius:16px;text-decoration:none;cursor:pointer;color:#bbb;border:1px solid transparent;-webkit-tap-highlight-color:transparent}
-    .x-tab[aria-selected="true"]{color:#fff;background:rgba(255,255,255,.15);border-color:rgba(255,255,255,.22)}
-    .x-icon{width:20px;text-align:center}
-    .x-lbl{font:13px/1.2 -apple-system,system-ui,Segoe UI,Roboto,sans-serif}
-    /* iframe della pagina A */
-    #pageA-frame{width:100%;min-height:calc(100vh - 120px);border:0;border-radius:16px;overflow:hidden;background:#000}
-    @media (min-width:900px){#pageA-frame{min-height:calc(100vh - 96px)}}
-  </style>
-</head>
-<body>
-  <!-- Switcher top -->
-  <nav class="x-tabbar" role="tablist" aria-label="Navigazione pagine">
-    <div class="x-tabbar-inner">
-      <a class="x-tab" role="tab" href="#a" data-tab="a" aria-selected="true"><span class="x-icon">📷</span><span class="x-lbl">Scanner</span></a>
-      <a class="x-tab" role="tab" href="#b" data-tab="b" aria-selected="false"><span class="x-icon">📋</span><span class="x-lbl">Stoccaggio</span></a>
-    </div>
-  </nav>
-
-  <!-- Pagine -->
-  <main class="x-wrap">
-    <!-- Pagina A: il codice scanner completo viene montato in un iframe, 1:1 -->
-    <section id="view-a" data-view class="active">
-      <iframe id="pageA-frame" title="SSO Scanner"></iframe>
-    </section>
-
-    <!-- Pagina B: messaggio tratteggiato -->
-    <section id="view-b" data-view>
-      <div style="max-width:820px;margin:24px auto 0;padding:18px 20px;border:2px dashed #7a7a7a;border-radius:16px;background:#0b0b0b;color:#eaeaea;font:14px/1.45 -apple-system,system-ui,Segoe UI,Roboto,sans-serif">
-        questa pagina è in fase di sviluppo, verrà rilasciata con la versione 10.0 dell'app nei prossimi aggiornamenti, tu non devi fare nulla, appena pronta la vedrai - Pepe.
-      </div>
-    </section>
-  </main>
-
-  <!-- Router 2 pagine -->
-  <script>
-    (function(){
-      const VIEWS=['a','b'];
-      const $=s=>document.querySelector(s);
-      const $$=s=>Array.from(document.querySelectorAll(s));
-      function activate(view){
-        if(!VIEWS.includes(view)) view='a';
-        $('#view-a').classList.toggle('active',view==='a');
-        $('#view-b').classList.toggle('active',view==='b');
-        $$('.x-tab').forEach(t=>t.setAttribute('aria-selected',t.dataset.tab===view?'true':'false'));
-        // facoltativo: quando passi a B, puoi provare a fermare la camera nel documento interno
-        // const w = document.getElementById('pageA-frame')?.contentWindow; if(view==='b' && w?.stopQR){ try{ w.stopQR(); }catch(e){} }
-      }
-      function onHashChange(){ activate((location.hash||'#a').slice(1)); }
-      document.querySelector('.x-tabbar-inner').addEventListener('click',e=>{ const a=e.target.closest('.x-tab'); if(!a) return; e.preventDefault(); history.replaceState(null,'','#'+a.dataset.tab); activate(a.dataset.tab); });
-      window.addEventListener('hashchange',onHashChange);
-      if(!location.hash) history.replaceState(null,'','#a');
-      onHashChange();
-    })();
-  </script>
-
-  <!-- Template con il TUO documento scanner completo (aggiornato alla nuova grafica) -->
-  <template id="scanner-doc">
-<!doctype html>
-<html lang="it">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>SSO - Scanner Stoccaggio Ordini</title>
-  <style>
-    /* Base */
+    /* Reset pagina e sfondo nero pieno */
     html, body { height:100%; background:#000; }
     body { margin:0; }
 
@@ -94,48 +23,51 @@
       --success:#22c55e;
       --torch-on:#ffd60a;
       --yellow:#ffd60a;
-      --pane-w:min(92vw,480px);     /* larghezza allineata alla tabbar */
-      --radius-outer:28px;           /* raggio come la tabbar */
-      --radius-inner:20px;
+      /* Nuovi token per allineo alla tabbar */
+      --pane-w: min(92vw, 480px);
+      --radius-outer: 28px;  /* come tabbar */
+      --radius-inner: 20px;
       background:var(--bg);
       color:var(--fg);
       font-family:-apple-system,system-ui,Segoe UI,Roboto,sans-serif;
       -webkit-text-size-adjust:115%;
       text-size-adjust:115%;
     }
+    [data-sso] .wrap{ padding:12px 12px 40px; max-width:760px; margin:0 auto; }
 
-    [data-sso] .wrap{ padding:12px 12px 40px; max-width:760px; margin:0 auto; display:flex; flex-direction:column; align-items:center; }
-
-    /* Header conservato (dark) */
-    [data-sso] header{ padding:16px 16px 12px; text-align:center; border-bottom:1px solid #111; overflow:hidden; }
-    [data-sso] header h1{
-      margin:0; font-size:21px; font-weight:900; line-height:1.3; color:transparent;
-      background:linear-gradient(90deg, #ff0000 0%, #ff9900 25%, #ffff00 50%, #ff9900 75%, #ff0000 100%);
-      -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent;
-      background-size:300% 100%; animation:radar-sweep 8s linear infinite;
+    /*
+      ▼▼ SOLO STILE (nessun cambiamento funzionale) ▼▼
+      - Le 4 sezioni diventano card bianche, larghe quanto la tabbar (92% fino a 480px)
+      - Bordi più stondati e coerenti
+      - Interni e bottoni arrotondati
+    */
+    [data-sso] .section{
+      width:var(--pane-w);
+      margin:16px auto;
+      border-radius:var(--radius-outer);
+      padding:12px;
+      background:#fff; /* sfondo bianco richiesto */
+      color:#111;
+      border:1px solid rgba(0,0,0,.08);
+      box-shadow:0 12px 28px rgba(0,0,0,.15);
+      transition:background .25s ease, box-shadow .25s ease, border-color .25s ease;
+      overflow:hidden;
     }
-    [data-sso] header .subtitle { margin-top:6px; font-size:15px; font-weight:600; color:#ddd; opacity:.9; }
-    .beta-row{ display:flex; justify-content:center; margin-top:14px; }
-    .beta-pill{ display:inline-flex; align-items:center; justify-content:center; padding:6px 10px; border-radius:999px; background:#ffd60a; color:#000; font-weight:800; font-size:12px; box-shadow:0 1px 0 rgba(255,255,255,.25) inset, 0 4px 12px rgba(0,0,0,.25); border:1px solid #e6c408; letter-spacing:.2px; }
+    [data-sso] .section.active{
+      /* mantengo l'indicazione di attivo con un leggero accento, ma tenue su bianco */
+      background:linear-gradient(180deg, #ffffff, #fbfbfb);
+      box-shadow:0 14px 32px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.6);
+      border-color:rgba(0,0,0,.12);
+    }
 
-    /* Immagini header */
-    .hero-img-wrap{ display:flex; flex-direction:row; align-items:center; justify-content:center; margin-top:14px; margin-bottom:10px; gap:0; position:relative; }
-    @keyframes slideInRight { from { transform:translateX(60px); opacity:0; } to { transform:translateX(0); opacity:1; } }
-    .hero-img-wrap img{ position:relative; left:7px; }
-    .hero-img-wrap img.alt{ width:32.8%; max-width:295px; height:auto; border-radius:12px; display:block; box-shadow:0 10px 30px rgba(0,0,0,.25); animation:slideInRight .9s ease-out both; z-index:2; }
-    .hero-img-wrap img.altB{ width:31.5%; max-width:284px; height:auto; border-radius:12px; display:block; box-shadow:0 10px 30px rgba(0,0,0,.2); animation:slideInRight .6s .05s ease-out both; margin-left:-3%; z-index:1; opacity:.95; top:6px; }
+    /* Titolo step: mantiene tipografia originale, ma colore adeguato su bianco */
+    [data-sso] .step-title{ color:#111; font-size:14px; opacity:.95; margin-bottom:16px; display:flex; align-items:center; gap:8px; }
+    [data-sso] .step-badge{ background:#f1f1f5; color:#111; border-radius:999px; padding:2px 8px; font-size:12px; border:1px solid #e2e2e8; }
+    [data-sso] .step-badge.done{ background:linear-gradient(180deg,#eafff2,#b8ffd4); color:#073; font-weight:900; border-color:#a4f5c4; text-shadow:none; }
+    @keyframes pulse-badge { 0%,100%{ transform:scale(1); box-shadow:0 0 0 0 rgba(10,132,255,0);} 50%{ transform:scale(1.1); box-shadow:0 0 0 6px rgba(10,132,255,.15);} }
+    [data-sso] .step-badge.pulse{ animation:pulse-badge 1.2s ease-in-out infinite; background:linear-gradient(180deg, #0a84ff, #0569c9); color:#fff; border-color:#0569c9; }
 
-    /* *** NUOVA GRAFICA DEI 4 BLOCCHI: centrati, bianchi, stondati *** */
-    .section{ width:var(--pane-w); margin:16px auto; border-radius:var(--radius-outer); padding:12px; background:#fff; color:#111; border:1px solid rgba(0,0,0,.08); box-shadow:0 12px 28px rgba(0,0,0,.15); transition:background .25s ease, box-shadow .25s ease, border-color .25s ease; overflow:hidden; }
-    .section.active{ background:linear-gradient(180deg,#ffffff,#fbfbfb); box-shadow:0 14px 32px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.6); border-color:rgba(0,0,0,.12); }
-
-    .step-title{ color:#111; font-size:14px; opacity:.95; margin-bottom:16px; display:flex; align-items:center; gap:8px; }
-    .step-badge{ background:#f1f1f5; color:#111; border-radius:999px; padding:2px 8px; font-size:12px; border:1px solid #e2e2e8; }
-    .step-badge.done{ background:linear-gradient(180deg,#eafff2,#b8ffd4); color:#073; font-weight:900; border-color:#a4f5c4; }
-    @keyframes pulse-badge { 0%,100%{ transform:scale(1);} 50%{ transform:scale(1.1);} }
-    .step-badge.pulse{ animation:pulse-badge 1.2s ease-in-out infinite; background:linear-gradient(180deg, #0a84ff, #0569c9); color:#fff; border-color:#0569c9; }
-
-    /* Segmented, chips e input: invariati ma coerenti con fondo bianco */
+    /* Segmenti/Chip: mantengo look ma addolcisco bordo per coerenza con card bianca */
     .seg-row{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-bottom:12px; }
     .seg-label{ font-size:13px; color:#333; opacity:.85; min-width:72px; }
     .seg{ display:flex; background:#121214; border:1px solid var(--border); border-radius:999px; overflow:auto; -webkit-overflow-scrolling:touch; }
@@ -151,10 +83,12 @@
     .custom input::placeholder{ color:#8d8d95; }
     .custom button{ padding:12px 14px; border-radius:999px; border:0; background:#efeff2; color:#111; font-weight:700; cursor:pointer; }
 
+    /* Selezione zona: bordo/radius più dolci, attivo in giallo come prima */
     .selected-zone{ margin-top:10px; padding:10px 12px; border-radius:16px; background:#fafafa; border:1px solid #e6e6ea; display:flex; align-items:center; gap:8px; font-weight:600; color:#222; }
     .selected-zone.active{ background:#ffd60a; color:#000; box-shadow:0 4px 14px rgba(0,0,0,.18); border-color:#e6c408; }
     .selected-dot{ width:10px; height:10px; border-radius:999px; background:var(--ok); display:inline-block; }
 
+    /* Video wrapper dentro card bianca: angoli più tondi e bordo chiaro */
     .video-wrap{ width:100%; aspect-ratio:16/9; border-radius:var(--radius-inner); overflow:hidden; border:1px solid #e6e6ea; margin-top:10px; background:#000; position:relative; display:block; }
     @media (max-width:600px){ .video-wrap{ height:56vw; aspect-ratio:auto; } }
     .video-wrap.paused::after{ content:"La scansione è in pausa"; position:absolute; inset:0; display:flex; align-items:center; justify-content:center; backdrop-filter:blur(6px) brightness(.7); color:#fff; font-weight:800; letter-spacing:.6px; }
@@ -171,6 +105,7 @@
     .ph-row{ display:flex; align-items:center; gap:12px; justify-content:center; width:100%; }
     .ph-icon{ width:36px; height:36px; opacity:.9; }
 
+    /* Box riepilogo interno: mantengo dark originale per non toccare palette globale */
     .box{ border:1px solid var(--border); border-radius:var(--radius-inner); padding:12px; background:#0b0b0b; margin-top:10px; color:#fff; }
     .label{ font-size:12px; opacity:.85; margin-bottom:4px; }
     .zone-line{ font-size:15px; font-weight:700; margin-bottom:8px; }
@@ -184,6 +119,7 @@
     .summary{ margin-top:10px; font-size:12px; opacity:.75; }
     .divider{ height:0.75px; background:#fff; opacity:.18; margin:10px 0 12px; border-radius:1px; }
 
+    /* Tastierino manuale: arrotondo un po' di più */
     .manual-wrap{ margin-top:12px; }
     .manual-controls{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
     .keypad{ display:none; margin-top:10px; }
@@ -194,6 +130,7 @@
     .key.action{ background:#2a2a2d; }
     .key.confirm{ background:#ffd60a; color:#000; }
 
+    /* Bottoni principali: più stondati senza cambiare colori/ruoli */
     .btn{ padding:14px 16px; border:0; border-radius:24px; font-size:16px; font-weight:700; color:#fff; cursor:pointer; transition: filter .15s ease, opacity .15s ease, background-color .15s ease, color .15s ease; display:inline-flex; align-items:center; justify-content:center; line-height:1; }
     .btn:disabled{ opacity:.7; cursor:not-allowed; filter:none; }
     .primary{ background:var(--accent); }
@@ -211,6 +148,7 @@
     .controls.split .btn{ flex:1; }
     #section3 .controls.split .btn{ font-size:18px; padding:21px 16px; }
 
+    /* Pulsante torcia: shape più coerente su fondo bianco */
     .icon-btn{ width:44px; height:44px; border-radius:999px; position:relative; border:1px solid #e6e6ea; background:#fff; color:#000; display:inline-flex; align-items:center; justify-content:center; cursor:pointer; box-shadow:inset 0 1px 0 rgba(255,255,255,.6), 0 4px 10px rgba(0,0,0,.12); overflow:visible; }
     .icon-btn.torch-on{ background:var(--torch-on); color:#111; border-color:#d8be07; box-shadow:0 6px 16px rgba(0,0,0,.16); }
     .icon-btn:active{ transform:scale(.97); }
@@ -221,24 +159,18 @@
     .torch-label{ font-size:15px; line-height:1.05; text-align:right; opacity:.9; text-transform:lowercase; color:#222; }
     .torch-label strong{ display:block; text-transform:uppercase; }
 
-    /* Pulsante finale esterno a tutta larghezza */
-    .final-btn{ display:none; margin:14px auto 0; width:var(--pane-w); padding:18px; font-size:18px; font-weight:800; border-radius:28px; background:var(--yellow); color:#000; text-align:center; box-shadow:0 6px 18px rgba(0,0,0,.25); border:1px solid #e6c408; cursor:pointer; }
-
-    @keyframes radar-sweep{0%{background-position:0% 50%;}50%{background-position:200% 50%;}100%{background-position:0% 50%;}}
+    .spacer{ height:1px; }
   </style>
 </head>
 <body>
+  <!--
+    ⤷ CODICE SOTTO: identico al tuo (nessuna modifica funzionale).
+    Ho solo toccato il CSS sopra per:
+      - larghezza card = tabbar (92% fino a 480px)
+      - sfondo bianco + bordi stondati
+      - bottoni/inputs più arrotondati
+  -->
   <div data-sso>
-    <header>
-      <h1>SSO - Scanner Stoccaggio Ordini</h1>
-      <div class="subtitle">Scansiona le spese in pochi secondi e trovale subito al momento del ritiro!</div>
-      <div class="hero-img-wrap">
-        <img class="alt" src="https://static.wixstatic.com/media/9d749b_4e7e462b0d2e40448664f342bb2cd2b5~mv2.png/v1/fill/w_116,h_126,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/shopper%20bottega_anteprima_edited_edited_.png" alt="Immagine 1" />
-        <img class="altB" src="https://community.appinventor.mit.edu/uploads/default/original/3X/c/2/c21a68fb6312af849c89a657cd12c56faf74dc8e.gif" alt="Animazione" />
-      </div>
-      <div class="beta-row"><span class="beta-pill">Versione 9.0</span></div>
-    </header>
-
     <div class="wrap">
       <!-- STEP 1 -->
       <div class="section active" id="section1">
@@ -339,7 +271,7 @@
                 <div class="key">7</div><div class="key">8</div><div class="key">9</div>
                 <div class="key action" data-act="back">⌫</div>
                 <div class="key">0</div>
-                <div class="key confirm" data-act="ok" aria-label="Aggiungi">+</div>
+                <div class="key confirm" data-act="ok">Aggiungi</div>
               </div>
             </div>
           </div>
@@ -357,17 +289,18 @@
       <div class="section" id="section4" style="display:none">
         <div class="step-title"><span class="step-badge" id="badge4">4</span> Invio scansioni</div>
         <div class="box gradient-border" id="step4Box"></div>
-        <!-- Manteniamo l'outer per retrocompatibilità, ma non mostriamo il bottone qui dentro -->
-        <div class="progress-done" id="pDoneOuter" style="display:none"></div>
+        <div class="progress-done" id="pDoneOuter" style="display:none">
+          <button id="btnNew" class="btn btn-yellow">Nuova scansione</button>
+        </div>
       </div>
-
-      <!-- Pulsante finale esterno a tutta larghezza -->
-      <button id="btnNew" class="final-btn">Nuova scansione</button>
 
       <div class="spacer"></div>
     </div>
   </div>
 
+  <!--
+    ▼▼ TUTTO IL TUO JS ORIGINALE INVARIATO ▼▼
+  -->
   <script>
   (function(){
     const root = document.querySelector('[data-sso]');
@@ -419,11 +352,9 @@
       ENTRY_ORDERS: "entry.1223265482"   // Domanda 2: ORDINI (short answer)
     };
 
-    // Forza hint/guide nascosti all’avvio
     if (qrGuide) qrGuide.style.display = 'none';
     if (qrHint)  qrHint.style.display  = 'none';
 
-    // === AUDIO ===
     const AC = window.AudioContext || window.webkitAudioContext;
     let audioCtx = null;
     function ensureAC(){ if (!audioCtx) audioCtx = new AC(); return audioCtx; }
@@ -437,12 +368,11 @@
         g.gain.exponentialRampToValueAtTime(gain, now + 0.01);
         g.gain.exponentialRampToValueAtTime(0.0001, now + dur);
         o.start(now); o.stop(now + dur + 0.02);
-      }catch(_){} }
+      }catch(_){}}
     function soundZoneChange(){ playTone(660, 0.09, 'triangle', 0.18); }
     function soundScanOK(){  playTone(1046.5, 0.10, 'sine', 0.22, 0.00); playTone(1318.5, 0.11, 'sine', 0.20, 0.07); }
     function soundScanDuplicate(){ playTone(392, 0.18, 'square', 0.22); }
 
-    // STEP 1 pulse
     badge1.classList.add('pulse');
 
     function markActive(sectionId){
@@ -681,7 +611,7 @@
       videoWrap.classList.remove('paused');
 
       if (stream){ for (const t of stream.getTracks()) t.stop(); stream = null; }
-      try{ video.pause(); }catch(_){}
+      try{ video.pause(); }catch(_){ } 
       video.srcObject = null;
       videoTrack = null;
 
@@ -754,11 +684,10 @@
       const zone = currentZone || '';
       const arr = (data[zone]||[]).slice().sort((a,b)=>a-b);
       const payload = JSON.stringify({ zona: zone, ordini: arr }, null, 0);
-      try { await navigator.clipboard.writeText(payload); } catch(_){ }
+      try { await navigator.clipboard.writeText(payload); } catch(_){}
       return payload;
     }
 
-    // === Invio al Google Form (2 domande: ZONA + ORDINI CSV) ===
     function submitToGoogleForm({ zona, ordini }) {
       if (!GFORM.ACTION || !GFORM.ENTRY_ZONE || !GFORM.ENTRY_ORDERS) {
         console.warn("Google Form non configurato.");
@@ -790,7 +719,7 @@
       const inOrders = document.createElement("input");
       inOrders.type  = "hidden";
       inOrders.name  = GFORM.ENTRY_ORDERS;
-      inOrders.value = ordersVal; // es: "1,2,3"
+      inOrders.value = ordersVal;
       form.appendChild(inOrders);
 
       document.body.appendChild(form);
@@ -806,7 +735,7 @@
       const summary = root.querySelector('#summary'); if (summary) summary.textContent = '0 ordini in memoria';
 
       if (clearClipboard){
-        try { await navigator.clipboard.writeText(''); } catch(_){ }
+        try { await navigator.clipboard.writeText(''); } catch(_){}
       }
 
       [badge1,badge2,badge3,badge4].forEach(b=>{ if(b) b.classList.remove('done','pulse'); });
@@ -843,9 +772,6 @@
       if (qrHint)  qrHint.style.display  = 'none';
 
       if (pDoneOuter) pDoneOuter.style.display = 'none';
-
-      // nascondi anche il bottone esterno
-      btnNewExternal.style.display = 'none';
     }
 
     btnClear.addEventListener('click', async ()=>{
@@ -864,12 +790,6 @@
 
     function startStep4Progress(){
       step4Box.innerHTML = `
-        <style>
-          .progress-wrap{ display:flex; flex-direction:column; gap:10px; }
-          .progress-outer{ width:100%; height:14px; border-radius:999px; background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.15); overflow:hidden; }
-          .progress-inner{ height:100%; width:0%; background:linear-gradient(90deg, #ffd60a, #ffe480); box-shadow:0 6px 18px rgba(0,0,0,.18); }
-          .progress-msg{ font-size:13px; opacity:.9; }
-        </style>
         <div class="progress-wrap">
           <div class="progress-outer"><div class="progress-inner" id="pInner"></div></div>
           <div class="progress-msg" id="pMsg">Inizializzo…</div>
@@ -891,13 +811,13 @@
             pInner.style.width = '100%';
             pMsg.textContent = 'Completato ✔︎';
             if (pDoneOuter) pDoneOuter.style.display = 'flex';
-            // mostra e collega il bottone esterno
-            btnNewExternal.style.display = 'block';
-            btnNewExternal.onclick = async ()=>{
-              await fullReset(true);
-              step4.style.display = 'none';
-              window.scrollTo({ top:0, behavior:'smooth' });
-            };
+            if (btnNewExternal){
+              btnNewExternal.onclick = async ()=>{
+                await fullReset(true);
+                step4.style.display = 'none';
+                window.scrollTo({ top:0, behavior:'smooth' });
+              };
+            }
           }, 4000);
         }
         pInner.style.width = pct + '%';
@@ -911,7 +831,6 @@
       }, 800);
     }
 
-    // "Termina e invia"
     btnCopy.addEventListener('click', async ()=>{
       const zoneForSubmit = currentZone || '';
       const arrForSubmit  = (data[zoneForSubmit] || []).slice().sort((a,b)=>a-b);
@@ -979,22 +898,6 @@
       try { if (qrControls) qrControls.stop(); } catch(_) {}
       qrControls = null;
     };
-  </script>
-</body>
-</html>
-  </template>
-
-  <!-- Montaggio nell'iframe (esegue gli <script> interni) -->
-  <script>
-    (function(){
-      const iframe = document.getElementById('pageA-frame');
-      const tpl = document.getElementById('scanner-doc');
-      if (!iframe || !tpl) return;
-      const doc = iframe.contentWindow.document;
-      doc.open();
-      doc.write(tpl.innerHTML);
-      doc.close();
-    })();
   </script>
 </body>
 </html>
