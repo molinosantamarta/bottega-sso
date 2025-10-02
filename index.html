@@ -3,6 +3,124 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>SSO – Switcher (Scanner + Stoccaggio) — con Pagina A INCOLLATA 1:1</title>
+
+  <!-- === STILI SWITCHER TOP (glass) === -->
+  <style>
+    /* Prefisso x- per evitare collisioni */
+    html,body{height:100%;background:#000}
+    body{margin:0;color:#fff;font-family:-apple-system,system-ui,Segoe UI,Roboto,sans-serif}
+
+    .x-wrap{min-height:100vh;padding:calc(72px + env(safe-area-inset-top)) 16px 24px}
+    [data-view]{display:none}
+    [data-view].active{display:block}
+
+    .x-tabbar{
+      position:fixed;left:0;right:0;top:0;z-index:1000;
+      display:flex;justify-content:center;
+      padding:calc(6px + env(safe-area-inset-top)) 12px 8px;
+    }
+    .x-tabbar-inner{
+      display:grid;grid-template-columns:repeat(2,1fr);gap:8px;
+      width:min(720px,92vw);padding:10px;border-radius:24px;
+      background:rgba(22,22,24,.28);backdrop-filter:saturate(160%) blur(20px);
+      -webkit-backdrop-filter:saturate(160%) blur(20px);
+      border:1px solid rgba(255,255,255,.18);
+    }
+    .x-tab{
+      display:flex;align-items:center;justify-content:center;gap:8px;
+      padding:10px 14px;border-radius:16px;text-decoration:none;cursor:pointer;
+      color:#bbb;border:1px solid transparent;-webkit-tap-highlight-color:transparent;
+    }
+    .x-tab[aria-selected="true"]{
+      color:#fff;background:rgba(255,255,255,.15);border-color:rgba(255,255,255,.22);
+    }
+    .x-icon{width:20px;text-align:center}
+    .x-lbl{font:13px/1.2 -apple-system,system-ui,Segoe UI,Roboto,sans-serif}
+
+    /* Pagina A in iframe a tutta larghezza/altezza */
+    #pageA-frame{
+      width:100%;min-height:calc(100vh - 120px);
+      border:0;border-radius:16px;overflow:hidden;
+      background:#000;
+    }
+    @media (min-width:900px){
+      #pageA-frame{min-height:calc(100vh - 96px);}
+    }
+  </style>
+</head>
+<body>
+
+  <!-- === SWITCHER TOP === -->
+  <nav class="x-tabbar" role="tablist" aria-label="Navigazione pagine">
+    <div class="x-tabbar-inner">
+      <a class="x-tab" role="tab" href="#a" data-tab="a" aria-selected="true">
+        <span class="x-icon" aria-hidden="true">📷</span><span class="x-lbl">Scanner</span>
+      </a>
+      <a class="x-tab" role="tab" href="#b" data-tab="b" aria-selected="false">
+        <span class="x-icon" aria-hidden="true">📋</span><span class="x-lbl">Stoccaggio</span>
+      </a>
+    </div>
+  </nav>
+
+  <!-- === CONTENUTO 2 PAGINE === -->
+  <main class="x-wrap">
+    <!-- ============== PAGINA A: il TUO BLOCCO INTERO, INCOLLATO 1:1 dentro un iframe (srcdoc) ============== -->
+    <section id="view-a" data-view class="active">
+      <iframe id="pageA-frame" title="SSO Scanner Pagina A (srcdoc)"></iframe>
+    </section>
+
+    <!-- ============== PAGINA B: placeholder “in sviluppo” ============== -->
+    <section id="view-b" data-view>
+      <div style="max-width:720px;margin:24px auto 0;border:1px solid #2c2c2e;border-radius:16px;padding:20px;background:#0b0b0b">
+        <h2 style="margin:0 0 8px;font-size:18px">Pagina in fase di sviluppo</h2>
+        <p style="margin:0;opacity:.85">
+          Verrà rilasciata con la versione <strong>10.0</strong> del codice sorgente dell’app — <em>Pepe</em>.
+        </p>
+      </div>
+    </section>
+  </main>
+
+  <!-- === ROUTER 2 PAGINE (non tocca la tua logica) === -->
+  <script>
+    (function(){
+      const VIEWS = ['a','b'];
+      const $  = s => document.querySelector(s);
+      const $$ = s => Array.from(document.querySelectorAll(s));
+
+      function activate(view){
+        if (!VIEWS.includes(view)) view = 'a';
+        $('#view-a').classList.toggle('active', view==='a');
+        $('#view-b').classList.toggle('active', view==='b');
+        $$('.x-tab').forEach(t => t.setAttribute('aria-selected', t.dataset.tab===view ? 'true' : 'false'));
+        // Nota: Pagina A è in iframe -> la sua camera/QR è isolata e non confligge con B.
+      }
+
+      function onHashChange(){ activate((location.hash || '#a').slice(1)); }
+
+      $('.x-tabbar-inner').addEventListener('click', e => {
+        const a = e.target.closest('.x-tab'); if (!a) return;
+        e.preventDefault(); history.replaceState(null,'','#'+a.dataset.tab); activate(a.dataset.tab);
+      });
+
+      window.addEventListener('hashchange', onHashChange);
+      if (!location.hash) history.replaceState(null,'','#a');
+      onHashChange();
+    })();
+  </script>
+
+  <!-- === INIEZIONE DEL TUO BLOCCO *INTEGRALE* NELL'IFRAME (srcdoc) === -->
+  <script>
+    (function(){
+      // ⚠️ Qui sotto c'è il TUO codice 1:1, senza tagli.
+      // Lo carico in <iframe srcdoc> per preservare DOCTYPE, <html>, <head>, CSS, JS e comportamenti.
+      // Per sicurezza, escapo '</script>' -> '<\/script>' per non chiudere questo <script>.
+      const fullDoc = `
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>SSO - Scanner Stoccaggio Ordini — Mini-SPA (2 viste)</title>
 
   <!-- 👇 Stili SPA (leggeri, non toccano il tuo CSS interno) -->
@@ -1037,7 +1155,7 @@
               if (document.visibilityState === 'hidden') await stopCamera();
             });
           })();
-          </script>
+          <\/script>
 
           <!-- QR scanner (ZXing) -->
           <script type="module">
@@ -1064,7 +1182,7 @@
               try { if (qrControls) qrControls.stop(); } catch(_) {}
               qrControls = null;
             };
-          </script>
+          <\/script>
         </body>
         </html>
 
@@ -1116,6 +1234,15 @@
       // Inizializza rotta (default su Pagina A)
       if (!location.hash) location.replace('#A');
       applyRouteFromHash();
+    })();
+  <\/script>
+</body>
+</html>
+`.replaceAll('</script>','<\/script>'); // escape di sicurezza
+
+      const iframe = document.getElementById('pageA-frame');
+      // Carico il documento completo dentro l’iframe senza toccare nulla
+      iframe.srcdoc = fullDoc;
     })();
   </script>
 </body>
