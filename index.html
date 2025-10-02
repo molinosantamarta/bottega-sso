@@ -18,18 +18,18 @@
 
     /* Immagini incrociate e centrate */
     .hero-img-wrap{display:flex;align-items:center;justify-content:center;margin-top:12px;position:relative}
-    .hero-img-wrap img{width:140px;max-width:160px;height:auto;border-radius:12px;position:relative}
-    .hero-img-wrap img:first-child{left:12px;z-index:1}
-    .hero-img-wrap img:last-child{right:12px;margin-left:-20px;z-index:2;top:2px}
+    .hero-img-wrap img{width:84px;max-width:96px;height:auto;border-radius:12px;position:relative}
+    .hero-img-wrap img:first-child{left:16px;z-index:1}
+    .hero-img-wrap img:last-child{right:16px;margin-left:-14px;z-index:2;top:2px}
 
-    /* Tabbar: segmented control moderno, stondato, con bolle Lottie chiare */
+    /* Tabbar: segmented control moderno, stondato, con bolle Lottie */
     .x-tabbar{margin-top:14px;display:flex;justify-content:center}
     .x-tabbar-inner{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;width:92%;max-width:480px;padding:8px;border-radius:38px;background:#141416;border:1px solid rgba(255,255,255,.10);box-shadow:0 12px 28px rgba(0,0,0,.35)}
     .x-tab{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:10px 12px;border-radius:28px;text-decoration:none;cursor:pointer;-webkit-tap-highlight-color:transparent;color:#c8c8ce;border:1px solid transparent;transition:background .15s ease, color .15s ease, border-color .15s ease, box-shadow .15s ease}
-    .x-tab[aria-selected="true"]{color:#fff;background:#2a2a2d;border-color:rgba(255,255,255,.16);box-shadow:inset 0 1px 0 rgba(255,255,255,.06), 0 6px 16px rgba(0,0,0,.35)}
+    .x-tab[aria-selected="true"]{background:#ffd60a;color:#000;font-weight:700;border-color:#e6c408;box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 6px 16px rgba(0,0,0,.35)}
 
-    .ico-bubble{width:42px;height:42px;border-radius:16px;display:flex;align-items:center;justify-content:center;background:#e9e9ec;border:1px solid #d8d8dd;box-shadow:inset 0 1px 0 rgba(255,255,255,.6)}
-    .x-tab[aria-selected="true"] .ico-bubble{background:#f2f2f4;border-color:#e6e6ea}
+    .ico-bubble{display:flex;align-items:center;justify-content:center;background:transparent;border:none;box-shadow:none;width:auto;height:auto;border-radius:0}
+    .x-tab[aria-selected="true"] .ico-bubble{background:transparent;border:none;box-shadow:none}
 
     /* Cards demo (pagina A) */
     .card{margin-top:14px;border-radius:16px;padding:22px;background:#0b0b0c;border:1px solid rgba(255,255,255,.08);min-height:110px}
@@ -44,7 +44,7 @@
     <header>
       <h1>SSO - Scanner Stoccaggio Ordini</h1>
       <div class="subtitle">Scansiona le spese in pochi secondi e trovale subito al momento del ritiro!</div>
-      <div class="beta-row"><span class="beta-pill">Versione 8.1.3</span></div>
+      <div class="beta-row"><span class="beta-pill">Versione 8.1.6</span></div>
     </header>
 
     <div class="hero-img-wrap">
@@ -52,15 +52,15 @@
       <img src="https://community.appinventor.mit.edu/uploads/default/original/3X/c/2/c21a68fb6312af849c89a657cd12c56faf74dc8e.gif" alt="Animazione" />
     </div>
 
-    <!-- Tabbar / segmented control con Lottie bubble -->
+    <!-- Tabbar / segmented control con Lottie -->
     <nav class="x-tabbar" role="tablist" aria-label="Navigazione pagine">
       <div class="x-tabbar-inner">
         <a class="x-tab" role="tab" href="#a" data-tab="a" aria-selected="true">
-          <span class="ico-bubble"><span id="lottie-scanner" style="width:30px;height:30px"></span></span>
+          <span class="ico-bubble"><span id="lottie-scanner" style="width:45px;height:45px"></span></span>
           <span>Scanner</span>
         </a>
         <a class="x-tab" role="tab" href="#b" data-tab="b" aria-selected="false">
-          <span class="ico-bubble"><span id="lottie-stoccaggio" style="width:30px;height:30px"></span></span>
+          <span class="ico-bubble"><span id="lottie-stoccaggio" style="width:45px;height:45px"></span></span>
           <span>Stoccaggio</span>
         </a>
       </div>
@@ -82,7 +82,7 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
   <script>
-    // Lottie icons (bolle chiare su dark)
+    // Lottie icons
     lottie.loadAnimation({container:document.getElementById('lottie-scanner'),renderer:'svg',loop:true,autoplay:true,path:'./scanner.lotties.json'});
     lottie.loadAnimation({container:document.getElementById('lottie-stoccaggio'),renderer:'svg',loop:true,autoplay:true,path:'./shopping-cart.lotties.json'});
 
