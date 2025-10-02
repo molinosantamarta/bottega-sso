@@ -1,0 +1,310 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Stoccaggio – SSO</title>
+  <style>
+    /* Base dark OLED */
+    html,body{height:100%;background:#000;margin:0;font-family:-apple-system,system-ui,Segoe UI,Roboto,sans-serif;color:#eaeaea}
+    .wrap{padding:12px 12px 40px;max-width:780px;margin:0 auto}
+
+    /* Sezioni / box */
+    .section{margin-top:14px;border-radius:14px;padding:12px;background:#0b0b0c;border:1px solid rgba(255,255,255,.08)}
+    .section .title{display:flex;align-items:center;gap:10px;font-weight:800;font-size:14px;margin-bottom:10px;opacity:.95}
+    .muted{opacity:.7}
+
+    /* Ricerca */
+    .search-row{display:flex;gap:8px;flex-wrap:wrap}
+    .input{
+      flex:1;min-width:220px;height:44px;border-radius:12px;border:1px solid rgba(255,255,255,.12);
+      background:#111;color:#fff;padding:0 12px;font-weight:600;outline:none
+    }
+    .input::placeholder{color:#9b9b9b}
+    .btn{
+      height:44px;border:0;border-radius:12px;padding:0 14px;font-weight:800;cursor:pointer;color:#000;background:#ffd60a;
+      box-shadow:0 1px 0 rgba(255,255,255,.25) inset,0 4px 10px rgba(0,0,0,.25);border:1px solid #e6c408
+    }
+    .results{margin-top:10px;border-radius:12px;border:1px dashed rgba(255,255,255,.18);padding:10px}
+
+    /* Pillole giorno */
+    .pills{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+    .pill{
+      border:1px solid rgba(255,255,255,.14);background:#121214;color:#fff;border-radius:999px;padding:8px 12px;font-size:13px;
+      cursor:pointer;user-select:none;transition:.15s
+    }
+    .pill.active{background:#ffd60a;color:#000;border-color:#e6c408;font-weight:900;box-shadow:0 6px 16px rgba(0,0,0,.35)}
+    .date-picker{display:none;margin-top:8px}
+    .date-input{
+      height:40px;border-radius:10px;border:1px solid rgba(255,255,255,.12);background:#111;color:#fff;padding:0 10px
+    }
+
+    /* Lista ordini */
+    .orders{margin-top:10px;max-height:54vh;overflow:auto;border:1px solid rgba(255,255,255,.08);border-radius:12px}
+    .order{display:grid;grid-template-columns:1fr auto;gap:6px;padding:12px;border-bottom:1px solid rgba(255,255,255,.06)}
+    .order:last-child{border-bottom:none}
+    .order h4{margin:0;font-size:15px}
+    .tag{
+      display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:6px 10px;font-size:12px;
+      border:1px solid #e6c408;background:#ffd60a;color:#000;font-weight:900
+    }
+    .meta{font-size:12px;opacity:.85}
+    .zone{font-weight:800}
+    .loc-badge{
+      display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:6px 10px;font-size:12px;
+      border:1px solid rgba(255,255,255,.18);background:#141416;color:#eaeaea
+    }
+
+    /* Empty state */
+    .empty{padding:18px;text-align:center;opacity:.8}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <!-- BLOCCO 1: Ricerca cliente -->
+    <section class="section" id="blk-search">
+      <div class="title">🔎 Ricerca cliente</div>
+      <div class="search-row">
+        <input id="q" class="input" placeholder="Cerca per nome o cognome…" autocomplete="off" />
+        <button id="btnClear" class="btn" type="button">Pulisci</button>
+      </div>
+      <div id="searchResult" class="results muted">Digita almeno 2 caratteri per iniziare la ricerca.</div>
+    </section>
+
+    <!-- BLOCCO 2: Ordini per giorno -->
+    <section class="section" id="blk-day">
+      <div class="title">🗓️ Ordini per giorno</div>
+
+      <div class="pills">
+        <div class="pill active" data-day="oggi">Oggi</div>
+        <div class="pill" data-day="domani">Domani</div>
+        <div class="pill" data-day="custom">Seleziona data</div>
+        <span id="selLabel" class="muted" aria-live="polite"></span>
+      </div>
+
+      <div class="date-picker" id="datePicker">
+        <input id="dateInput" class="date-input" type="date" />
+      </div>
+
+      <div class="orders" id="ordersList">
+        <div class="empty">Caricamento in corso…</div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    // === Config sorgente dati Google Sheets (CSV) ===
+    // Hai condiviso il link /pubhtml. La versione CSV è la stessa base con "?output=csv".
+    // Se preferisci, sostituisci direttamente con il tuo URL CSV ufficiale:
+    const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vS6a2Ij-RW70-i-hk_Qw_0gChVKzsVljdvMjSNwqpF4CXyeHfDurxRBIcGa8AEd0HR-tNW6y_LZSn5t/pub?output=csv";
+
+    // Fallback dati demo (usati se fetch fallisce/CORS)
+    const DEMO = [
+      { data:"2025-10-02", ora:"10:12", cliente:"Mario Rossi", ordine:"183", zona:"NEGOZIO - SOPRA", posizione:"Scaffale A3", colli:2, note:"fragile" },
+      { data:"2025-10-02", ora:"11:05", cliente:"Giulia Bianchi", ordine:"184", zona:"CAMION - SOTTO", posizione:"Pedana 2", colli:1, note:"" },
+      { data:"2025-10-02", ora:"12:40", cliente:"Franco Verdi", ordine:"185", zona:"CARNE", posizione:"Cella 1", colli:3, note:"urgente" },
+      { data:"2025-10-03", ora:"09:15", cliente:"Lucia Neri", ordine:"186", zona:"SCALE", posizione:"S1 ripiano 2", colli:2, note:"" }
+    ];
+
+    // Util: normalizza per ricerca (case + accenti)
+    const norm = s => (s||"")
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g,"")
+      .trim();
+
+    // Fuso Europe/Rome per 'oggi/domani'
+    const tz = "Europe/Rome";
+    function fmtDateISO(d){
+      const y=d.getFullYear(), m=String(d.getMonth()+1).padStart(2,"0"), dd=String(d.getDate()).padStart(2,"0");
+      return `${y}-${m}-${dd}`;
+    }
+    function todayISO(){
+      const now = new Date();
+      const fmt = new Intl.DateTimeFormat('it-IT',{ timeZone: tz, year:'numeric', month:'2-digit', day:'2-digit' })
+        .formatToParts(now)
+        .reduce((acc,p)=>{ acc[p.type]=p.value; return acc; },{});
+      return `${fmt.year}-${fmt.month}-${fmt.day}`;
+    }
+    function addDaysISO(iso, days){
+      const d = new Date(iso+"T00:00:00");
+      d.setDate(d.getDate()+days);
+      return fmtDateISO(d);
+    }
+
+    // CSV -> oggetti
+    async function loadData(){
+      try{
+        const r = await fetch(SHEET_CSV_URL, { mode: "cors" });
+        if(!r.ok) throw new Error("sheet fetch error");
+        const csv = await r.text();
+        return parseCSV(csv);
+      }catch(e){
+        console.warn("Uso dati demo (fetch/CORS fallito):", e);
+        return DEMO.slice();
+      }
+    }
+    function parseCSV(csv){
+      const rows = csv.trim().split(/\r?\n/).map(r=>r.split(/,(?=(?:[^"]*"[^"]*")*[^"]*$)/).map(c=>c.replace(/^"|"$/g,"")));
+      const header = rows.shift().map(h=>norm(h));
+      // Tenta mapping intelligente di colonne comuni
+      const col = (nameCandidates)=> {
+        for(const c of nameCandidates){
+          const i = header.findIndex(h => h.includes(norm(c)));
+          if(i>=0) return i;
+        }
+        return -1;
+      };
+      const iData = col(["data","giorno","date"]);
+      const iOra = col(["ora","time"]);
+      const iCliente = col(["cliente","nome","customer"]);
+      const iOrdine = col(["ordine","n ordine","order","id"]);
+      const iZona = col(["zona","posizione area","area"]);
+      const iPos = col(["posizione","ubicazione","shelf","bin"]);
+      const iColli = col(["colli","pezzi","items"]);
+      const iNote = col(["note","notes"]);
+
+      return rows.map(r=>({
+        data:  iData>=0 ? toISO(r[iData]) : "",
+        ora:   iOra>=0 ? r[iOra] : "",
+        cliente: iCliente>=0 ? r[iCliente] : "",
+        ordine:  iOrdine>=0 ? r[iOrdine] : "",
+        zona:    iZona>=0 ? r[iZona] : "",
+        posizione: iPos>=0 ? r[iPos] : "",
+        colli:   iColli>=0 ? Number(r[iColli]||0) : "",
+        note:    iNote>=0 ? r[iNote] : ""
+      })).filter(x=>x.cliente || x.ordine);
+    }
+    function toISO(s){
+      // accetta 02/10/2025 o 2025-10-02
+      if(/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+      const m = s.match(/^(\d{1,2})[\/\-\.](\d{1,2})[\/\-\.](\d{2,4})$/);
+      if(m){
+        const dd=m[1].padStart(2,"0"), mm=m[2].padStart(2,"0"), yy=m[3].length===2?("20"+m[3]):m[3];
+        return `${yy}-${mm}-${dd}`;
+      }
+      return s;
+    }
+
+    // Stato UI
+    let DATA = [];
+    let currentDateISO = todayISO();
+
+    // Nodo
+    const q = document.getElementById("q");
+    const btnClear = document.getElementById("btnClear");
+    const searchResult = document.getElementById("searchResult");
+    const ordersList = document.getElementById("ordersList");
+    const pills = Array.from(document.querySelectorAll(".pill"));
+    const datePicker = document.getElementById("datePicker");
+    const dateInput = document.getElementById("dateInput");
+    const selLabel = document.getElementById("selLabel");
+
+    function setPill(day){
+      pills.forEach(p=>p.classList.toggle("active", p.dataset.day===day));
+      datePicker.style.display = (day==="custom") ? "block" : "none";
+      if(day==="oggi"){
+        currentDateISO = todayISO();
+        selLabel.textContent = `Data: ${fmtHuman(currentDateISO)}`;
+      }else if(day==="domani"){
+        currentDateISO = addDaysISO(todayISO(), 1);
+        selLabel.textContent = `Data: ${fmtHuman(currentDateISO)}`;
+      }
+      renderDay();
+    }
+    function fmtHuman(iso){
+      const d = new Date(iso+"T00:00:00");
+      return d.toLocaleDateString("it-IT",{weekday:"long", day:"2-digit", month:"long", year:"numeric"});
+    }
+
+    // Rendering lista del giorno
+    function renderDay(){
+      const list = DATA.filter(x=>x.data===currentDateISO).sort((a,b)=>{
+        // Ordina per ora e cliente
+        return (a.ora||"").localeCompare(b.ora||"") || (a.cliente||"").localeCompare(b.cliente||"");
+      });
+      if(!list.length){
+        ordersList.innerHTML = `<div class="empty">Nessun ordine per ${fmtHuman(currentDateISO)}.</div>`;
+        return;
+      }
+      ordersList.innerHTML = list.map(row => orderCard(row)).join("");
+    }
+    function orderCard(o){
+      return `
+        <div class="order">
+          <div>
+            <h4>${escapeHTML(o.cliente||"—")}</h4>
+            <div class="meta">
+              Ordine <span class="tag">#${escapeHTML(o.ordine||"—")}</span>
+              &nbsp; • &nbsp; <span class="zone">${escapeHTML(o.zona||"—")}</span>
+              ${o.posizione?`&nbsp; <span class="loc-badge">📍 ${escapeHTML(o.posizione)}</span>`:""}
+            </div>
+            <div class="meta muted">
+              ${o.ora?`🕒 ${escapeHTML(o.ora)}&nbsp;•&nbsp;`:``}
+              ${o.colli?`📦 ${escapeHTML(String(o.colli))} colli&nbsp;•&nbsp;`:``}
+              ${o.note?`📝 ${escapeHTML(o.note)}`:""}
+            </div>
+          </div>
+          <div>
+            <!-- spazio per azioni future -->
+          </div>
+        </div>
+      `;
+    }
+    function escapeHTML(s){ return (s||"").replace(/[&<>"']/g, m=>({ "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;" }[m])); }
+
+    // Ricerca live per cliente
+    function onSearch(){
+      const t = norm(q.value);
+      if(t.length<2){
+        searchResult.classList.add("muted");
+        searchResult.innerHTML = "Digita almeno 2 caratteri per iniziare la ricerca.";
+        return;
+      }
+      const results = DATA.filter(x=>norm(x.cliente).includes(t)).slice(0,8);
+      if(!results.length){
+        searchResult.classList.remove("muted");
+        searchResult.innerHTML = "Nessun risultato.";
+        return;
+      }
+      searchResult.classList.remove("muted");
+      searchResult.innerHTML = results.map(r=>`
+        <div style="padding:8px 6px;border-bottom:1px solid rgba(255,255,255,.08)">
+          <div style="font-weight:800">${escapeHTML(r.cliente)}</div>
+          <div class="meta">
+            Ordine <span class="tag">#${escapeHTML(r.ordine)}</span>
+            &nbsp;•&nbsp;<span class="zone">${escapeHTML(r.zona||"—")}</span>
+            ${r.posizione?`&nbsp;<span class="loc-badge">📍 ${escapeHTML(r.posizione)}</span>`:""}
+            ${r.data?`<div class="muted">🗓️ ${fmtHuman(r.data)} ${r.ora?("— "+escapeHTML(r.ora)):""}</div>`:""}
+          </div>
+        </div>
+      `).join("");
+    }
+
+    // Eventi UI
+    q.addEventListener("input", onSearch);
+    btnClear.addEventListener("click", ()=>{
+      q.value=""; onSearch(); q.focus();
+    });
+    pills.forEach(p=>p.addEventListener("click", ()=>{
+      const d = p.dataset.day;
+      setPill(d);
+      if(d!=="custom") onSearch();
+    }));
+    dateInput.addEventListener("change", ()=>{
+      if(!dateInput.value) return;
+      currentDateISO = dateInput.value;
+      selLabel.textContent = `Data: ${fmtHuman(currentDateISO)}`;
+      renderDay();
+      onSearch();
+    });
+
+    // Avvio
+    (async function init(){
+      selLabel.textContent = `Data: ${fmtHuman(currentDateISO)}`;
+      DATA = await loadData();
+      renderDay();
+    })();
+  </script>
+</body>
+</html>
