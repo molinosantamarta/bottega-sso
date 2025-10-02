@@ -74,14 +74,15 @@
       </div>
     </nav>
 
-    <section id="view-a" data-view class="active">
+    <!-- LE DUE VIEW: verranno riempite con i file esterni -->
+    <section id="view-a" data-view class="active" data-src="./scanner.html">
       <div class="card"></div>
       <div class="card"></div>
       <div class="card"></div>
       <div class="card"></div>
     </section>
 
-    <section id="view-b" data-view>
+    <section id="view-b" data-view data-src="./stoccaggio.html">
       <div style="max-width:820px;margin:18px auto 0;padding:16px 18px;border:1px dashed rgba(255,255,255,.35);border-radius:14px;background:#0b0b0c;color:#eaeaea;font:14px/1.45 -apple-system,system-ui,Segoe UI,Roboto,sans-serif">
         questa pagina è in fase di sviluppo, verrà rilasciata con la versione 10.0 dell'app nei prossimi aggiornamenti.
       </div>
@@ -94,16 +95,97 @@
     lottie.loadAnimation({container:document.getElementById('lottie-scanner'),renderer:'svg',loop:true,autoplay:true,path:'./scanner.lotties.json'});
     lottie.loadAnimation({container:document.getElementById('lottie-stoccaggio'),renderer:'svg',loop:true,autoplay:true,path:'./shopping-cart.lotties.json'});
 
-    // Router leggero
+    // Router leggero + loader HTML (senza iframe)
     const VIEWS=['a','b'];
     const $=s=>document.querySelector(s);
     const $$=s=>Array.from(document.querySelectorAll(s));
-    function activate(view){
+
+    // Evita doppi inserimenti di CSS esterni
+    const loadedStyles = new Set();
+
+    async function loadExternalInto(section) {
+      const url = section.getAttribute('data-src');
+      if (!url || section.dataset.loaded === 'true') return;
+
+      try {
+        const res = await fetch(url, { credentials: 'same-origin' });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const html = await res.text();
+
+        // Parse completo dell'HTML per estrarre <head>/<body>/script
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+
+        // 1) HEAD: link rel=stylesheet e <style>
+        doc.querySelectorAll('link[rel="stylesheet"]').forEach(link => {
+          const href = link.getAttribute('href');
+          if (!href) return;
+          const abs = new URL(href, url).href;
+          if (loadedStyles.has(abs)) return;
+          const l = document.createElement('link');
+          l.rel = 'stylesheet';
+          l.href = abs;
+          document.head.appendChild(l);
+          loadedStyles.add(abs);
+        });
+        doc.querySelectorAll('style').forEach(styleEl => {
+          const s = document.createElement('style');
+          s.textContent = styleEl.textContent;
+          document.head.appendChild(s);
+        });
+
+        // 2) BODY (o tutto) dentro la sezione
+        const bodyContent = doc.body ? doc.body.innerHTML : html;
+        section.innerHTML = bodyContent;
+
+        // 3) Esecuzione SCRIPT (inline e con src)
+        const scripts = doc.querySelectorAll('script');
+        for (const oldS of scripts) {
+          const s = document.createElement('script');
+          // copia tipo e attributi principali
+          if (oldS.type) s.type = oldS.type;
+          if (oldS.noModule) s.noModule = true;
+          if (oldS.defer) s.defer = true;
+          if (oldS.async) s.async = true;
+
+          const src = oldS.getAttribute('src');
+          if (src) {
+            s.src = new URL(src, url).href;
+          } else {
+            s.textContent = oldS.textContent || '';
+          }
+          // IMPORTANTISSIMO: append nello stesso container per scope DOM
+          section.appendChild(s);
+        }
+
+        section.dataset.loaded = 'true';
+      } catch (err) {
+        console.error('Errore nel caricamento di', url, err);
+        // fallback: messaggio semplice
+        const nice = document.createElement('div');
+        nice.style.cssText = 'margin:18px auto 0;padding:16px 18px;border:1px dashed rgba(255,255,255,.35);border-radius:14px;background:#0b0b0c;color:#eaeaea;font:14px/1.45 -apple-system,system-ui,Segoe UI,Roboto,sans-serif';
+        nice.textContent = `Non riesco a caricare ${url}. Assicurati che il file esista su GitHub Pages ed abbia la stessa origine.`;
+        section.innerHTML = '';
+        section.appendChild(nice);
+      }
+    }
+
+    async function activate(view){
       if(!VIEWS.includes(view)) view='a';
+      // carica on-demand la vista richiesta
+      const section = view === 'a' ? $('#view-a') : $('#view-b');
+      await loadExternalInto(section);
+
+      // attiva/disattiva viste e stato tab
       $('#view-a').classList.toggle('active',view==='a');
       $('#view-b').classList.toggle('active',view==='b');
       $$('.x-tab').forEach(t=>t.setAttribute('aria-selected',t.dataset.tab===view?'true':'false'));
     }
+
+    // Prima attivazione: carico subito la A (scanner)
+    loadExternalInto($('#view-a')).then(()=>activate('a'));
+
+    // Click tab
     document.querySelector('.x-tabbar-inner').addEventListener('click',e=>{
       const a=e.target.closest('.x-tab'); if(!a) return; e.preventDefault(); activate(a.dataset.tab);
     });
