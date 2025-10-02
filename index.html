@@ -3,199 +3,96 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>SSO – Demo “Liquid Glass”</title>
+  <title>SSO – Switcher (Scanner + Stoccaggio)</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
   <style>
-    /* ======= Base Apple-like / Liquid Glass ======= */
-    :root{
-      --bgA:#e6ecf3;                 /* sky tint */
-      --bgB:#f8fbff;                 /* soft highlight */
-      --ink:#0a0a0a;                 /* primary text */
-      --ink-2:#3d3d3d;               /* secondary text */
-      --line:rgba(0,0,0,.08);        /* subtle borders */
-      --glass:rgba(255,255,255,.22); /* panel fill */
-      --glass-strong:rgba(255,255,255,.32);
-      --chip:rgba(255,255,255,.55);
-      --tabh:82px;
-      --r:18px;                      /* corner radius */
-      --shadow:0 10px 30px rgba(0,0,0,.10);
-      --blur:20px;
-    }
-
-    html,body{height:100%}
-    body{
-      margin:0; color:var(--ink); font-family:-apple-system,system-ui,Segoe UI,Roboto,sans-serif;
-      background:
-        radial-gradient(1400px 800px at 75% -10%, #d7e7ff 0%, transparent 60%),
-        radial-gradient(1100px 700px at -10% 10%, #ffd9e8 0%, transparent 55%),
-        linear-gradient(180deg, var(--bgB), var(--bgA));
-    }
-
-    main{min-height:100vh; padding:22px 16px calc(var(--tabh) + 28px)}
-
-    /* ======= Views / Router (light) ======= */
+    html,body {height:100%; margin:0; font-family:-apple-system,system-ui,Segoe UI,Roboto,sans-serif; background:linear-gradient(180deg,#f9f9f9,#ececec); color:#111;}
+    .x-wrap {padding:calc(72px + env(safe-area-inset-top)) 16px 24px; max-width:820px; margin:0 auto;}
     [data-view]{display:none}
     [data-view].active{display:block}
 
-    /* ======= Glass Panels ======= */
-    .glass{
-      background:var(--glass);
-      border:1px solid var(--line);
-      border-radius:var(--r);
-      -webkit-backdrop-filter:saturate(160%) blur(var(--blur));
-      backdrop-filter:saturate(160%) blur(var(--blur));
-      box-shadow:var(--shadow);
-    }
+    /* Header */
+    header{text-align:center; padding:32px 16px 20px;}
+    header h1{margin:0;font-size:26px;font-weight:800;color:#000;}
+    header .subtitle{margin-top:8px;font-size:15px;font-weight:500;color:#444;opacity:.9;}
+    .hero-img-wrap{display:flex;justify-content:center;align-items:center;position:relative;margin-top:18px;}
+    .hero-img-wrap img{max-width:140px;border-radius:12px;}
+    .hero-img-wrap img:first-child{position:relative;z-index:1;margin-right:-20px;}
+    .hero-img-wrap img:last-child{position:relative;z-index:2;margin-left:-20px;}
 
-    .wrap{max-width:980px;margin:0 auto;display:grid;gap:16px}
-    @media (min-width:780px){ .wrap{grid-template-columns:1fr 1fr} }
+    /* Version pill */
+    .beta-row{display:flex;justify-content:center;margin-top:14px;}
+    .beta-pill{display:inline-flex;align-items:center;justify-content:center;padding:6px 12px;border-radius:999px;background:#ffd60a;color:#000;font-weight:700;font-size:12px;box-shadow:0 1px 0 rgba(255,255,255,.25) inset,0 4px 12px rgba(0,0,0,.15);border:1px solid #e6c408;letter-spacing:.2px;}
 
-    .card{min-height:160px; padding:16px}
-    .headline{font-weight:800; font-size:15px; letter-spacing:.2px; margin:0 0 10px}
-    .muted{color:var(--ink-2); opacity:.75; font-size:13px}
+    /* Tabbar sotto al sottotitolo */
+    .x-tabbar{margin-top:24px;display:flex;justify-content:center;}
+    .x-tabbar-inner{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;width:92%;max-width:460px;padding:12px 16px;border-radius:26px;background:rgba(255,255,255,.35);backdrop-filter:saturate(180%) blur(20px);border:1px solid rgba(200,200,200,.45);}
+    .x-tab{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:14px;border-radius:20px;text-decoration:none;cursor:pointer;color:#555;border:1px solid transparent;-webkit-tap-highlight-color:transparent;font-size:14px;font-weight:600;}
+    .x-tab[aria-selected="true"]{color:#000;background:rgba(255,255,255,.75);border-color:rgba(0,0,0,.1);box-shadow:0 4px 18px rgba(0,0,0,.08);}
+    .x-icon{width:48px;height:48px;border-radius:18px;overflow:hidden;}
 
-    /* Skeleton shimmer (tiny) */
-    .skeleton{ position:relative; overflow:hidden; border-radius:12px; background:rgba(255,255,255,.35); height:12px }
-    .skeleton::after{
-      content:""; position:absolute; inset:0; transform:translateX(-100%);
-      background:linear-gradient(90deg, transparent, rgba(255,255,255,.7), transparent);
-      animation:shimmer 1.4s infinite;
-    }
-    @keyframes shimmer{ 100%{ transform:translateX(100%); } }
-
-    .row{display:flex; gap:10px}
-
-    /* ======= Dev Box (Pagina B) ======= */
-    .x-devbox{ padding:18px 20px; color:var(--ink-2); }
-
-    /* ======= Tabbar – Liquid glass, metà cliccabili ======= */
-    .tabbar{
-      position:fixed; left:0; right:0; bottom:0; z-index:20;
-      background:var(--glass-strong);
-      border-top:1px solid var(--line);
-      -webkit-backdrop-filter:saturate(180%) blur(var(--blur));
-      backdrop-filter:saturate(180%) blur(var(--blur));
-      padding:0 env(safe-area-inset-right) calc(env(safe-area-inset-bottom)) env(safe-area-inset-left);
-      box-shadow:0 -10px 22px rgba(0,0,0,.06);
-    }
-    .tabbar-inner{
-      height:var(--tabh); max-width:980px; margin:0 auto; display:grid; grid-template-columns:1fr 1fr; align-items:center;
-    }
-    .half{
-      position:relative; display:flex; align-items:center; justify-content:center; gap:12px; cursor:pointer; user-select:none;
-      color:var(--ink-2); -webkit-tap-highlight-color:transparent;
-    }
-    .half.left{ border-right:1px solid var(--line) }
-    .half.right{ border-left:1px solid var(--line) }
-    .half[aria-selected="true"]{ color:var(--ink); }
-
-    .chip{ display:inline-flex; align-items:center; gap:8px; padding:10px 14px; border-radius:999px; background:var(--chip); border:1px solid rgba(0,0,0,.06) }
-    .label{font:13px/1 -apple-system,system-ui,Segoe UI,Roboto,sans-serif}
-
-    .lottie{ width:28px; height:28px; display:block }
-
-    @media (prefers-reduced-motion: reduce){ .lottie{ display:none } }
+    /* Placeholder riquadri */
+    .card{margin-top:24px;border-radius:18px;padding:32px;background:rgba(255,255,255,.45);backdrop-filter:blur(20px) saturate(180%);border:1px solid rgba(0,0,0,.08);min-height:120px;}
   </style>
 </head>
 <body>
-  <main>
-    <!-- Pagina A: quattro pannelli demo con contenuti simulati, nessuna logica pesante -->
+  <header>
+    <h1>SSO - Scanner Stoccaggio Ordini</h1>
+    <div class="subtitle">Scansiona e gestisci i tuoi ordini in pochi secondi</div>
+    <div class="hero-img-wrap">
+      <img src="https://static.wixstatic.com/media/9d749b_4e7e462b0d2e40448664f342bb2cd2b5~mv2.png/v1/fill/w_116,h_126,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/shopper%20bottega_anteprima_edited_edited_.png" alt="Anteprima" />
+      <img src="https://community.appinventor.mit.edu/uploads/default/original/3X/c/2/c21a68fb6312af849c89a657cd12c56faf74dc8e.gif" alt="Animazione" />
+    </div>
+    <div class="beta-row"><span class="beta-pill">Versione 8.1.3</span></div>
+
+    <!-- Tabbar sotto al sottotitolo -->
+    <nav class="x-tabbar" role="tablist" aria-label="Navigazione pagine">
+      <div class="x-tabbar-inner">
+        <a class="x-tab" role="tab" href="#a" data-tab="a" aria-selected="true">
+          <div class="x-icon" id="lottie-scanner"></div>
+          <span>Scanner</span>
+        </a>
+        <a class="x-tab" role="tab" href="#b" data-tab="b" aria-selected="false">
+          <div class="x-icon" id="lottie-stoccaggio"></div>
+          <span>Stoccaggio</span>
+        </a>
+      </div>
+    </nav>
+  </header>
+
+  <main class="x-wrap">
     <section id="view-a" data-view class="active">
-      <div class="wrap">
-        <article class="card glass">
-          <h3 class="headline">Zona selezionata</h3>
-          <div class="skeleton" style="width:46%"></div>
-          <div class="skeleton" style="width:24%;margin-top:8px"></div>
-        </article>
-
-        <article class="card glass">
-          <h3 class="headline">Scansione</h3>
-          <div class="row" style="margin-top:6px">
-            <div class="skeleton" style="flex:1"></div>
-            <div class="skeleton" style="width:80px"></div>
-          </div>
-          <div class="skeleton" style="width:100%;height:90px;margin-top:10px;border-radius:14px"></div>
-          <p class="muted" style="margin-top:10px">La fotocamera comparirà qui nella versione completa.</p>
-        </article>
-
-        <article class="card glass">
-          <h3 class="headline">Ordini rilevati</h3>
-          <div class="row">
-            <div class="skeleton" style="width:60px"></div>
-            <div class="skeleton" style="width:60px"></div>
-            <div class="skeleton" style="width:60px"></div>
-            <div class="skeleton" style="width:60px"></div>
-          </div>
-          <div class="skeleton" style="width:40%;margin-top:10px"></div>
-        </article>
-
-        <article class="card glass">
-          <h3 class="headline">Azione</h3>
-          <div class="row" style="margin-top:6px">
-            <div class="skeleton" style="width:48%"></div>
-            <div class="skeleton" style="width:48%"></div>
-          </div>
-          <p class="muted" style="margin-top:10px">Pulsanti “Termina e invia / Cancella” qui nella build reale.</p>
-        </article>
-      </div>
+      <div class="card"></div>
+      <div class="card"></div>
+      <div class="card"></div>
+      <div class="card"></div>
     </section>
-
-    <!-- Pagina B: testo di sviluppo in un pannello glass -->
     <section id="view-b" data-view>
-      <div class="x-devbox glass">
-        questa pagina è in fase di sviluppo, verrà rilasciata con la versione 10.0 dell'app nei prossimi aggiornamenti,
-        tu non devi fare nulla, appena pronta la vedrai - Pepe.
-      </div>
+      <div class="card">Questa pagina è in fase di sviluppo, verrà rilasciata con la versione 10.0 - Pepe.</div>
     </section>
   </main>
 
-  <!-- Tabbar liquid glass con due metà cliccabili e icone Lottie -->
-  <nav class="tabbar" aria-label="Navigazione pagine">
-    <div class="tabbar-inner">
-      <div class="half left"  data-tab="a" aria-selected="true">
-        <span class="chip">
-          <span id="lottie-scan" class="lottie" aria-hidden="true"></span>
-          <span class="label">Scanner</span>
-        </span>
-      </div>
-      <div class="half right" data-tab="b" aria-selected="false">
-        <span class="chip">
-          <span id="lottie-cart" class="lottie" aria-hidden="true"></span>
-          <span class="label">Stoccaggio</span>
-        </span>
-      </div>
-    </div>
-  </nav>
-
-  <!-- Lottie Web (leggero, solo per le icone animate) -->
-  <script src="https://unpkg.com/lottie-web/build/player/lottie.min.js"></script>
   <script>
-    // Carica le animazioni dai file accanto all'HTML
-    const scanAnim = lottie.loadAnimation({
-      container: document.getElementById('lottie-scan'), renderer:'svg', loop:true, autoplay:true,
-      path: './scanner.lotties.json'
-    });
-    const cartAnim = lottie.loadAnimation({
-      container: document.getElementById('lottie-cart'), renderer:'svg', loop:true, autoplay:true,
-      path: encodeURI('./shopping cart.lotties.json')
-    });
-
-    // Router minimale via hash + feedback animazione
     (function(){
-      const V=['a','b'];
-      const $ = s=>document.querySelector(s);
-      const $$ = s=>Array.from(document.querySelectorAll(s));
-      function setSpeeds(k){ if(k==='a'){ scanAnim.setSpeed(1.15); cartAnim.setSpeed(0.75); } else { scanAnim.setSpeed(0.75); cartAnim.setSpeed(1.15); } }
-      function act(k){ if(!V.includes(k)) k='a'; $('#view-a').classList.toggle('active',k==='a'); $('#view-b').classList.toggle('active',k==='b'); $$('.half').forEach(h=>h.setAttribute('aria-selected', h.dataset.tab===k?'true':'false')); setSpeeds(k); }
-      document.querySelector('.tabbar-inner').addEventListener('click', e=>{ const h=e.target.closest('.half'); if(!h) return; const t=h.dataset.tab; history.replaceState(null,'','#'+t); act(t); });
-      function onHash(){ act((location.hash||'#a').slice(1)); }
-      window.addEventListener('hashchange', onHash);
+      const VIEWS=['a','b'];
+      const $=s=>document.querySelector(s);
+      const $$=s=>Array.from(document.querySelectorAll(s));
+      function activate(view){
+        if(!VIEWS.includes(view)) view='a';
+        $('#view-a').classList.toggle('active',view==='a');
+        $('#view-b').classList.toggle('active',view==='b');
+        $$('.x-tab').forEach(t=>t.setAttribute('aria-selected',t.dataset.tab===view?'true':'false'));
+      }
+      function onHashChange(){ activate((location.hash||'#a').slice(1)); }
+      document.querySelector('.x-tabbar-inner').addEventListener('click',e=>{ const a=e.target.closest('.x-tab'); if(!a) return; e.preventDefault(); history.replaceState(null,'','#'+a.dataset.tab); activate(a.dataset.tab); });
+      window.addEventListener('hashchange',onHashChange);
       if(!location.hash) history.replaceState(null,'','#a');
-      onHash();
+      onHashChange();
+
+      // Lottie animations
+      lottie.loadAnimation({container:document.getElementById('lottie-scanner'),renderer:'svg',loop:true,autoplay:true,path:'./scanner.lotties.json'});
+      lottie.loadAnimation({container:document.getElementById('lottie-stoccaggio'),renderer:'svg',loop:true,autoplay:true,path:'./shopping-cart.lotties.json'});
     })();
   </script>
 </body>
 </html>
-
-
-
-
