@@ -23,14 +23,9 @@
       --success:#22c55e;
       --torch-on:#ffd60a;
       --yellow:#ffd60a;
-      /* Nuovi token per allineo alla tabbar */
-      --pane-w: min(92vw, 480px);
-     [data-sso]{
-  --radius-outer: 28px;
-}
-.section{
-  border-radius: var(--radius-outer);
-}  /* come tabbar */
+      /* Larghezza allineata alla tabbar */
+      --pane-w: min(720px, 92vw);
+      --radius-outer: 28px;  /* come tabbar */
       --radius-inner: 20px;
       background:var(--bg);
       color:var(--fg);
@@ -38,20 +33,8 @@
       -webkit-text-size-adjust:115%;
       text-size-adjust:115%;
     }
-   [data-sso] .wrap{
-  padding:12px 12px 40px;
-  max-width:760px;
-  margin:0 auto;
-  display:flex;
-  flex-direction:column;
-  align-items:center;          /* centra gli elementi figli orizzontalmente */
-}
-    /*
-      ▼▼ SOLO STILE (nessun cambiamento funzionale) ▼▼
-      - Le 4 sezioni diventano card bianche, larghe quanto la tabbar (92% fino a 480px)
-      - Bordi più stondati e coerenti
-      - Interni e bottoni arrotondati
-    */
+    /* Centro i blocchi 1,2,3,4 orizzontalmente */
+    [data-sso] .wrap{ padding:12px 12px 40px; max-width:760px; margin:0 auto; display:flex; flex-direction:column; align-items:center; }
     [data-sso] .section{
       width:var(--pane-w);
       margin:16px auto;
@@ -71,14 +54,13 @@
       border-color:rgba(0,0,0,.12);
     }
 
-    /* Titolo step: mantiene tipografia originale, ma colore adeguato su bianco */
+    /* Titolo step */
     [data-sso] .step-title{ color:#111; font-size:14px; opacity:.95; margin-bottom:16px; display:flex; align-items:center; gap:8px; }
     [data-sso] .step-badge{ background:#f1f1f5; color:#111; border-radius:999px; padding:2px 8px; font-size:12px; border:1px solid #e2e2e8; }
     [data-sso] .step-badge.done{ background:linear-gradient(180deg,#eafff2,#b8ffd4); color:#073; font-weight:900; border-color:#a4f5c4; text-shadow:none; }
     @keyframes pulse-badge { 0%,100%{ transform:scale(1); box-shadow:0 0 0 0 rgba(10,132,255,0);} 50%{ transform:scale(1.1); box-shadow:0 0 0 6px rgba(10,132,255,.15);} }
     [data-sso] .step-badge.pulse{ animation:pulse-badge 1.2s ease-in-out infinite; background:linear-gradient(180deg, #0a84ff, #0569c9); color:#fff; border-color:#0569c9; }
 
-    /* Segmenti/Chip: mantengo look ma addolcisco bordo per coerenza con card bianca */
     .seg-row{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-bottom:12px; }
     .seg-label{ font-size:13px; color:#333; opacity:.85; min-width:72px; }
     .seg{ display:flex; background:#121214; border:1px solid var(--border); border-radius:999px; overflow:auto; -webkit-overflow-scrolling:touch; }
@@ -94,12 +76,10 @@
     .custom input::placeholder{ color:#8d8d95; }
     .custom button{ padding:12px 14px; border-radius:999px; border:0; background:#efeff2; color:#111; font-weight:700; cursor:pointer; }
 
-    /* Selezione zona: bordo/radius più dolci, attivo in giallo come prima */
     .selected-zone{ margin-top:10px; padding:10px 12px; border-radius:16px; background:#fafafa; border:1px solid #e6e6ea; display:flex; align-items:center; gap:8px; font-weight:600; color:#222; }
     .selected-zone.active{ background:#ffd60a; color:#000; box-shadow:0 4px 14px rgba(0,0,0,.18); border-color:#e6c408; }
     .selected-dot{ width:10px; height:10px; border-radius:999px; background:var(--ok); display:inline-block; }
 
-    /* Video wrapper dentro card bianca: angoli più tondi e bordo chiaro */
     .video-wrap{ width:100%; aspect-ratio:16/9; border-radius:var(--radius-inner); overflow:hidden; border:1px solid #e6e6ea; margin-top:10px; background:#000; position:relative; display:block; }
     @media (max-width:600px){ .video-wrap{ height:56vw; aspect-ratio:auto; } }
     .video-wrap.paused::after{ content:"La scansione è in pausa"; position:absolute; inset:0; display:flex; align-items:center; justify-content:center; backdrop-filter:blur(6px) brightness(.7); color:#fff; font-weight:800; letter-spacing:.6px; }
@@ -116,7 +96,6 @@
     .ph-row{ display:flex; align-items:center; gap:12px; justify-content:center; width:100%; }
     .ph-icon{ width:36px; height:36px; opacity:.9; }
 
-    /* Box riepilogo interno: mantengo dark originale per non toccare palette globale */
     .box{ border:1px solid var(--border); border-radius:var(--radius-inner); padding:12px; background:#0b0b0b; margin-top:10px; color:#fff; }
     .label{ font-size:12px; opacity:.85; margin-bottom:4px; }
     .zone-line{ font-size:15px; font-weight:700; margin-bottom:8px; }
@@ -130,7 +109,6 @@
     .summary{ margin-top:10px; font-size:12px; opacity:.75; }
     .divider{ height:0.75px; background:#fff; opacity:.18; margin:10px 0 12px; border-radius:1px; }
 
-    /* Tastierino manuale: arrotondo un po' di più */
     .manual-wrap{ margin-top:12px; }
     .manual-controls{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
     .keypad{ display:none; margin-top:10px; }
@@ -141,7 +119,6 @@
     .key.action{ background:#2a2a2d; }
     .key.confirm{ background:#ffd60a; color:#000; }
 
-    /* Bottoni principali: più stondati senza cambiare colori/ruoli */
     .btn{ padding:14px 16px; border:0; border-radius:24px; font-size:16px; font-weight:700; color:#fff; cursor:pointer; transition: filter .15s ease, opacity .15s ease, background-color .15s ease, color .15s ease; display:inline-flex; align-items:center; justify-content:center; line-height:1; }
     .btn:disabled{ opacity:.7; cursor:not-allowed; filter:none; }
     .primary{ background:var(--accent); }
@@ -159,7 +136,6 @@
     .controls.split .btn{ flex:1; }
     #section3 .controls.split .btn{ font-size:18px; padding:21px 16px; }
 
-    /* Pulsante torcia: shape più coerente su fondo bianco */
     .icon-btn{ width:44px; height:44px; border-radius:999px; position:relative; border:1px solid #e6e6ea; background:#fff; color:#000; display:inline-flex; align-items:center; justify-content:center; cursor:pointer; box-shadow:inset 0 1px 0 rgba(255,255,255,.6), 0 4px 10px rgba(0,0,0,.12); overflow:visible; }
     .icon-btn.torch-on{ background:var(--torch-on); color:#111; border-color:#d8be07; box-shadow:0 6px 16px rgba(0,0,0,.16); }
     .icon-btn:active{ transform:scale(.97); }
@@ -174,13 +150,6 @@
   </style>
 </head>
 <body>
-  <!--
-    ⤷ CODICE SOTTO: identico al tuo (nessuna modifica funzionale).
-    Ho solo toccato il CSS sopra per:
-      - larghezza card = tabbar (92% fino a 480px)
-      - sfondo bianco + bordi stondati
-      - bottoni/inputs più arrotondati
-  -->
   <div data-sso>
     <div class="wrap">
       <!-- STEP 1 -->
@@ -309,9 +278,6 @@
     </div>
   </div>
 
-  <!--
-    ▼▼ TUTTO IL TUO JS ORIGINALE INVARIATO ▼▼
-  -->
   <script>
   (function(){
     const root = document.querySelector('[data-sso]');
