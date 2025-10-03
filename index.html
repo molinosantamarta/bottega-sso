@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>SSO – Scanner e Stoccaggio Ordini)</title>
+  <title>SSO – Scanner e Stoccaggio Ordini</title>
   <style>
     /* Base dark OLED */
     html,body{height:100%;background:#000;margin:0;font-family:-apple-system,system-ui,Segoe UI,Roboto,sans-serif;color:#eaeaea}
@@ -22,17 +22,18 @@
     .hero-img-wrap img:first-child{left:10px;z-index:1}  
     .hero-img-wrap img:last-child{right:0;margin-left:-10px;z-index:2;top:5px}   
 
-    /* Tabbar: segmented control moderno, stondato, con bolle Lottie */
+    /* Tabbar */
     .x-tabbar{margin-top:8px;display:flex;justify-content:center;position:relative;top:-16px}
     .x-tabbar-inner{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;width:92%;max-width:480px;padding:8px;border-radius:38px;background:#f7f7f7;border:1px solid rgba(0,0,0,.1);box-shadow:0 12px 28px rgba(0,0,0,.15)}
     .x-tab{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:10px 12px;border-radius:28px;text-decoration:none;cursor:pointer;-webkit-tap-highlight-color:transparent;color:#6b6b70;border:1px solid transparent;transition:background .15s ease, color .15s ease, border-color .15s ease, box-shadow .15s ease}
     .x-tab[aria-selected="true"]{background:#ffd60a;color:#000;font-weight:700;border-color:#e6c408;box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 6px 16px rgba(0,0,0,.35)}
-
     .ico-bubble{display:flex;align-items:center;justify-content:center;background:transparent;border:none;box-shadow:none;width:auto;height:auto;border-radius:0}
-    .x-tab[aria-selected="true"] .ico-bubble{background:transparent;border:none;box-shadow:none}
 
-    /* Cards demo (pagina A) */
-    .card{margin-top:14px;border-radius:16px;padding:22px;background:#0b0b0c;border:1px solid rgba(255,255,255,.08);min-height:110px}
+    /* Quando è selezionato Stoccaggio → Scanner più scuro */
+    .x-tab[aria-selected="false"] span{color:#222;}
+
+    /* Cards demo */
+    .card{margin:14px auto 0;border-radius:16px;padding:22px;background:#0b0b0c;border:1px solid rgba(255,255,255,.08);min-height:110px;width:92%;max-width:480px}
 
     /* Views */
     [data-view]{display:none}
@@ -48,19 +49,10 @@
     </header>
 
     <div class="hero-img-wrap">
-      <img 
-        src="https://static.wixstatic.com/media/9d749b_4e7e462b0d2e40448664f342bb2cd2b5~mv2.png/v1/fill/w_240,h_260,al_c,q_90,usm_0.66_1.00_0.01,enc_avif,quality_auto/shopper%20bottega_anteprima_edited_edited_.png"
-        srcset="https://static.wixstatic.com/media/9d749b_4e7e462b0d2e40448664f342bb2cd2b5~mv2.png/v1/fill/w_240,h_260,al_c,q_90,usm_0.66_1.00_0.01,enc_avif,quality_auto/shopper%20bottega_anteprima_edited_edited_.png 1x,
-                https://static.wixstatic.com/media/9d749b_4e7e462b0d2e40448664f342bb2cd2b5~mv2.png/v1/fill/w_480,h_520,al_c,q_90,usm_0.66_1.00_0.01,enc_avif,quality_auto/shopper%20bottega_anteprima_edited_edited_.png 2x,
-                https://static.wixstatic.com/media/9d749b_4e7e462b0d2e40448664f342bb2cd2b5~mv2.png/v1/fill/w_720,h_780,al_c,q_90,usm_0.66_1.00_0.01,enc_avif,quality_auto/shopper%20bottega_anteprima_edited_edited_.png 3x"
-        sizes="(max-width: 480px) 92px, 106px"
-        alt="Immagine 1" />
-      <img 
-        src="https://community.appinventor.mit.edu/uploads/default/original/3X/c/2/c21a68fb6312af849c89a657cd12c56faf74dc8e.gif"
-        alt="Animazione" />
+      <img src="https://static.wixstatic.com/media/9d749b_4e7e462b0d2e40448664f342bb2cd2b5~mv2.png/v1/fill/w_240,h_260,al_c,q_90,usm_0.66_1.00_0.01,enc_avif,quality_auto/shopper%20bottega_anteprima_edited_edited_.png" alt="Immagine 1" />
+      <img src="https://community.appinventor.mit.edu/uploads/default/original/3X/c/2/c21a68fb6312af849c89a657cd12c56faf74dc8e.gif" alt="Animazione" />
     </div>
 
-    <!-- Tabbar / segmented control con Lottie -->
     <nav class="x-tabbar" role="tablist" aria-label="Navigazione pagine">
       <div class="x-tabbar-inner">
         <a class="x-tab" role="tab" href="#a" data-tab="a" aria-selected="true">
@@ -74,7 +66,6 @@
       </div>
     </nav>
 
-    <!-- LE DUE VIEW: verranno riempite con i file esterni -->
     <section id="view-a" data-view class="active" data-src="./scanner.html">
       <div class="card"></div>
       <div class="card"></div>
@@ -91,54 +82,39 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
   <script>
-    // Lottie icons (dimensioni container 68×68 impostate inline sopra)
     lottie.loadAnimation({container:document.getElementById('lottie-scanner'),renderer:'svg',loop:true,autoplay:true,path:'./scanner.lotties.json'});
     lottie.loadAnimation({container:document.getElementById('lottie-stoccaggio'),renderer:'svg',loop:true,autoplay:true,path:'./shopping-cart.lotties.json'});
 
-    // Router leggero + loader HTML (senza iframe)
     const VIEWS=['a','b'];
     const $=s=>document.querySelector(s);
     const $$=s=>Array.from(document.querySelectorAll(s));
 
-    // Evita doppi inserimenti di CSS esterni
     const loadedStyles = new Set();
-
     async function loadExternalInto(section) {
       const url = section.getAttribute('data-src');
       if (!url || section.dataset.loaded === 'true') return;
-
       try {
         const res = await fetch(url, { credentials: 'same-origin' });
         if (!res.ok) throw new Error('HTTP ' + res.status);
         const html = await res.text();
-
-        // Parse completo dell'HTML per estrarre <head>/<body>/script
         const parser = new DOMParser();
         const doc = parser.parseFromString(html, 'text/html');
 
-        // 1) HEAD: link rel=stylesheet e <style>
         doc.querySelectorAll('link[rel="stylesheet"]').forEach(link => {
           const href = link.getAttribute('href');
           if (!href) return;
           const abs = new URL(href, url).href;
           if (loadedStyles.has(abs)) return;
           const l = document.createElement('link');
-          l.rel = 'stylesheet';
-          l.href = abs;
-          document.head.appendChild(l);
-          loadedStyles.add(abs);
+          l.rel = 'stylesheet'; l.href = abs;
+          document.head.appendChild(l); loadedStyles.add(abs);
         });
         doc.querySelectorAll('style').forEach(styleEl => {
-          const s = document.createElement('style');
-          s.textContent = styleEl.textContent;
+          const s = document.createElement('style'); s.textContent = styleEl.textContent;
           document.head.appendChild(s);
         });
 
-        // 2) BODY (o tutto) dentro la sezione
-        const bodyContent = doc.body ? doc.body.innerHTML : html;
-        section.innerHTML = bodyContent;
-
-        // 3) Esecuzione SCRIPT (inline e con src)
+        section.innerHTML = doc.body ? doc.body.innerHTML : html;
         const scripts = doc.querySelectorAll('script');
         for (const oldS of scripts) {
           const s = document.createElement('script');
@@ -146,24 +122,18 @@
           if (oldS.noModule) s.noModule = true;
           if (oldS.defer) s.defer = true;
           if (oldS.async) s.async = true;
-
           const src = oldS.getAttribute('src');
-          if (src) {
-            s.src = new URL(src, url).href;
-          } else {
-            s.textContent = oldS.textContent || '';
-          }
+          if (src) s.src = new URL(src, url).href;
+          else s.textContent = oldS.textContent || '';
           section.appendChild(s);
         }
-
         section.dataset.loaded = 'true';
       } catch (err) {
         console.error('Errore nel caricamento di', url, err);
         const nice = document.createElement('div');
         nice.style.cssText = 'margin:18px auto 0;padding:16px 18px;border:1px dashed rgba(255,255,255,.35);border-radius:14px;background:#0b0b0c;color:#eaeaea;font:14px/1.45 -apple-system,system-ui,Segoe UI,Roboto,sans-serif';
         nice.textContent = `Non riesco a caricare ${url}. Assicurati che il file esista su GitHub Pages ed abbia la stessa origine.`;
-        section.innerHTML = '';
-        section.appendChild(nice);
+        section.innerHTML = ''; section.appendChild(nice);
       }
     }
 
@@ -171,16 +141,12 @@
       if(!VIEWS.includes(view)) view='a';
       const section = view === 'a' ? $('#view-a') : $('#view-b');
       await loadExternalInto(section);
-
       $('#view-a').classList.toggle('active',view==='a');
       $('#view-b').classList.toggle('active',view==='b');
       $$('.x-tab').forEach(t=>t.setAttribute('aria-selected',t.dataset.tab===view?'true':'false'));
     }
 
-    // Prima attivazione: carico subito la A (scanner)
     loadExternalInto($('#view-a')).then(()=>activate('a'));
-
-    // Click tab
     document.querySelector('.x-tabbar-inner').addEventListener('click',e=>{
       const a=e.target.closest('.x-tab'); if(!a) return; e.preventDefault(); activate(a.dataset.tab);
     });
