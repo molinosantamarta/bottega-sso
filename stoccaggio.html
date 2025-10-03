@@ -5,97 +5,187 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>Stoccaggio – SSO</title>
   <style>
-    /* Base dark OLED */
-    html,body{height:100%;background:#000;margin:0;font-family:-apple-system,system-ui,Segoe UI,Roboto,sans-serif;color:#eaeaea}
-    .wrap{padding:12px 12px 40px;max-width:780px;margin:0 auto}
+    /* Reset & base */
+    html, body { height:100%; background:#000; }
+    body { margin:0; color:#fff; font-family:-apple-system,system-ui,Segoe UI,Roboto,sans-serif; }
 
-    /* Sezioni / box */
-    .section{margin-top:14px;border-radius:14px;padding:12px;background:#0b0b0c;border:1px solid rgba(255,255,255,.08)}
-    .section .title{display:flex;align-items:center;gap:10px;font-weight:800;font-size:14px;margin-bottom:10px;opacity:.95}
-    .muted{opacity:.7}
+    /* === Theme tokens allineati allo scanner === */
+    [data-sso] { color-scheme: dark; }
+    [data-sso] :where(*) { box-sizing: border-box; }
+    [data-sso]{
+      --bg:#000;
+      --fg:#fff;
+      --muted:#1c1c1e;
+      --accent:#0a84ff;
+      --danger:#ff453a;
+      --ok:#34c759;
+      --chip:#1f1f22;
+      --border:#2c2c2e;
+      --success:#22c55e;
+      --yellow:#ffd60a;
 
-    /* Ricerca */
+      /* larghezza IDENTICA alla tabbar (come scanner) */
+      --pane-w: min(92vw, 480px);
+      --radius-outer: 28px;
+      --radius-inner: 20px;
+
+      background:var(--bg);
+      color:var(--fg);
+      -webkit-text-size-adjust:115%;
+      text-size-adjust:115%;
+    }
+
+    /* wrapper centrato come scanner */
+    .wrap{
+      width:100%;
+      padding:12px 12px 40px;
+      margin-left:auto;
+      margin-right:auto;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:0;
+    }
+
+    /* pillola “Beta 2.0” (stessa estetica) */
+    .beta-row{display:flex;justify-content:center;margin:6px 0 10px}
+    .beta-pill{
+      display:inline-flex;align-items:center;justify-content:center;
+      padding:6px 12px;border-radius:999px;background:var(--yellow);color:#000;
+      font-weight:800;font-size:12px;border:1px solid #e6c408;
+      box-shadow:0 1px 0 rgba(255,255,255,.25) inset,0 4px 12px rgba(0,0,0,.25);
+    }
+
+    /* card bianche centrali come i blocchi 1–4 dello scanner */
+    .section{
+      width:var(--pane-w);
+      max-width:100%;
+      margin:16px auto;
+      border-radius:var(--radius-outer);
+      padding:12px;
+      background:#fff;
+      color:#111;
+      border:1px solid rgba(0,0,0,.08);
+      box-shadow:0 12px 28px rgba(0,0,0,.15);
+      transition:background .25s ease, box-shadow .25s ease, border-color .25s ease;
+      overflow:hidden;
+    }
+    .section .title{display:flex;align-items:center;gap:10px;font-weight:800;font-size:14px;margin-bottom:10px;opacity:.95;color:#111}
+    .section.active{
+      background:linear-gradient(180deg, #ffffff, #fbfbfb);
+      box-shadow:0 14px 32px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.6);
+      border-color:rgba(0,0,0,.12);
+    }
+
+    .muted{opacity:.75}
+
+    /* input & bottoni (match scanner: arrotondati pieni) */
     .search-row{display:flex;gap:8px;flex-wrap:wrap}
     .input{
-      flex:1;min-width:220px;height:44px;border-radius:12px;border:1px solid rgba(255,255,255,.12);
-      background:#111;color:#fff;padding:0 12px;font-weight:600;outline:none
+      flex:1;min-width:220px;height:46px;border-radius:999px;border:1px solid #e6e6ea;
+      background:#f7f7fa;color:#111;padding:0 14px;font-weight:700;outline:none;
     }
-    .input::placeholder{color:#9b9b9b}
+    .input::placeholder{color:#8d8d95}
     .btn{
-      height:44px;border:0;border-radius:12px;padding:0 14px;font-weight:800;cursor:pointer;color:#000;background:#ffd60a;
-      box-shadow:0 1px 0 rgba(255,255,255,.25) inset,0 4px 10px rgba(0,0,0,.25);border:1px solid #e6c408
+      height:46px;border:0;border-radius:24px;padding:0 16px;font-weight:800;cursor:pointer;
+      color:#000;background:var(--yellow);
+      box-shadow:0 1px 0 rgba(255,255,255,.25) inset,0 4px 10px rgba(0,0,0,.18);
+      border:1px solid #e6c408;
     }
-    .results{margin-top:10px;border-radius:12px;border:1px dashed rgba(255,255,255,.18);padding:10px}
 
-    /* Pillole giorno */
-    .pills{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+    /* pills giorno (chip scuri come scanner) */
+    .pills{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;align-items:center}
     .pill{
-      border:1px solid rgba(255,255,255,.14);background:#121214;color:#fff;border-radius:999px;padding:8px 12px;font-size:13px;
-      cursor:pointer;user-select:none;transition:.15s
+      border:1px solid var(--border);background:#121214;color:#fff;border-radius:999px;padding:10px 12px;font-size:14px;
+      cursor:pointer;user-select:none;transition:.15s;
     }
-    .pill.active{background:#ffd60a;color:#000;border-color:#e6c408;font-weight:900;box-shadow:0 6px 16px rgba(0,0,0,.35)}
+    .pill.active{
+      background:linear-gradient(180deg, #b8ffd4, #a4f5c4);
+      color:#003b1f;font-weight:900;border-color:transparent;
+      box-shadow:0 6px 18px rgba(120,255,180,.35), inset 0 1px 0 rgba(255,255,255,.35);
+    }
+
     .date-picker{display:none;margin-top:8px}
     .date-input{
-      height:40px;border-radius:10px;border:1px solid rgba(255,255,255,.12);background:#111;color:#fff;padding:0 10px
+      width:100%;
+      height:44px;border-radius:16px;border:1px solid #e6e6ea;background:#f7f7fa;color:#111;padding:0 12px;font-weight:700;
     }
 
-    /* Lista ordini */
-    .orders{margin-top:10px;max-height:54vh;overflow:auto;border:1px solid rgba(255,255,255,.08);border-radius:12px}
-    .order{display:grid;grid-template-columns:1fr auto;gap:6px;padding:12px;border-bottom:1px solid rgba(255,255,255,.06)}
+    /* Lista ordini: look “box scuro” coerente con scanner .box */
+    .orders{
+      margin-top:10px;
+      border:1px solid var(--border);
+      border-radius:var(--radius-inner);
+      background:#0b0b0b;
+      color:#fff;
+      max-height:54vh; overflow:auto;
+    }
+    .order{
+      display:grid;grid-template-columns:1fr auto;gap:6px;
+      padding:12px;border-bottom:1px solid rgba(255,255,255,.06)
+    }
     .order:last-child{border-bottom:none}
     .order h4{margin:0;font-size:15px}
+
     .tag{
       display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:6px 10px;font-size:12px;
       border:1px solid #e6c408;background:#ffd60a;color:#000;font-weight:900
     }
-    .meta{font-size:12px;opacity:.85}
+    .meta{font-size:12px;opacity:.9}
     .zone{font-weight:800}
     .loc-badge{
       display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:6px 10px;font-size:12px;
       border:1px solid rgba(255,255,255,.18);background:#141416;color:#eaeaea
     }
 
-    /* Empty state */
+    .results{
+      margin-top:10px;border-radius:12px;border:1px dashed rgba(0,0,0,.12);
+      padding:10px;background:#fafafa;color:#111;
+    }
+
     .empty{padding:18px;text-align:center;opacity:.8}
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <!-- BLOCCO 1: Ricerca cliente -->
-    <section class="section" id="blk-search">
-      <div class="title">🔎 Ricerca cliente</div>
-      <div class="search-row">
-        <input id="q" class="input" placeholder="Cerca per nome o cognome…" autocomplete="off" />
-        <button id="btnClear" class="btn" type="button">Pulisci</button>
-      </div>
-      <div id="searchResult" class="results muted">Digita almeno 2 caratteri per iniziare la ricerca.</div>
-    </section>
+  <div data-sso>
+    <div class="wrap">
+      <!-- Pillola in alto -->
+      <div class="beta-row"><span class="beta-pill">Beta 2.0</span></div>
 
-    <!-- BLOCCO 2: Ordini per giorno -->
-    <section class="section" id="blk-day">
-      <div class="title">🗓️ Ordini per giorno</div>
+      <!-- BLOCCO 1: Ricerca cliente -->
+      <section class="section active" id="blk-search">
+        <div class="title">🔎 Ricerca cliente</div>
+        <div class="search-row">
+          <input id="q" class="input" placeholder="Cerca per nome o cognome…" autocomplete="off" />
+          <button id="btnClear" class="btn" type="button">Pulisci</button>
+        </div>
+        <div id="searchResult" class="results muted">Digita almeno 2 caratteri per iniziare la ricerca.</div>
+      </section>
 
-      <div class="pills">
-        <div class="pill active" data-day="oggi">Oggi</div>
-        <div class="pill" data-day="domani">Domani</div>
-        <div class="pill" data-day="custom">Seleziona data</div>
-        <span id="selLabel" class="muted" aria-live="polite"></span>
-      </div>
+      <!-- BLOCCO 2: Ordini per giorno -->
+      <section class="section" id="blk-day">
+        <div class="title">🗓️ Ordini per giorno</div>
 
-      <div class="date-picker" id="datePicker">
-        <input id="dateInput" class="date-input" type="date" />
-      </div>
+        <div class="pills">
+          <div class="pill active" data-day="oggi">Oggi</div>
+          <div class="pill" data-day="domani">Domani</div>
+          <div class="pill" data-day="custom">Seleziona data</div>
+          <span id="selLabel" class="muted" aria-live="polite"></span>
+        </div>
 
-      <div class="orders" id="ordersList">
-        <div class="empty">Caricamento in corso…</div>
-      </div>
-    </section>
+        <div class="date-picker" id="datePicker">
+          <input id="dateInput" class="date-input" type="date" />
+        </div>
+
+        <div class="orders" id="ordersList">
+          <div class="empty">Caricamento in corso…</div>
+        </div>
+      </section>
+    </div>
   </div>
 
   <script>
     // === Config sorgente dati Google Sheets (CSV) ===
-    // Hai condiviso il link /pubhtml. La versione CSV è la stessa base con "?output=csv".
-    // Se preferisci, sostituisci direttamente con il tuo URL CSV ufficiale:
     const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vS6a2Ij-RW70-i-hk_Qw_0gChVKzsVljdvMjSNwqpF4CXyeHfDurxRBIcGa8AEd0HR-tNW6y_LZSn5t/pub?output=csv";
 
     // Fallback dati demo (usati se fetch fallisce/CORS)
@@ -147,7 +237,6 @@
     function parseCSV(csv){
       const rows = csv.trim().split(/\r?\n/).map(r=>r.split(/,(?=(?:[^"]*"[^"]*")*[^"]*$)/).map(c=>c.replace(/^"|"$/g,"")));
       const header = rows.shift().map(h=>norm(h));
-      // Tenta mapping intelligente di colonne comuni
       const col = (nameCandidates)=> {
         for(const c of nameCandidates){
           const i = header.findIndex(h => h.includes(norm(c)));
@@ -176,7 +265,6 @@
       })).filter(x=>x.cliente || x.ordine);
     }
     function toISO(s){
-      // accetta 02/10/2025 o 2025-10-02
       if(/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
       const m = s.match(/^(\d{1,2})[\/\-\.](\d{1,2})[\/\-\.](\d{2,4})$/);
       if(m){
@@ -190,7 +278,7 @@
     let DATA = [];
     let currentDateISO = todayISO();
 
-    // Nodo
+    // Nodi
     const q = document.getElementById("q");
     const btnClear = document.getElementById("btnClear");
     const searchResult = document.getElementById("searchResult");
@@ -220,7 +308,6 @@
     // Rendering lista del giorno
     function renderDay(){
       const list = DATA.filter(x=>x.data===currentDateISO).sort((a,b)=>{
-        // Ordina per ora e cliente
         return (a.ora||"").localeCompare(b.ora||"") || (a.cliente||"").localeCompare(b.cliente||"");
       });
       if(!list.length){
@@ -245,9 +332,7 @@
               ${o.note?`📝 ${escapeHTML(o.note)}`:""}
             </div>
           </div>
-          <div>
-            <!-- spazio per azioni future -->
-          </div>
+          <div><!-- azioni future --></div>
         </div>
       `;
     }
@@ -269,9 +354,9 @@
       }
       searchResult.classList.remove("muted");
       searchResult.innerHTML = results.map(r=>`
-        <div style="padding:8px 6px;border-bottom:1px solid rgba(255,255,255,.08)">
-          <div style="font-weight:800">${escapeHTML(r.cliente)}</div>
-          <div class="meta">
+        <div style="padding:8px 6px;border-bottom:1px solid rgba(0,0,0,.08)">
+          <div style="font-weight:800;color:#111">${escapeHTML(r.cliente)}</div>
+          <div class="meta" style="color:#222">
             Ordine <span class="tag">#${escapeHTML(r.ordine)}</span>
             &nbsp;•&nbsp;<span class="zone">${escapeHTML(r.zona||"—")}</span>
             ${r.posizione?`&nbsp;<span class="loc-badge">📍 ${escapeHTML(r.posizione)}</span>`:""}
