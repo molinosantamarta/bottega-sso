@@ -1,1 +1,352 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Stoccaggio – SSO</title>
+  <style>
+    /* Reset & base */
+    html, body { height:100%; background:#000; }
+    body { margin:0; color:#fff; font-family:-apple-system,system-ui,Segoe UI,Roboto,sans-serif; }
 
+    /* === Theme tokens allineati allo scanner === */
+    [data-sso] { color-scheme: dark; }
+    [data-sso] :where(*) { box-sizing: border-box; }
+    [data-sso]{
+      --bg:#000;
+      --fg:#fff;
+      --muted:#1c1c1e;
+      --accent:#0a84ff;
+      --danger:#ff453a;
+      --ok:#34c759;
+      --chip:#1f1f22;
+      --border:#2c2c2e;
+      --success:#22c55e;
+      --yellow:#ffd60a;
+
+      /* Larghezza IDENTICA allo scanner (contenitore tabbar bianco) */
+      --pane-w: min(92%, 480px);
+      --radius-outer: 28px;
+      --radius-inner: 20px;
+
+      background:var(--bg);
+      color:var(--fg);
+      -webkit-text-size-adjust:115%;
+      text-size-adjust:115%;
+    }
+
+    /* wrapper centrato come scanner */
+    .wrap{
+      width:100%;
+      padding:12px 12px 40px;
+      margin-left:auto;
+      margin-right:auto;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:0;
+      max-width:760px;
+    }
+
+    /* pillola “Beta 3.0” (stessa estetica dello scanner) */
+    .beta-row{display:flex;justify-content:center;margin:6px 0 10px}
+    .beta-pill{
+      display:inline-flex;align-items:center;justify-content:center;
+      padding:6px 12px;border-radius:999px;background:var(--yellow);color:#000;
+      font-weight:800;font-size:12px;border:1px solid #e6c408;
+      box-shadow:0 1px 0 rgba(255,255,255,.25) inset,0 4px 12px rgba(0,0,0,.25);
+    }
+
+    /* Card bianche centrali come i blocchi 1–4 dello scanner */
+    .section{
+      width:var(--pane-w);
+      max-width:100%;
+      margin:16px auto;
+      border-radius:var(--radius-outer);
+      padding:12px;
+      background:#fff;
+      color:#111;
+      border:1px solid rgba(0,0,0,.08);
+      box-shadow:0 12px 28px rgba(0,0,0,.15);
+      transition:background .25s ease, box-shadow .25s ease, border-color .25s ease;
+      overflow:hidden;
+    }
+    .section.active{
+      background:linear-gradient(180deg, #ffffff, #fbfbfb);
+      box-shadow:0 14px 32px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.6);
+      border-color:rgba(0,0,0,.12);
+    }
+    .section .title{
+      display:flex;align-items:center;gap:10px;font-weight:800;font-size:14px;margin-bottom:10px;opacity:.95;color:#111
+    }
+
+    .muted{opacity:.75}
+
+    /* input & bottoni (match scanner: arrotondati pieni) */
+    .search-row{display:flex;gap:8px;flex-wrap:wrap}
+    .input{
+      flex:1;min-width:220px;height:46px;border-radius:999px;border:1px solid #e6e6ea;
+      background:#f7f7fa;color:#111;padding:0 14px;font-weight:700;outline:none;
+    }
+    .input::placeholder{color:#8d8d95}
+    .btn{
+      height:46px;border:0;border-radius:24px;padding:0 16px;font-weight:800;cursor:pointer;
+      color:#000;background:var(--yellow);
+      box-shadow:0 1px 0 rgba(255,255,255,.25) inset,0 4px 10px rgba(0,0,0,.18);
+      border:1px solid #e6c408;
+    }
+
+    /* pills giorno (chip scuri come scanner) */
+    .pills{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;align-items:center}
+    .pill{
+      border:1px solid var(--border);background:#121214;color:#fff;border-radius:999px;padding:10px 12px;font-size:14px;
+      cursor:pointer;user-select:none;transition:.15s;
+    }
+    .pill.active{
+      background:linear-gradient(180deg, #b8ffd4, #a4f5c4);
+      color:#003b1f;font-weight:900;border-color:transparent;
+      box-shadow:0 6px 18px rgba(120,255,180,.35), inset 0 1px 0 rgba(255,255,255,.35);
+    }
+
+    .date-picker{display:none;margin-top:8px}
+    .date-input{
+      width:100%;
+      height:44px;border-radius:16px;border:1px solid #e6e6ea;background:#f7f7fa;color:#111;padding:0 12px;font-weight:700;
+    }
+
+    /* Lista ordini: look “box scuro” coerente con scanner .box */
+    .orders{
+      margin-top:10px;
+      border:1px solid var(--border);
+      border-radius:var(--radius-inner);
+      background:#0b0b0b;
+      color:#fff;
+      max-height:54vh; overflow:auto;
+    }
+    .order{
+      display:grid;grid-template-columns:1fr auto;gap:6px;
+      padding:12px;border-bottom:1px solid rgba(255,255,255,.06)
+    }
+    .order:last-child{border-bottom:none}
+    .order h4{margin:0;font-size:15px}
+
+    .tag{
+      display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:6px 10px;font-size:12px;
+      border:1px solid #e6c408;background:#ffd60a;color:#000;font-weight:900
+    }
+    .meta{font-size:12px;opacity:.9}
+    .zone{font-weight:800}
+    .loc-badge{
+      display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:6px 10px;font-size:12px;
+      border:1px solid rgba(255,255,255,.18);background:#141416;color:#eaeaea
+    }
+
+    .results{
+      margin-top:10px;border-radius:12px;border:1px dashed rgba(0,0,0,.12);
+      padding:10px;background:#fafafa;color:#111;
+    }
+
+    .empty{padding:18px;text-align:center;opacity:.8}
+  </style>
+</head>
+<body>
+  <div data-sso>
+    <div class="wrap">
+      <!-- Pillola in alto -->
+      <div class="beta-row"><span class="beta-pill">Beta 3.0</span></div>
+
+      <!-- BLOCCO 0: Avviso sviluppo -->
+      <section class="section active" id="blk-info">
+        <div class="title">ℹ️ Stoccaggio – stato sviluppo</div>
+        <div class="results">
+          Questa pagina è in <strong>fase di sviluppo</strong> e verrà rilasciata con la
+          <strong>versione 10.0</strong> dell’app nei prossimi aggiornamenti.
+          Nel frattempo qui sotto trovi un’anteprima con <em>dati demo</em>.
+        </div>
+      </section>
+
+      <!-- BLOCCO 1: Ricerca cliente (demo) -->
+      <section class="section" id="blk-search">
+        <div class="title">🔎 Ricerca cliente</div>
+        <div class="search-row">
+          <input id="q" class="input" placeholder="Cerca per nome o cognome…" autocomplete="off" />
+          <button id="btnClear" class="btn" type="button">Pulisci</button>
+        </div>
+        <div id="searchResult" class="results muted">Digita almeno 2 caratteri per iniziare la ricerca (demo).</div>
+      </section>
+
+      <!-- BLOCCO 2: Ordini per giorno (demo) -->
+      <section class="section" id="blk-day">
+        <div class="title">🗓️ Ordini per giorno</div>
+
+        <div class="pills">
+          <div class="pill active" data-day="oggi">Oggi</div>
+          <div class="pill" data-day="domani">Domani</div>
+          <div class="pill" data-day="custom">Seleziona data</div>
+          <span id="selLabel" class="muted" aria-live="polite"></span>
+        </div>
+
+        <div class="date-picker" id="datePicker">
+          <input id="dateInput" class="date-input" type="date" />
+        </div>
+
+        <div class="orders" id="ordersList">
+          <div class="empty">Caricamento in corso…</div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    // ======= SOLO DEMO LOCALE (nessun riferimento esterno) =======
+    const DEMO = [
+      { data:"2025-10-02", ora:"10:12", cliente:"Mario Rossi",  ordine:"183", zona:"NEGOZIO - SOPRA", posizione:"Scaffale A3", colli:2, note:"fragile" },
+      { data:"2025-10-02", ora:"11:05", cliente:"Giulia Bianchi", ordine:"184", zona:"CAMION - SOTTO",  posizione:"Pedana 2",   colli:1, note:"" },
+      { data:"2025-10-02", ora:"12:40", cliente:"Franco Verdi",  ordine:"185", zona:"CARNE",           posizione:"Cella 1",    colli:3, note:"urgente" },
+      { data:"2025-10-03", ora:"09:15", cliente:"Lucia Neri",    ordine:"186", zona:"SCALE",           posizione:"S1 ripiano 2",colli:2, note:"" }
+    ];
+
+    // Util: normalizza per ricerca (case + accenti)
+    const norm = s => (s||"")
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g,"")
+      .trim();
+
+    // Fuso Europe/Rome per 'oggi/domani' (demo)
+    const tz = "Europe/Rome";
+    function fmtDateISO(d){
+      const y=d.getFullYear(), m=String(d.getMonth()+1).padStart(2,"0"), dd=String(d.getDate()).padStart(2,"0");
+      return `${y}-${m}-${dd}`;
+    }
+    function todayISO(){
+      const now = new Date();
+      const fmt = new Intl.DateTimeFormat('it-IT',{ timeZone: tz, year:'numeric', month:'2-digit', day:'2-digit' })
+        .formatToParts(now)
+        .reduce((acc,p)=>{ acc[p.type]=p.value; return acc; },{});
+      return `${fmt.year}-${fmt.month}-${fmt.day}`;
+    }
+    function addDaysISO(iso, days){
+      const d = new Date(iso+"T00:00:00");
+      d.setDate(d.getDate()+days);
+      return fmtDateISO(d);
+    }
+
+    // Stato UI (demo)
+    let DATA = DEMO.slice();
+    let currentDateISO = todayISO();
+
+    // Nodi
+    const q = document.getElementById("q");
+    const btnClear = document.getElementById("btnClear");
+    const searchResult = document.getElementById("searchResult");
+    const ordersList = document.getElementById("ordersList");
+    const pills = Array.from(document.querySelectorAll(".pill"));
+    const datePicker = document.getElementById("datePicker");
+    const dateInput = document.getElementById("dateInput");
+    const selLabel = document.getElementById("selLabel");
+
+    function setPill(day){
+      pills.forEach(p=>p.classList.toggle("active", p.dataset.day===day));
+      datePicker.style.display = (day==="custom") ? "block" : "none";
+      if(day==="oggi"){
+        currentDateISO = todayISO();
+        selLabel.textContent = `Data: ${fmtHuman(currentDateISO)}`;
+      }else if(day==="domani"){
+        currentDateISO = addDaysISO(todayISO(), 1);
+        selLabel.textContent = `Data: ${fmtHuman(currentDateISO)}`;
+      }
+      renderDay();
+    }
+    function fmtHuman(iso){
+      const d = new Date(iso+"T00:00:00");
+      return d.toLocaleDateString("it-IT",{weekday:"long", day:"2-digit", month:"long", year:"numeric"});
+    }
+
+    // Rendering lista del giorno (demo)
+    function renderDay(){
+      const list = DATA.filter(x=>x.data===currentDateISO).sort((a,b)=>{
+        return (a.ora||"").localeCompare(b.ora||"") || (a.cliente||"").localeCompare(b.cliente||"");
+      });
+      if(!list.length){
+        ordersList.innerHTML = `<div class="empty">Nessun ordine per ${fmtHuman(currentDateISO)} (demo).</div>`;
+        return;
+      }
+      ordersList.innerHTML = list.map(row => orderCard(row)).join("");
+    }
+    function orderCard(o){
+      return `
+        <div class="order">
+          <div>
+            <h4>${escapeHTML(o.cliente||"—")}</h4>
+            <div class="meta">
+              Ordine <span class="tag">#${escapeHTML(o.ordine||"—")}</span>
+              &nbsp; • &nbsp; <span class="zone">${escapeHTML(o.zona||"—")}</span>
+              ${o.posizione?`&nbsp; <span class="loc-badge">📍 ${escapeHTML(o.posizione)}</span>`:""}
+            </div>
+            <div class="meta muted">
+              ${o.ora?`🕒 ${escapeHTML(o.ora)}&nbsp;•&nbsp;`:``}
+              ${o.colli?`📦 ${escapeHTML(String(o.colli))} colli&nbsp;•&nbsp;`:``}
+              ${o.note?`📝 ${escapeHTML(o.note)}`:""}
+            </div>
+          </div>
+          <div><!-- azioni future --></div>
+        </div>
+      `;
+    }
+    function escapeHTML(s){ return (s||"").replace(/[&<>"']/g, m=>({ "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;" }[m])); }
+
+    // Ricerca live per cliente (demo sui dati locali)
+    function onSearch(){
+      const t = norm(q.value);
+      if(t.length<2){
+        searchResult.classList.add("muted");
+        searchResult.innerHTML = "Digita almeno 2 caratteri per iniziare la ricerca (demo).";
+        return;
+      }
+      const results = DATA.filter(x=>norm(x.cliente).includes(t)).slice(0,8);
+      if(!results.length){
+        searchResult.classList.remove("muted");
+        searchResult.innerHTML = "Nessun risultato (demo).";
+        return;
+      }
+      searchResult.classList.remove("muted");
+      searchResult.innerHTML = results.map(r=>`
+        <div style="padding:8px 6px;border-bottom:1px solid rgba(0,0,0,.08)">
+          <div style="font-weight:800;color:#111">${escapeHTML(r.cliente)}</div>
+          <div class="meta" style="color:#222">
+            Ordine <span class="tag">#${escapeHTML(r.ordine)}</span>
+            &nbsp;•&nbsp;<span class="zone">${escapeHTML(r.zona||"—")}</span>
+            ${r.posizione?`&nbsp;<span class="loc-badge">📍 ${escapeHTML(r.posizione)}</span>`:""}
+            ${r.data?`<div class="muted">🗓️ ${fmtHuman(r.data)} ${r.ora?("— "+escapeHTML(r.ora)):""}</div>`:""}
+          </div>
+        </div>
+      `).join("");
+    }
+
+    // Eventi UI (demo)
+    q.addEventListener("input", onSearch);
+    btnClear.addEventListener("click", ()=>{
+      q.value=""; onSearch(); q.focus();
+    });
+    pills.forEach(p=>p.addEventListener("click", ()=>{
+      const d = p.dataset.day;
+      setPill(d);
+      if(d!=="custom") onSearch();
+    }));
+    dateInput.addEventListener("change", ()=>{
+      if(!dateInput.value) return;
+      currentDateISO = dateInput.value;
+      selLabel.textContent = `Data: ${fmtHuman(currentDateISO)}`;
+      renderDay();
+      onSearch();
+    });
+
+    // Avvio demo
+    (function init(){
+      selLabel.textContent = `Data: ${fmtHuman(currentDateISO)}`;
+      renderDay();
+    })();
+  </script>
+</body>
+</html>
