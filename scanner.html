@@ -24,12 +24,11 @@
       --torch-on:#ffd60a;
       --yellow:#ffd60a;
 
-      /* dimensionamento coerente con tabbar */
       --pane-w: 100%;
       --pane-max: min(760px, 100vw);
-      --pane-gutter: 16px;
+      --pane-gutter: 0px;
 
-      --radius-outer: 28px;  /* come tabbar */
+      --radius-outer: 28px;
       --radius-inner: 20px;
 
       background:var(--bg);
@@ -51,9 +50,8 @@
       align-items:center;
     }
 
-    /* card sezione (edge-to-edge su mobile, centrata su viewport grandi) */
+    /* card sezione */
     [data-sso] .section{
-      position: relative; /* crea stacking context pulito */
       width:100%;
       max-width:var(--pane-max);
       margin:14px auto;
@@ -65,13 +63,11 @@
       box-shadow:0 10px 24px rgba(0,0,0,.15);
       transition:background .25s ease, box-shadow .25s ease, border-color .25s ease;
       overflow:hidden;
-      z-index: 0;
+      position: relative; z-index: 0;
+      pointer-events:auto;
     }
     @media (max-width: 430px){
-      [data-sso] .section{
-        width:96vw; /* più edge-to-edge su iPhone */
-        border-radius:22px;
-      }
+      [data-sso] .section{ width:96vw; border-radius:22px; }
     }
     [data-sso] .section.active{
       background:linear-gradient(180deg, #ffffff, #fbfbfb);
@@ -79,17 +75,14 @@
       border-color:rgba(0,0,0,.12);
     }
 
-    /* evidenziazione extra quando la tab attiva è "scanner" */
+    /* Focus del primo blocco quando la tab esterna è "scanner" */
     .scanner-focus{
       outline: 2px solid rgba(10,132,255,.35);
       box-shadow: 0 16px 36px rgba(10,132,255,.20), 0 10px 24px rgba(0,0,0,.15);
     }
 
-    /* --- HOT-FIX clickability --- */
-    #section1 { position: relative; z-index: 1000; }
-    .icon-btn.torch-on::before,
-    .icon-btn.torch-on::after { pointer-events: none !important; }
-    .seg, .chip, .opt { pointer-events: auto; }
+    /* Garantisco priorità click su STEP1 */
+    #section1 { position: relative; z-index: 10; }
 
     /* Pillola versione */
     .beta-row{display:flex;justify-content:center;margin:6px 0 2px}
@@ -126,12 +119,22 @@
     .selected-zone.active{ background:#ffd60a; color:#000; box-shadow:0 4px 14px rgba(0,0,0,.18); border-color:#e6c408; }
     .selected-dot{ width:10px; height:10px; border-radius:999px; background:var(--ok); display:inline-block; }
 
-    .video-wrap{ width:100%; aspect-ratio:16/9; border-radius:var(--radius-inner); overflow:hidden; border:1px solid #e6e6ea; margin-top:10px; background:#000; position:relative; display:block; }
+    .video-wrap{
+      width:100%; aspect-ratio:16/9; border-radius:var(--radius-inner);
+      overflow:hidden; border:1px solid #e6e6ea; margin-top:10px;
+      background:#000; position:relative; display:block; z-index: 0;
+      pointer-events:auto;
+    }
     @media (max-width:600px){ .video-wrap{ height:56vw; aspect-ratio:auto; } }
-    .video-wrap.paused::after{ content:"La scansione è in pausa"; position:absolute; inset:0; display:flex; align-items:center; justify-content:center; backdrop-filter:blur(6px) brightness(.7); color:#fff; font-weight:800; letter-spacing:.6px; }
+    .video-wrap.paused::after{
+      content:"La scansione è in pausa"; position:absolute; inset:0;
+      display:flex; align-items:center; justify-content:center;
+      backdrop-filter:blur(6px) brightness(.7); color:#fff; font-weight:800; letter-spacing:.6px;
+      pointer-events:none;
+    }
 
     .qr-guide{ position:absolute; left:50%; top:30%; transform:translate(-50%,-50%); height:30%; width:auto; opacity:1; display:none; pointer-events:none; }
-    .qr-hint{ position:absolute; left:50%; top:66%; transform:translate(-50%,-50%); max-width:80%; width:80%; color:#fff; font-weight:800; font-size:13px; letter-spacing:.2px; line-height:1.25; background:rgba(0,0,0,.45); padding:8px 12px; border-radius:10px; border:1px solid rgba(255,255,255,.2); display:none; text-align:center; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+    .qr-hint{ position:absolute; left:50%; top:66%; transform:translate(-50%,-50%); max-width:80%; width:80%; color:#fff; font-weight:800; font-size:13px; letter-spacing:.2px; line-height:1.25; background:rgba(0,0,0,.45); padding:8px 12px; border-radius:10px; border:1px solid rgba(255,255,255,.2); display:none; text-align:center; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; pointer-events:none; }
 
     .dup-msg{ position:absolute; left:50%; top:8%; transform:translateX(-50%); width:90%; max-width:680px; padding:10px 14px; border-radius:14px; background:rgba(0,0,0,.65); color:#fff; font-weight:800; letter-spacing:.2px; text-align:center; opacity:0; pointer-events:none; transition:opacity .2s ease; border:1px solid rgba(255,255,255,.2); display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; line-height:1.25; }
     .dup-msg.show{ opacity:1; }
@@ -191,54 +194,51 @@
       z-index: 1;
     }
 
-    /* Effetto torcia potenziato: alone + cono molto più visibili su sfondo bianco */
+    /* TORCIA potenziata */
     @keyframes torch-breathe {
       0%, 100% { transform:translateX(-50%) scale(1); opacity:1; }
-      50%      { transform:translateX(-50%) scale(1.04); opacity:.95; }
+      50%      { transform:translateX(-50%) scale(1.05); opacity:.96; }
     }
     .icon-btn.torch-on{
       background:var(--torch-on); color:#111; border-color:#d8be07;
       box-shadow:
-        0 0 0 1px rgba(216,190,7,.35) inset,
-        0 10px 22px rgba(0,0,0,.16),
-        0 0 32px rgba(255,214,10,.55),
-        0 0 64px rgba(255,214,10,.35);
+        0 0 0 1px rgba(216,190,7,.45) inset,
+        0 10px 22px rgba(0,0,0,.18),
+        0 0 40px rgba(255,214,10,.65),
+        0 0 120px rgba(255,214,10,.5);
     }
-    /* Alone radiale attorno al pulsante */
     .icon-btn.torch-on::before{
       content:""; position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
-      width:160px; height:160px; border-radius:50%;
+      width:200px; height:200px; border-radius:50%;
       background:
         radial-gradient(circle at 50% 50%,
-          rgba(255,240,170,0.95) 0%,
-          rgba(255,228,120,0.65) 35%,
-          rgba(255,214,10,0.35) 60%,
-          rgba(255,214,10,0) 78%);
-      filter:blur(8px);
+          rgba(255,240,170,0.98) 0%,
+          rgba(255,228,120,0.78) 35%,
+          rgba(255,214,10,0.48) 62%,
+          rgba(255,214,10,0.00) 80%);
+      filter:blur(10px);
       mix-blend-mode:screen;
+      pointer-events:none;
+      animation: torch-breathe 1.6s ease-in-out infinite;
+      z-index: 0;
+    }
+    .icon-btn.torch-on::after{
+      content:""; position:absolute; left:50%; bottom:44px; transform:translateX(-50%);
+      width: 520px; height: 700px;
+      background:
+        linear-gradient(180deg,
+          rgba(255,240,170,0.96) 0%,
+          rgba(255,228,120,0.82) 12%,
+          rgba(255,220,80,0.52) 48%,
+          rgba(255,214,10,0.24) 72%,
+          rgba(255,214,10,0.00) 100%);
+      clip-path: polygon(50% 0%, 8% 100%, 92% 100%);
+      filter: blur(12px) saturate(125%);
+      mix-blend-mode: screen;
       pointer-events:none;
       animation: torch-breathe 1.8s ease-in-out infinite;
       z-index: 0;
     }
-    /* Cono di luce verso il basso, grande e intenso */
-    .icon-btn.torch-on::after{
-      content:""; position:absolute; left:50%; bottom:44px; transform:translateX(-50%);
-      width: 420px; height: 560px;
-      background:
-        linear-gradient(180deg,
-          rgba(255,240,170,0.92) 0%,
-          rgba(255,228,120,0.76) 12%,
-          rgba(255,220,80,0.42) 48%,
-          rgba(255,214,10,0.16) 72%,
-          rgba(255,214,10,0.00) 100%);
-      clip-path: polygon(50% 0%, 12% 100%, 88% 100%); /* cono ampio */
-      filter: blur(10px) saturate(120%);
-      mix-blend-mode: screen;
-      pointer-events:none;
-      animation: torch-breathe 2s ease-in-out infinite;
-      z-index: 0;
-    }
-
     .icon-btn:active{ transform:scale(.97); }
     .icon-btn svg{ width:22px; height:22px; display:block; }
 
@@ -248,12 +248,12 @@
 
     .spacer{ height:1px; }
 
-    /* Contenitore ESTERNO per il pulsante finale (fuori dal blocco 4) */
+    /* Contenitore esterno del pulsante finale */
     .btn-new-outer{
       width:var(--pane-w);
       max-width:var(--pane-max);
       margin:16px auto 0;
-      display:none; /* verrà mostrato a fine progress */
+      display:none;
     }
     .btn-new-outer .btn{ width:100%; }
   </style>
@@ -272,7 +272,6 @@
         <div class="seg-row">
           <div class="seg-label">CELLA NEGOZIO</div>
           <div class="seg" id="segNegozio">
-            <!-- i data-zone restano invariati per preservare la logica -->
             <button class="opt" data-zone="NEGOZIO - SOPRA" type="button">SOPRA</button>
             <button class="opt" data-zone="NEGOZIO - SOTTO" type="button">SOTTO</button>
           </div>
@@ -440,26 +439,27 @@
     let dupTimer = null;
     let firstScanDone = false;
 
-    // === CONFIG GOOGLE FORM (2 domande: ZONA + ORDINI CSV) ===
+    // === CONFIG GOOGLE FORM ===
     const GFORM = {
       ACTION: "https://docs.google.com/forms/d/e/1FAIpQLSdixUK5TjPdfYMeso-XXTJHYy2Vy23F44j5FEMWFddWRfRh7Q/formResponse",
       ENTRY_ZONE:   "entry.1910612286",
       ENTRY_ORDERS: "entry.1223265482"
     };
 
-    /* nascondo le guide QR all'inizio */
+    /* Nascondo le guide QR all'inizio */
     if (qrGuide) qrGuide.style.display = 'none';
     if (qrHint)  qrHint.style.display  = 'none';
 
-    /* HOT-FIX difensivo: assicurati che i controlli siano clickabili e non disabilitati */
+    /* Sblocco difensivo click & type */
     document.querySelectorAll('#segNegozio .opt, #segCamion .opt, .chip, #useCustom').forEach(el=>{
       if (el.tagName === 'BUTTON' && !el.hasAttribute('type')) el.setAttribute('type','button');
       el.removeAttribute('disabled');
+      el.style.pointerEvents = 'auto';
     });
-    const section1 = document.getElementById('section1');
-    if (section1) section1.style.zIndex = '1000';
+    // assicuro priorità del blocco 1
+    const s1 = document.getElementById('section1'); if (s1) s1.style.zIndex = '10';
 
-    /* Audio feedback minimo */
+    /* Audio feedback */
     const AC = window.AudioContext || window.webkitAudioContext;
     let audioCtx = null;
     function ensureAC(){ if (!audioCtx) audioCtx = new AC(); return audioCtx; }
@@ -630,25 +630,22 @@
       }
     });
 
-    /* === CLICK ZONE: event delegation robusto === */
-    root.addEventListener('click', (e)=>{
-      const target = e.target.closest('#segNegozio .opt, #segCamion .opt, .chip, #useCustom');
-      if (!target || !root.contains(target)) return;
-
-      if (target.id === 'useCustom') {
-        if (scanningLocked){ alert('Non puoi cambiare zona dopo aver avviato la scansione.'); return; }
-        const v = (root.querySelector('#customZone').value||'').trim(); if (!v) return;
-        root.querySelectorAll('.opt,.chip').forEach(b=>b.classList.remove('active'));
-        select(v);
-        return;
-      }
-
-      if (target.matches('.opt, .chip')) {
+    // Selettori zona
+    root.querySelectorAll('#segNegozio .opt, #segCamion .opt, .chip').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
         if (scanningLocked){ alert('Non puoi cambiare zona dopo aver avviato la scansione.'); return; }
         root.querySelectorAll('.opt, .chip').forEach(b=>b.classList.remove('active'));
-        target.classList.add('active');
-        select(target.dataset.zone);
-      }
+        btn.classList.add('active');
+        select(btn.dataset.zone);
+      }, {passive:true});
+      // extra difensivo
+      btn.style.pointerEvents = 'auto';
+    });
+    root.querySelector('#useCustom').addEventListener('click', ()=>{
+      if (scanningLocked){ alert('Non puoi cambiare zona dopo aver avviato la scansione.'); return; }
+      const v = (root.querySelector('#customZone').value||'').trim(); if (!v) return;
+      root.querySelectorAll('.opt,.chip').forEach(b=>b.classList.remove('active'));
+      select(v);
     });
 
     // === Camera / QR ===
@@ -883,7 +880,6 @@
 
       if (pDoneOuter) pDoneOuter.style.display = 'none';
 
-      /* Nascondi l'eventuale pulsante esterno e riporta il bottone dentro pDoneOuter */
       if (btnNewOuter && btnNewExternal) {
         btnNewOuter.style.display = 'none';
         pDoneOuter.appendChild(btnNewExternal);
@@ -906,6 +902,11 @@
 
     function startStep4Progress(){
       step4Box.innerHTML = `
+        <style>
+          .progress-outer{height:12px;border-radius:999px;background:#101010;border:1px solid #2a2a2a;overflow:hidden}
+          .progress-inner{height:100%;width:0;background:linear-gradient(90deg,#0a84ff,#34c759);transition:width .2s ease;border-radius:999px}
+          .progress-msg{margin-top:10px;font-size:13px;opacity:.9}
+        </style>
         <div class="progress-wrap">
           <div class="progress-outer"><div class="progress-inner" id="pInner"></div></div>
           <div class="progress-msg" id="pMsg">Inizializzo…</div>
@@ -927,14 +928,12 @@
             pInner.style.width = '100%';
             pMsg.textContent = 'Completato ✔︎';
 
-            /* MOSTRA il pulsante fuori dal blocco 4, a tutta larghezza */
             if (btnNewOuter && btnNewExternal){
               btnNewOuter.innerHTML = '';
               btnNewOuter.appendChild(btnNewExternal);
               btnNewOuter.style.display = 'block';
             }
 
-            /* Azione bottone nuova scansione */
             if (btnNewExternal){
               btnNewExternal.onclick = async ()=>{
                 await fullReset(true);
@@ -989,7 +988,8 @@
 
     lockZoneSelectors(false);
 
-    /* ---------- Evidenziazione dinamica del blocco 1 quando tab = scanner ---------- */
+    /* Evidenziazione dinamica del blocco 1 quando tab = scanner */
+    const section1 = document.getElementById('section1');
     function applyTabHighlight(tab){
       if (!section1) return;
       if (tab === 'scanner') {
@@ -998,26 +998,16 @@
         section1.classList.remove('scanner-focus');
       }
     }
-
-    // 1) default: se nel title c'è "Scanner" illumina
-    if (document.title.toLowerCase().includes('scanner')) {
-      applyTabHighlight('scanner');
-    }
-
-    // 2) se qualcuno imposta window.SSO_ACTIVE_TAB (prima o dopo il load)
+    if (document.title.toLowerCase().includes('scanner')) applyTabHighlight('scanner');
     if (window.SSO_ACTIVE_TAB) applyTabHighlight(window.SSO_ACTIVE_TAB);
     Object.defineProperty(window, 'SSO_ACTIVE_TAB', {
       set(v){ applyTabHighlight(v); },
       get(){ return undefined; }
     });
-
-    // 3) listener per evento custom dall’esterno
     document.addEventListener('sso:tabchange', (e)=>{
       const tab = e?.detail?.tab;
       if (tab) applyTabHighlight(tab);
     });
-
-    /* ----------------------------------------------------------------------------- */
 
     window.addEventListener('pagehide', async ()=>{ await stopCamera(); }, { once:true });
     window.addEventListener('beforeunload', async ()=>{ await stopCamera(); }, { once:true });
