@@ -5,76 +5,42 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>SSO – Scanner e Stoccaggio Ordini</title>
   <style>
-    /* Base dark OLED */
+    /* Base dark */
     html,body{height:100%;background:#000;margin:0;font-family:-apple-system,system-ui,Segoe UI,Roboto,sans-serif;color:#eaeaea}
-    .x-wrap{padding:8px 16px 24px;max-width:760px;margin:0 auto;}
+    .x-wrap{padding:8px 16px 24px;max-width:760px;margin:0 auto}
 
-    header{text-align:center;padding:18px 12px 10px;}
-    header h1{margin:0;font-size:20px;font-weight:800;color:#fff;}
-    header .subtitle{margin-top:6px;font-size:13px;font-weight:500;color:#bdbdbd;opacity:.95;}
+    header{text-align:center;padding:18px 12px 10px}
+    header h1{margin:0;font-size:20px;font-weight:800;color:#fff}
+    header .subtitle{margin-top:6px;font-size:13px;font-weight:500;color:#bdbdbd;opacity:.95}
 
     .beta-row{display:flex;justify-content:center;margin-top:8px;position:relative;top:3px}
-    .beta-pill{
-      display:inline-flex;align-items:center;justify-content:center;
-      padding:5px 10px;border-radius:999px;background:#ffd60a;color:#000;
-      font-weight:800;font-size:11px;box-shadow:0 1px 0 rgba(255,255,255,.25) inset,0 4px 12px rgba(0,0,0,.25);border:1px solid #e6c408
-    }
+    .beta-pill{display:inline-flex;align-items:center;justify-content:center;padding:5px 10px;border-radius:999px;background:#ffd60a;color:#000;font-weight:800;font-size:11px;box-shadow:0 1px 0 rgba(255,255,255,.25) inset,0 4px 12px rgba(0,0,0,.25);border:1px solid #e6c408}
 
-    /* Immagini incrociate e centrate */
-    .hero-img-wrap{display:flex;align-items:center;justify-content:center;margin-top:6px;position:relative;margin-bottom:0}
+    /* Immagini incrociate */
+    .hero-img-wrap{display:flex;align-items:center;justify-content:center;margin-top:6px;position:relative}
     .hero-img-wrap img{width:92px;max-width:106px;height:auto;border-radius:12px;position:relative}
     .hero-img-wrap img:first-child{left:10px;z-index:1}
     .hero-img-wrap img:last-child{right:0;margin-left:-10px;z-index:2;top:5px}
 
     /* Tabbar */
     .x-tabbar{margin-top:8px;display:flex;justify-content:center;position:relative;top:-16px}
-    .x-tabbar-inner{
-      display:grid;grid-template-columns:repeat(2,1fr);gap:10px;
-      width:92%;max-width:480px;padding:8px;border-radius:38px;
-      background:#f7f7f7;border:1px solid rgba(0,0,0,.1);box-shadow:0 12px 28px rgba(0,0,0,.15)
-    }
-    .x-tab{
-      display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;
-      padding:10px 12px;border-radius:28px;text-decoration:none;cursor:pointer;-webkit-tap-highlight-color:transparent;
-      color:#6b6b70;border:1px solid transparent;
-      transition:background .15s ease, color .15s ease, border-color .15s ease, box-shadow .15s ease
-    }
+    .x-tabbar-inner{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;width:92%;max-width:480px;padding:8px;border-radius:38px;background:#f7f7f7;border:1px solid rgba(0,0,0,.1);box-shadow:0 12px 28px rgba(0,0,0,.15)}
+    .x-tab{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:10px 12px;border-radius:28px;text-decoration:none;cursor:pointer;-webkit-tap-highlight-color:transparent;color:#6b6b70;border:1px solid transparent;transition:background .15s,color .15s,border-color .15s,box-shadow .15s}
     .x-tab[aria-selected="true"]{background:#ffd60a;color:#000;font-weight:700;border-color:#e6c408;box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 6px 16px rgba(0,0,0,.35)}
     .ico-bubble{display:flex;align-items:center;justify-content:center;background:transparent;border:none;box-shadow:none;width:auto;height:auto;border-radius:0}
-
-    /* Limita il darkening SOLO ai contenuti della tabbar */
-    .x-tabbar .x-tab[aria-selected="false"] span{color:#222;}
-
-    /* Cards demo (placeholder: spariscono quando carichiamo la pagina esterna) */
-    .card{margin:14px auto 0;border-radius:16px;padding:22px;background:#0b0b0c;border:1px solid rgba(255,255,255,.08);min-height:110px;width:92%;max-width:760px}
+    .x-tabbar .x-tab[aria-selected="false"] span{color:#222}
 
     /* Views */
     [data-view]{display:none}
     [data-view].active{display:block}
 
-    /* -------------------------------------------------------------------
-       RINFORZO: allinea le pagine caricate a .x-wrap usando --pane-max/gutter
-       (impostate via JS qui in index).
-       ------------------------------------------------------------------- */
-    [data-view] [data-sso]{
-      /* default fallback in caso lo script non partisse */
-      --pane-max: 760px;
-      --pane-gutter: 16px;
-    }
-    [data-view] [data-sso] .wrap{
-      max-width: var(--pane-max);
-      padding-left: var(--pane-gutter);
-      padding-right: var(--pane-gutter);
-      margin-left:auto;
-      margin-right:auto;
-    }
-    [data-view] [data-sso] .section,
-    [data-view] [data-sso] .btn-new-outer{
-      width:100%;
-      max-width: var(--pane-max);
-      margin-left:auto;
-      margin-right:auto;
-    }
+    /* Allineamento e gutter delle pagine esterne (edge-to-edge) */
+    [data-view] [data-sso]{--pane-max:760px;--pane-gutter:0px}
+    [data-view] [data-sso] .wrap{max-width:var(--pane-max);padding-left:0!important;padding-right:0!important;margin-left:auto;margin-right:auto}
+    [data-view] [data-sso] .section,[data-view] [data-sso] .btn-new-outer{width:100%;max-width:var(--pane-max);margin-left:auto;margin-right:auto}
+
+    /* Placeholder cards (solo prima del load) */
+    .card{margin:14px auto 0;border-radius:16px;padding:22px;background:#0b0b0c;border:1px solid rgba(255,255,255,.08);min-height:110px;width:92%;max-width:760px}
   </style>
 </head>
 <body>
@@ -86,8 +52,8 @@
     </header>
 
     <div class="hero-img-wrap">
-      <img src="https://static.wixstatic.com/media/9d749b_4e7e462b0d2e40448664f342bb2cd2b5~mv2.png/v1/fill/w_240,h_260,al_c,q_90,usm_0.66_1.00_0.01,enc_avif,quality_auto/shopper%20bottega_anteprima_edited_edited_.png" alt="Immagine 1" />
-      <img src="https://community.appinventor.mit.edu/uploads/default/original/3X/c/2/c21a68fb6312af849c89a657cd12c56faf74dc8e.gif" alt="Animazione" />
+      <img src="https://static.wixstatic.com/media/9d749b_4e7e462b0d2e40448664f342bb2cd2b5~mv2.png/v1/fill/w_240,h_260,al_c,q_90,usm_0.66_1.00_0.01,enc_avif,quality_auto/shopper%20bottega_anteprima_edited_edited_.png" alt="Immagine 1">
+      <img src="https://community.appinventor.mit.edu/uploads/default/original/3X/c/2/c21a68fb6312af849c89a657cd12c56faf74dc8e.gif" alt="Animazione">
     </div>
 
     <nav class="x-tabbar" role="tablist" aria-label="Navigazione pagine">
@@ -103,15 +69,12 @@
       </div>
     </nav>
 
-    <!-- Vista A: carica scanner.html dentro -->
+    <!-- Vista A: carica scanner.html -->
     <section id="view-a" data-view class="active" data-src="./scanner.html">
-      <div class="card"></div>
-      <div class="card"></div>
-      <div class="card"></div>
-      <div class="card"></div>
+      <div class="card"></div><div class="card"></div><div class="card"></div><div class="card"></div>
     </section>
 
-    <!-- Vista B: carica stoccaggio.html dentro -->
+    <!-- Vista B: carica stoccaggio.html -->
     <section id="view-b" data-view data-src="./stoccaggio.html">
       <div style="max-width:820px;margin:18px auto 0;padding:16px 18px;border:1px dashed rgba(255,255,255,.35);border-radius:14px;background:#0b0b0c;color:#eaeaea;font:14px/1.45 -apple-system,system-ui,Segoe UI,Roboto,sans-serif">
         questa pagina è in fase di sviluppo, verrà rilasciata con la versione 10.0 dell'app nei prossimi aggiornamenti.
@@ -121,133 +84,112 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
   <script>
+    /* Lottie */
     lottie.loadAnimation({container:document.getElementById('lottie-scanner'),renderer:'svg',loop:true,autoplay:true,path:'./scanner.lotties.json'});
     lottie.loadAnimation({container:document.getElementById('lottie-stoccaggio'),renderer:'svg',loop:true,autoplay:true,path:'./shopping-cart.lotties.json'});
 
+    /* Utility */
     const VIEWS=['a','b'];
     const $=s=>document.querySelector(s);
     const $$=s=>Array.from(document.querySelectorAll(s));
 
-    const loadedStyles = new Set();
-    async function loadExternalInto(section) {
-      const url = section.getAttribute('data-src');
-      if (!url || section.dataset.loaded === 'true') return;
-      try {
-        const res = await fetch(url, { credentials: 'same-origin' });
-        if (!res.ok) throw new Error('HTTP ' + res.status);
-        const html = await res.text();
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(html, 'text/html');
+    /* Caricamento pagine esterne */
+    const loadedStyles=new Set();
+    async function loadExternalInto(section){
+      const url=section.getAttribute('data-src');
+      if(!url||section.dataset.loaded==='true')return;
+      try{
+        const res=await fetch(url,{credentials:'same-origin'});
+        if(!res.ok)throw new Error('HTTP '+res.status);
+        const html=await res.text();
+        const doc=new DOMParser().parseFromString(html,'text/html');
 
-        // carica eventuali CSS esterni una sola volta
-        doc.querySelectorAll('link[rel="stylesheet"]').forEach(link => {
-          const href = link.getAttribute('href');
-          if (!href) return;
-          const abs = new URL(href, url).href;
-          if (loadedStyles.has(abs)) return;
-          const l = document.createElement('link');
-          l.rel = 'stylesheet'; l.href = abs;
+        doc.querySelectorAll('link[rel="stylesheet"]').forEach(link=>{
+          const href=link.getAttribute('href'); if(!href)return;
+          const abs=new URL(href,url).href;
+          if(loadedStyles.has(abs))return;
+          const l=document.createElement('link'); l.rel='stylesheet'; l.href=abs;
           document.head.appendChild(l); loadedStyles.add(abs);
         });
-        // carica gli <style> inline
-        doc.querySelectorAll('style').forEach(styleEl => {
-          const s = document.createElement('style'); s.textContent = styleEl.textContent;
+
+        doc.querySelectorAll('style').forEach(styleEl=>{
+          const s=document.createElement('style'); s.textContent=styleEl.textContent;
           document.head.appendChild(s);
         });
 
-        // inietta l'HTML della pagina nel section
-        section.innerHTML = doc.body ? doc.body.innerHTML : html;
+        section.innerHTML=doc.body?doc.body.innerHTML:html;
 
-        // esegui gli script della pagina
-        const scripts = doc.querySelectorAll('script');
-        for (const oldS of scripts) {
-          const s = document.createElement('script');
-          if (oldS.type) s.type = oldS.type;
-          if (oldS.noModule) s.noModule = true;
-          if (oldS.defer) s.defer = true;
-          if (oldS.async) s.async = true;
-          const src = oldS.getAttribute('src');
-          if (src) s.src = new URL(src, url).href;
-          else s.textContent = oldS.textContent || '';
+        doc.querySelectorAll('script').forEach(oldS=>{
+          const s=document.createElement('script');
+          if(oldS.type)s.type=oldS.type;
+          if(oldS.noModule)s.noModule=true;
+          if(oldS.defer)s.defer=true;
+          if(oldS.async)s.async=true;
+          const src=oldS.getAttribute('src');
+          if(src)s.src=new URL(src,url).href; else s.textContent=oldS.textContent||'';
           section.appendChild(s);
-        }
-        section.dataset.loaded = 'true';
+        });
 
-        // sincronizza variabili di layout per la pagina caricata
+        section.dataset.loaded='true';
         syncPaneVarsFor(section);
-
-      } catch (err) {
-        console.error('Errore nel caricamento di', url, err);
-        const nice = document.createElement('div');
-        nice.style.cssText = 'margin:18px auto 0;padding:16px 18px;border:1px dashed rgba(255,255,255,.35);border-radius:14px;background:#0b0b0c;color:#eaeaea;font:14px/1.45 -apple-system,system-ui,Segoe UI,Roboto,sans-serif';
-        nice.textContent = `Non riesco a caricare ${url}. Assicurati che il file esista su GitHub Pages ed abbia la stessa origine.`;
-        section.innerHTML = ''; section.appendChild(nice);
+      }catch(err){
+        console.error('Errore nel caricamento di',url,err);
+        const msg=document.createElement('div');
+        msg.style.cssText='margin:18px auto 0;padding:16px 18px;border:1px dashed rgba(255,255,255,.35);border-radius:14px;background:#0b0b0c;color:#eaeaea;font:14px/1.45 -apple-system,system-ui,Segoe UI,Roboto,sans-serif';
+        msg.textContent=`Non riesco a caricare ${url}. Assicurati che il file esista su GitHub Pages ed abbia la stessa origine.`;
+        section.innerHTML=''; section.appendChild(msg);
       }
     }
 
     async function activate(view){
-      if(!VIEWS.includes(view)) view='a';
-      const section = view === 'a' ? $('#view-a') : $('#view-b');
+      if(!VIEWS.includes(view))view='a';
+      const section=view==='a'?$('#view-a'):$('#view-b');
       await loadExternalInto(section);
       $('#view-a').classList.toggle('active',view==='a');
       $('#view-b').classList.toggle('active',view==='b');
       $$('.x-tab').forEach(t=>t.setAttribute('aria-selected',t.dataset.tab===view?'true':'false'));
-
-      // risincronizza quando cambi vista
       syncPaneVarsFor(section);
     }
 
     loadExternalInto($('#view-a')).then(()=>activate('a'));
     document.querySelector('.x-tabbar-inner').addEventListener('click',e=>{
-      const a=e.target.closest('.x-tab'); if(!a) return; e.preventDefault(); activate(a.dataset.tab);
+      const a=e.target.closest('.x-tab'); if(!a)return; e.preventDefault(); activate(a.dataset.tab);
     });
 
-    /* ===========================================================
-       SYNC WIDTH + GUTTER: imposta --pane-max e --pane-gutter
-       sulle pagine caricate, copiandole da .x-wrap.
-       =========================================================== */
-    const wrapEl = document.querySelector('.x-wrap');
+    /* Sync width + gutter (gutter fisso = 0 per edge-to-edge) */
+    const EXTERNAL_GUTTER_PX=0;
+    const wrapEl=document.querySelector('.x-wrap');
 
-    function readWrapDims() {
-      if (!wrapEl) return { w:760, g:16 };
-      const cs = getComputedStyle(wrapEl);
-      const w = wrapEl.getBoundingClientRect().width;
-      const pl = parseFloat(cs.paddingLeft) || 0;
-      const pr = parseFloat(cs.paddingRight) || 0;
-      // se vuoi usare lo stesso gutter su ambo i lati, prendo il max tra i due
-      const g = Math.max(pl, pr);
-      return { w, g };
+    function readWrapDims(){
+      if(!wrapEl)return{w:760,g:0};
+      const w=wrapEl.getBoundingClientRect().width;
+      return{w,g:0};
     }
 
-    function applyPaneVarsToRoots(pixels, gutter){
+    function applyPaneVarsToRoots(pixels,gutter){
+      const g=(typeof EXTERNAL_GUTTER_PX==='number')?EXTERNAL_GUTTER_PX:gutter;
       document.querySelectorAll('[data-view].active [data-sso]').forEach(root=>{
-        root.style.setProperty('--pane-max', Math.round(pixels) + 'px');
-        root.style.setProperty('--pane-gutter', Math.round(gutter) + 'px');
+        root.style.setProperty('--pane-max',Math.round(pixels)+'px');
+        root.style.setProperty('--pane-gutter',Math.round(g)+'px');
       });
     }
 
     function syncPaneVarsFor(section){
-      if (!section) return;
-      const { w, g } = readWrapDims();
-      applyPaneVarsToRoots(w, g);
+      if(!section)return;
+      const {w,g}=readWrapDims();
+      applyPaneVarsToRoots(w,g);
     }
 
-    // osserva i cambi dimensione/padding di .x-wrap (resize, orientation, CSS)
-    const ro = new ResizeObserver(entries=>{
-      for (const e of entries){
-        const cs = getComputedStyle(e.target);
-        const w = e.contentRect.width;
-        const pl = parseFloat(cs.paddingLeft) || 0;
-        const pr = parseFloat(cs.paddingRight) || 0;
-        const g = Math.max(pl, pr);
-        applyPaneVarsToRoots(w, g);
+    const ro=new ResizeObserver(entries=>{
+      for(const e of entries){
+        const w=e.contentRect.width;
+        applyPaneVarsToRoots(w,0);
       }
     });
-    if (wrapEl) ro.observe(wrapEl);
+    if(wrapEl)ro.observe(wrapEl);
 
-    // se dentro la view attiva vengono aggiunti [data-sso], riallinea
-    const mo = new MutationObserver(()=>syncPaneVarsFor(document.querySelector('[data-view].active')));
-    mo.observe(document.body, { childList:true, subtree:true });
+    const mo=new MutationObserver(()=>syncPaneVarsFor(document.querySelector('[data-view].active')));
+    mo.observe(document.body,{childList:true,subtree:true});
   </script>
 </body>
 </html>
