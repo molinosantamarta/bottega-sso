@@ -28,12 +28,12 @@
     .section {
       width:calc(100% - 32px);
       border-radius:var(--radius);
-      padding:20px 16px 14px; /* alzo leggermente il titolo */
+      padding:20px 16px 14px; /* spazio titolo ristabilito */
       background:#fff; color:#111;
       border:1px solid rgba(0,0,0,.08);
       box-shadow:var(--elev);
     }
-    .section > .title { margin-top:-6px; }
+    .section > .title { margin-top:0; }
 
     .title {
       display:flex; align-items:center; gap:8px;
@@ -62,7 +62,7 @@
     }
     .btn {
       border:none; border-radius:16px; padding:14px 20px;
-      background:#0a84ff; color:#fff; font-weight:700; cursor:pointer;
+      background:var(--accent); color:#fff; font-weight:700; cursor:pointer;
       box-shadow:0 4px 14px rgba(10,132,255,.35);
     }
     @media(min-width:520px){.search{flex-direction:row;}.btn{width:auto;}}
@@ -93,14 +93,12 @@
     .order-time{ background:#f2f2f3; color:#111; }
     .order-date{ background:#e9e9eb; color:#111; }
 
-    /* Stoccaggio blu dinamico */
+    /* Stoccaggio: rimuovo gradiente e uso il blu del bottone con testo bianco */
     .order-zone{
-      background:linear-gradient(135deg,#8ec5ff,#3aa0ff,#0066ff);
-      background-size:200% 200%;
-      animation:zoneBlueShift 6s ease-in-out infinite alternate;
-      color:#000; border:1px solid rgba(0,0,0,.08);
+      background:var(--accent);
+      color:#fff;
+      border:1px solid rgba(0,0,0,.08);
     }
-    @keyframes zoneBlueShift { 0%{background-position:0% 50%;} 100%{background-position:100% 50%;} }
 
     /* Tabs */
     .tabs{ display:flex; gap:12px; flex-wrap:nowrap; overflow:auto; }
@@ -117,18 +115,21 @@
     .empty{ padding:12px; border-radius:14px; border:1px dashed rgba(0,0,0,.15); background:#fff; color:#333; font-size:14px; text-align:center; }
     .status{ margin-top:8px; font-size:12px; color:#555; }
 
-    /* Modale */
+    /* Titolo "Ordini di …" su una riga e leggermente più piccolo */
+    .orders-title{ font-size:16px; white-space:nowrap; }
+
+    /* Modale: ingrandisco i font ~20% e allineo a sinistra */
     .modal{ position:fixed; inset:0; display:none; z-index:2147483647; }
     .modal.open{ display:block; }
     .modal .backdrop{ position:absolute; inset:0; background:rgba(0,0,0,.55); backdrop-filter:saturate(1.2) blur(6px); }
     .modal .sheet{ position:absolute; inset:0; background:#fff; color:#111; display:flex; flex-direction:column; }
     .modal header{ display:flex; align-items:center; justify-content:space-between; gap:12px; padding:14px 16px; border-bottom:1px solid #ececec; position:sticky; top:0; background:#fff; z-index:1; }
-    .modal header .h{ font-weight:900; font-size:20px; }
-    /* rimosso badge zona in alto */
+    .modal header .h{ font-weight:900; font-size:24px; text-align:left; }
+    .modal header .text{ font-size:16px; text-align:left; }
     .modal .close{ border:1px solid #ddd; background:#fff; border-radius:999px; padding:8px 12px; font-weight:800; cursor:pointer; }
-    .modal .content{ padding:12px 16px 28px; overflow:auto; }
+    .modal .content{ padding:12px 16px 28px; overflow:auto; font-size:17px; }
     .kv{ width:100%; border-collapse:collapse; }
-    .kv th, .kv td{ text-align:left; padding:10px 8px; border-bottom:1px solid #f1f1f1; font-size:14px; }
+    .kv th, .kv td{ text-align:left; padding:12px 10px; border-bottom:1px solid #f1f1f1; font-size:17px; }
     .kv th{ width:36%; color:#444; font-weight:700; }
     .kv tr:last-child th, .kv tr:last-child td{ border-bottom:none; }
   </style>
@@ -158,7 +159,7 @@
 
       <!-- Blocco: Ordini -->
       <section class="section">
-        <h2 class="title">Ordini di <span id="sso-ritiri-title-date" class="date-accent">—</span></h2>
+        <h2 class="title orders-title">Ordini di <span id="sso-ritiri-title-date" class="date-accent">—</span></h2>
         <div class="tabs">
           <button class="tab active" id="sso-tab-oggi">Oggi</button>
           <button class="tab" id="sso-tab-domani">Domani</button>
@@ -179,7 +180,7 @@
       <header>
         <div style="min-width:0;">
           <div id="sso-modal-title" class="h" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">Dettaglio ordine</div>
-          <div id="sso-modal-sub" class="text" style="margin-top:4px;color:#555;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></div>
+          <div id="sso-modal-sub" class="text" style="margin-top:4px;color:#555;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></div>
         </div>
         <button id="sso-modal-close" class="close" aria-label="Chiudi">Chiudi</button>
       </header>
@@ -262,6 +263,7 @@
       return out;
     }
 
+    // Data PRIMA dell'ora nei badge sia in ordini che nelle ricerche
     function orderCard(o){
       const datePill = o.dateText ? `<span class='order-pill order-date'>${esc(o.dateText)}</span>` : '';
       const timePill = o.time ? `<span class='order-pill order-time'>${esc(o.time)}</span>` : '';
@@ -271,7 +273,7 @@
           <div class='order-main'>
             <div class='order-name'>${esc(o.name)}</div>
             <div class='order-sub'>
-              ${timePill}${datePill}
+              ${datePill}${timePill}
               <span class='order-pill order-zone'>${esc(o.zone||'?')}</span>
             </div>
           </div>
