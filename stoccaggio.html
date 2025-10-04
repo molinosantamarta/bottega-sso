@@ -162,9 +162,8 @@
   </div>
 
   <script>
-    // ===== Config: Google Sheet =====
-    const SHEET_HTML_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS6a2Ij-RW70-i-hk_Qw_0gChVKzsVljdvMjSNwqpF4CXyeHfDurxRBIcGa8AEd0HR-tNW6y_LZSn5t/pubhtml';
-    const SHEET_CSV_URL  = SHEET_HTML_URL.replace('/pubhtml','/pub?output=csv'); // CORS-friendly
+    // ===== Config: Demo mode (disconnesso dal foglio) =====
+    const DEMO_MODE = true;
 
     // ===== Utilities =====
     const $ = s => document.querySelector(s);
@@ -183,7 +182,7 @@
         return `${g[d.getDay()]}, ${String(d.getDate()).padStart(2,'0')} ${m[d.getMonth()]}`;
       }
     }
-    function setRitiriTitle(dateLike){
+    function renderTitleDate(dateLike){
       const d = (typeof dateLike==='string')? new Date(dateLike): new Date(dateLike);
       const el=$('#ritiri-title-date');
       const ok=d instanceof Date && !Number.isNaN(d.getTime());
@@ -260,20 +259,38 @@
     // ===== App state =====
     let SHEET_ROWS = [];
 
+    // Dati demo sintetici per oggi e domani
+    function generateDemoRows(){
+      const zones = ['NEGOZIO - SOPRA','NEGOZIO - SOTTO','CELLA SOPRA','CAMION SOPRA','CAMION SOTTO','SCALE','CARNE'];
+      const names = ['Abbiati','Negri','Tiziani','Monza','Invernizzi','Pontevecchio','Fontana','Rho','Pellegrino','Faspar','Pagani','Bernardi','Colombo','Brambilla'];
+      const today = new Date();
+      const tomorrow = addDays(today, 1);
+      const mk = (d, i) => ({
+        dateKey: ymd(d),
+        name: names[i % names.length],
+        ord: 100 + ((d.getDate()*37 + i*19) % 900),
+        zone: (i%3===0? null : zones[(i + d.getDay()) % zones.length]),
+        time: `${String(8 + ((i*2 + d.getDay()) % 9)).padStart(2,'0')}:${String((i*15)%60).padStart(2,'0')}`,
+        items: ['Mele 1kg','Salame nostrano','Pane rustico'].slice(0, 1 + (i%3)),
+        note: (i%5===0? 'Consegna rapida' : ''),
+        reparti: 'FRUTTA E VERDURA' + (i%2? ', CARNE' : '')
+      });
+      const arr = [];
+      for(let i=0;i<8;i++) arr.push(mk(today, i));
+      for(let i=0;i<6;i++) arr.push(mk(tomorrow, i));
+      return arr;
+    }
+
     async function loadSheet(){
-      const outBox = $('#out');
-      const listEl = $('#ritiri-list');
-      try{
-        const res = await fetch(SHEET_CSV_URL, { mode:'cors', cache:'no-store' });
-        const text = await res.text();
-        SHEET_ROWS = parseSheetCSV(text);
-      }catch(err){
-        console.warn('Errore caricamento foglio', err);
-        SHEET_ROWS = [];
-        // Empty states (nessun dato, niente demo)
-        outBox.innerHTML = `<div class="empty">Impossibile leggere i dati dal foglio Google.</div>`;
-        listEl.innerHTML = `<div class="empty">Nessun dato disponibile.</div>`;
+      const outBox = document.querySelector('#out');
+      const listEl = document.querySelector('#ritiri-list');
+      // In demo: nessun fetch, generiamo localmente
+      SHEET_ROWS = generateDemoRows();
+      if(!SHEET_ROWS.length){
+        if(outBox) outBox.innerHTML = `<div class="empty">Demo: nessun dato generato.</div>`;
+        if(listEl) listEl.innerHTML = `<div class="empty">Demo: nessun ritiro.</div>`;
       }
+    }
     }
 
     // ===== Shared card renderer =====
@@ -348,18 +365,35 @@
     }
 
     function activate(which){
+      // toggle tab styles
       Object.values(tabs).forEach(btn=>{ btn.classList.remove('active'); btn.setAttribute('aria-selected','false'); });
       tabs[which].classList.add('active'); tabs[which].setAttribute('aria-selected','true');
+
+      // helper: costruisce una data robusta locale (Europe/Rome) a mezzogiorno
+      const atNoon = (d)=> new Date(`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}T12:00:00`);
+
       if(which==='data'){
         tabsWrap.classList.add('show-date');
-        if(!dateEl.value) dateEl.value = ymd(new Date());
-        setRitiriTitle(dateEl.value);
-        renderRitiri(dateEl.value);
+        if(!dateEl.value){
+          const now = new Date();
+          dateEl.value = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+        }
+        const picked = new Date(`${dateEl.value}T12:00:00`);
+        renderTitleDate(picked);
+        renderRitiri(picked);
       } else {
         tabsWrap.classList.remove('show-date');
         const base = new Date();
+        const targetRaw = (which==='oggi' ? base : addDays(base,1));
+        const target = atNoon(targetRaw);
+        renderTitleDate(target);
+        renderRitiri(target);
+      }
+    } else {
+        tabsWrap.classList.remove('show-date');
+        const base = new Date();
         const target = (which==='oggi' ? base : addDays(base,1));
-        setRitiriTitle(target);
+        renderTitleDate(target);
         renderRitiri(target);
       }
     }
@@ -370,7 +404,7 @@
 
     dateEl.addEventListener('change', ()=>{
       if(tabs.data.classList.contains('active')){
-        setRitiriTitle(dateEl.value);
+        renderTitleDate(dateEl.value);
         renderRitiri(dateEl.value);
       }
     });
@@ -418,16 +452,36 @@
 
     document.addEventListener('keydown', (e)=>{ if(e.key==='Escape') closeSheet(); });
 
+    // ===== Date title helpers (robusto e timezone-aware) =====
+    function formatDateIT(dateLike){
+      const d = (typeof dateLike==='string' && dateLike) ? new Date(dateLike) : (dateLike instanceof Date ? dateLike : new Date());
+      if (Number.isNaN(d.getTime())) return null;
+      try{
+        const s = new Intl.DateTimeFormat('it-IT', { timeZone:'Europe/Rome', weekday:'long', day:'2-digit', month:'long' }).format(d);
+        return s.charAt(0).toUpperCase() + s.slice(1);
+      }catch{
+        const g=['Domenica','Lunedì','Martedì','Mercoledì','Giovedì','Venerdì','Sabato'];
+        const m=['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno','Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'];
+        return `${g[d.getDay()]}, ${String(d.getDate()).padStart(2,'0')} ${m[d.getMonth()]}`;
+      }
+    }
+    function renderTitleDate(dateLike){
+      const el = document.querySelector('#ritiri-title-date');
+      const s = formatDateIT(dateLike) || formatDateIT(new Date());
+      if (el) el.textContent = s || '—';
+    }
+
     // ===== Boot =====
     (async function init(){
       // bind search
       go.addEventListener('click', submit);
       q.addEventListener('keydown', e => { if(e.key==='Enter'){ e.preventDefault(); submit(); } });
 
-      // carica dati (niente demo) e inizializza
+      // carica dati (demo o reali) e inizializza
       await loadSheet();
       activate('oggi');
-      setRitiriTitle(new Date());
+      // forza titolo subito (ridondante ma innocuo)
+      renderTitleDate(new Date());
     })();
   </script>
 </body>
