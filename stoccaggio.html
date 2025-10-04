@@ -3,10 +3,10 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>SSO – Pagina in sviluppo</title>
+  <title>SSO – Stoccaggio Ordini</title>
   <style>
     /* ===== Base ===== */
-    html, body { height:100%; background:#000; margin:0; }
+    html, body { height:100%; background:#000; margin:0; overflow-x:hidden; }
     [data-sso] {
       color-scheme: dark;
       font-family:-apple-system,system-ui,Segoe UI,Roboto,sans-serif;
@@ -16,22 +16,28 @@
     [data-sso]{
       --bg:#000; --fg:#fff; --accent:#0a84ff; --border:#2c2c2e;
       --highlight:#ffd60a; --radius:22px; --elev:0 10px 24px rgba(0,0,0,.15);
+      --pane-pad:16px; /* padding laterale unico, condiviso con tabbar */
     }
 
     .wrap {
-      width:100%; max-width:min(760px,100vw); margin:0 auto;
-      padding:calc(8px + env(safe-area-inset-top)) 0 calc(24px + env(safe-area-inset-bottom));
+      width:100%;
+      max-width:min(760px,100%);
+      margin:0 auto;
+      padding:calc(8px + env(safe-area-inset-top)) var(--pane-pad)
+              calc(24px + env(safe-area-inset-bottom));
       display:flex; flex-direction:column; gap:14px; align-items:center;
+      box-sizing:border-box;
     }
 
     /* Sezioni */
     .section {
-      width:calc(100% - 32px);
+      width:100%; /* evita overshoot al primo paint */
       border-radius:var(--radius);
       padding:20px 16px 14px;
       background:#fff; color:#111;
       border:1px solid rgba(0,0,0,.08);
       box-shadow:var(--elev);
+      box-sizing:border-box;
     }
 
     .title {
@@ -40,11 +46,10 @@
     }
     .text { font-size:15px; color:#222; }
 
-    /* --- Lente animata (sostituisce il pallino) --- */
+    /* --- Lente animata (al posto del pallino) --- */
     .lens {
       position:relative;
       width:16px; height:16px; border-radius:999px;
-      box-sizing:border-box;
       border:3px solid var(--highlight);
       animation:lens-pulse 1.2s ease-in-out infinite;
       flex:0 0 auto;
@@ -64,7 +69,8 @@
 
     /* Divider */
     .divider {
-      width:100%; height:2px;
+      align-self:stretch;
+      height:2px;
       background:var(--highlight);
       box-shadow:0 0 8px rgba(255,214,10,.3);
       margin:10px 0;
@@ -87,7 +93,7 @@
 
     @media(min-width:520px){ .search{flex-direction:row;} .btn{width:auto;} }
 
-    /* Area risultati / ordini */
+    /* Risultati e ordini */
     .orders{ display:flex; flex-direction:column; gap:10px; }
     #sso-out.orders{ margin-top:16px; }
     #sso-ritiri-list.orders{ margin-top:16px; }
@@ -97,6 +103,7 @@
       padding:12px; border-radius:14px;
       background:#fff; border:1px solid rgba(0,0,0,.08);
       box-shadow:var(--elev); cursor:pointer;
+      box-sizing:border-box;
     }
     .order-card:active{ transform:scale(.995); }
 
@@ -148,7 +155,7 @@
     .kv th{ width:36%; color:#444; font-weight:700; }
     .kv tr:last-child th, .kv tr:last-child td{ border-bottom:none; }
 
-    /* --- Loader per la ricerca --- */
+    /* Loader */
     .loading-area{
       display:flex; align-items:center; justify-content:center;
       padding:14px; border-radius:14px; border:1px dashed rgba(0,0,0,.15); background:#fff;
@@ -165,7 +172,7 @@
   <div data-sso id="sso-app">
     <div class="wrap">
 
-      <!-- Blocco: Ricerca rapida (ora PRIMO blocco, con lente animata) -->
+      <!-- BLOCCO: Ricerca rapida -->
       <section class="section">
         <h2 class="title"><span class="lens" aria-hidden="true"></span> Ricerca rapida</h2>
         <p class="text">Inserisci il <strong>nome cliente</strong> per risalire al numero d'ordine e alla posizione di stoccaggio.</p>
@@ -179,7 +186,7 @@
 
       <div class="divider"></div>
 
-      <!-- Blocco: Ordini del giorno -->
+      <!-- BLOCCO: Ordini -->
       <section class="section">
         <h2 class="title orders-title">Ordini di <span id="sso-ritiri-title-date" class="date-accent">—</span></h2>
         <div class="tabs">
@@ -195,7 +202,7 @@
     </div>
   </div>
 
-  <!-- Modale fullscreen -->
+  <!-- Modale -->
   <div id="sso-modal" class="modal" aria-hidden="true" role="dialog">
     <div class="backdrop"></div>
     <div class="sheet">
@@ -216,6 +223,7 @@
   (function(){
     const API_URL = 'https://script.google.com/macros/s/AKfycbzp_2RNQO9ROQkpcGebBpZ9P_MyZEmxkqLh5G-ODe4Yo2x9E0aRbEQIbmofaxhod9VGFA/exec';
 
+    // Helpers
     const ymd = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
     const ddmmyyyy = d => `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
     const fmtIT = d => new Intl.DateTimeFormat('it-IT',{weekday:'long',day:'2-digit',month:'long'}).format(d);
@@ -232,9 +240,11 @@
       const d=new Date(str); return Number.isNaN(d.getTime())? null : d;
     }
 
+    // Stato
     let DATA_ROWS = [];
     let UPDATED_AT = null;
 
+    // Mappatura flessibile colonne
     function mapRowsFromAPI(rows){
       const pickKey = (obj, cands) => {
         const ks = Object.keys(obj);
@@ -268,6 +278,7 @@
           src: r
         });
       }
+      // ordinamento stabile
       out.sort((a,b)=>{
         if(a.dateKey&&b.dateKey&&a.dateKey!==b.dateKey) return a.dateKey.localeCompare(b.dateKey);
         const ta=a.time||'', tb=b.time||'';
@@ -278,6 +289,7 @@
       return out;
     }
 
+    // Card ordine
     function orderCard(o){
       const datePill = o.dateText ? `<span class='order-pill order-date'>${esc(o.dateText)}</span>` : '';
       const timePill = o.time ? `<span class='order-pill order-time'>${esc(o.time)}</span>` : '';
@@ -294,6 +306,7 @@
         </div>`;
     }
 
+    // Filtri per giorno
     const rowsForDate = d => {
       const k = ymd(new Date(d));
       return DATA_ROWS.filter(r=>r.dateKey===k).sort((a,b)=>{
@@ -310,6 +323,7 @@
       document.getElementById('sso-ritiri-title-date').textContent = fmtIT(d);
     }
 
+    // Ricerca per nome
     function findByName(q){
       const n = norm(q.trim()); if(!n) return [];
       const exact = DATA_ROWS.filter(r=>norm(r.name)===n); if(exact.length) return exact;
@@ -317,6 +331,7 @@
       return DATA_ROWS.filter(r=>norm(r.name).includes(n));
     }
 
+    // Fetch
     async function refreshData(){
       const res = await fetch(API_URL + '?_ts=' + Date.now(), { cache:'no-store' });
       if(!res.ok) throw new Error('HTTP ' + res.status);
@@ -327,7 +342,7 @@
         UPDATED_AT ? `Dati aggiornati: ${new Date(UPDATED_AT).toLocaleString('it-IT')}` : '';
     }
 
-    /* --- Gestione caricamento ricerca --- */
+    /* --- Loader ricerca --- */
     const outEl = document.getElementById('sso-out');
     const btn = document.getElementById('sso-go');
     const input = document.getElementById('sso-q');
@@ -387,7 +402,7 @@
       }
     }
 
-    // ===== Modal logic =====
+    // Modale
     const modal = document.getElementById('sso-modal');
     const modalClose = document.getElementById('sso-modal-close');
     const modalTable = document.getElementById('sso-modal-table');
@@ -439,6 +454,7 @@
     modal.addEventListener('click', (e)=>{ if(e.target.classList.contains('backdrop')) closeModal(); });
     document.addEventListener('keydown', (e)=>{ if(e.key==='Escape' && modal.classList.contains('open')) closeModal(); });
 
+    // Click su card → modale
     document.addEventListener('click', e=>{
       const card = e.target.closest('.order-card');
       if(card){
@@ -457,6 +473,7 @@
         DATA_ROWS = [];
         document.getElementById('sso-status').textContent = 'Errore nel caricamento dei dati';
       }
+      // Bind UI
       btn.onclick = submit;
       input.onkeydown = e => { if(e.key==='Enter') submit(); };
 
@@ -465,7 +482,7 @@
       tabs.data.onclick=()=>activate('data');
       dateInput.onchange=()=>activate('data');
 
-      // refresh di cortesia ogni 5 minuti (senza animazione)
+      // refresh soft ogni 5 minuti (senza loader)
       setInterval(async ()=>{
         try{
           await refreshData();
