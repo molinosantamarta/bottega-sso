@@ -5,102 +5,93 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>SSO – Pagina in sviluppo</title>
   <style>
-    /* Base dark OLED */
     html, body { height:100%; background:#000; }
     body { margin:0; }
+    [data-sso] { color-scheme: dark; font-family:-apple-system,system-ui,Segoe UI,Roboto,sans-serif; background:var(--bg); color:var(--fg); -webkit-text-size-adjust:115%; text-size-adjust:115%; }
+    [data-sso] :where(*) { box-sizing:border-box; }
+    [data-sso]{ --bg:#000; --fg:#fff; --muted:#1c1c1e; --accent:#0a84ff; --border:#2c2c2e; --highlight:#ffd60a; --pane-max:min(760px, 100vw); --radius-outer:28px; --radius-inner:20px; --elev:0 10px 24px rgba(0,0,0,.15); }
 
-    [data-sso] { color-scheme: dark; }
-    [data-sso] :where(*) { box-sizing: border-box; }
-    [data-sso]{
-      --bg:#000;
-      --fg:#fff;
-      --muted:#1c1c1e;
-      --accent:#0a84ff;
-      --danger:#ff453a;
-      --ok:#34c759;
-      --chip:#1f1f22;
-      --border:#2c2c2e;
-      --success:#22c55e;
-      --torch-on:#ffd60a;
-      --yellow:#ffd60a;
-      /* Larghezza allineata alla tabbar (stesso contenitore bianco) */
-      --pane-w: 100%;
-      --pane-max: min(760px, 100vw);
-      --pane-gutter: 16px;
-      --radius-outer: 28px;  /* come tabbar */
-      --radius-inner: 20px;
+    .wrap{ width:100%; max-width:var(--pane-max); margin:0 auto; padding:8px 0 24px; display:flex; flex-direction:column; align-items:center; }
 
-      background:var(--bg);
-      color:var(--fg);
-      font-family:-apple-system,system-ui,Segoe UI,Roboto,sans-serif;
-      -webkit-text-size-adjust:115%;
-      text-size-adjust:115%;
-    }
-
-    /* Centraggio blocchi */
-    [data-sso] .wrap{
-      width:100%;
-      padding:8px 0 24px;
-      max-width:var(--pane-max);
-      margin-left:auto;
-      margin-right:auto;
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-    }
-
-    /* Pillola versione */
     .beta-row{ display:flex; justify-content:center; margin:6px 0 2px; }
-    .beta-pill{
-      display:inline-flex; align-items:center; justify-content:center;
-      padding:6px 12px; border-radius:999px; background:#ffd60a; color:#000;
-      font-weight:800; font-size:12px; border:1px solid #e6c408;
-      box-shadow:0 1px 0 rgba(255,255,255,.25) inset, 0 4px 12px rgba(0,0,0,.25);
-    }
+    .beta-pill{ display:inline-flex; align-items:center; justify-content:center; padding:6px 12px; border-radius:999px; background:var(--highlight); color:#000; font-weight:800; font-size:12px; border:1px solid #e6c408; box-shadow:0 1px 0 rgba(255,255,255,.25) inset, 0 4px 12px rgba(0,0,0,.25); }
 
-    /* Card (riquadro bianco) */
-    [data-sso] .section{
-      width:100vw;
-      margin:14px;
-      border-radius:26px;
-      padding:14px 16px;
-      background:#fff;
-      color:#111;
-      border:1px solid rgba(0,0,0,.08);
-      box-shadow:0 10px 24px rgba(0,0,0,.15);
-      transition:background .25s ease, box-shadow .25s ease, border-color .25s ease;
-      overflow:hidden;
-    }
-    @media (max-width:430px){
-      [data-sso] .section{ width:96vw; border-radius:22px; }
-    }
+    .section{ width:calc(100% - 32px); max-width:var(--pane-max); margin:14px; border-radius:26px; padding:14px 16px; background:#fff; color:#111; border:1px solid rgba(0,0,0,.08); box-shadow:var(--elev); transition:transform .2s ease, box-shadow .25s ease, border-color .25s ease; overflow:hidden; }
+    .section:active{ transform:translateY(.5px); }
+    @media (max-width:430px){ .section{ width:calc(100% - 24px); border-radius:22px; } }
 
-    /* Contenuto card */
-    .dev-title{
-      font-size:16px; font-weight:800; margin:2px 0 8px; color:#111;
-      letter-spacing:.2px;
-    }
-    .dev-text{
-      font-size:14px; line-height:1.45; color:#222; opacity:.95;
-    }
+    .title{ display:flex; align-items:center; gap:8px; font-size:16px; font-weight:800; color:#111; margin:2px 0 8px; letter-spacing:.2px; }
+    .blink{ width:8px; height:8px; border-radius:999px; background:var(--highlight); box-shadow:0 0 0 3px rgba(255,214,10,.25); animation:blink 1.2s ease-in-out infinite; }
+    .text{ font-size:14px; line-height:1.45; color:#222; opacity:.95; }
+    @keyframes blink{ 0%,100%{ opacity:1; box-shadow:0 0 0 3px rgba(255,214,10,.25), 0 0 0 rgba(255,214,10,0);} 50%{ opacity:.65; box-shadow:0 0 0 3px rgba(255,214,10,.25), 0 0 20px rgba(255,214,10,.55);} }
+
+    .divider{ width:100%; max-width:var(--pane-max); position:relative; height:0; margin:10px auto 6px; }
+    .divider::before{ content:""; position:absolute; left:-24px; right:-24px; top:-1px; height:2px; background:var(--highlight); box-shadow:0 0 0 1px rgba(255,214,10,.65), 0 0 18px rgba(255,214,10,.25); }
+
+    .search{ position:relative; display:flex; gap:10px; align-items:center; margin-top:10px; }
+    .input{ flex:1; width:100%; appearance:none; -webkit-appearance:none; padding:14px 14px 14px 42px; border-radius:14px; border:1px solid var(--border); background:linear-gradient(180deg,#1d1d21,#17171a); color:#fff; font-size:16px; line-height:1.1; outline:none; box-shadow:inset 0 1px 0 rgba(255,255,255,.06); }
+    .input:focus{ border-color:#2f6fff; box-shadow:0 0 0 3px rgba(10,132,255,.25), inset 0 1px 0 rgba(255,255,255,.06); }
+    .input::placeholder{ color:#9a9aa0; }
+    .btn{ display:inline-flex; align-items:center; justify-content:center; gap:8px; padding:12px 16px; border-radius:999px; background:linear-gradient(180deg,#2a7bff,#0a84ff); color:#fff; font-weight:800; font-size:14px; letter-spacing:.2px; border:1px solid rgba(255,255,255,.12); box-shadow:0 1px 0 rgba(255,255,255,.15) inset, 0 8px 22px rgba(10,132,255,.28); cursor:pointer; }
+    .btn:hover{ filter:brightness(1.05); } .btn:active{ transform:translateY(.5px); }
+    .icon{ width:16px; height:16px; }
+    .icon-search{ position:absolute; left:12px; width:18px; height:18px; opacity:.7; }
+
+    .result{ margin-top:14px; padding:12px; border-radius:14px; background:#f7f7f8; border:1px solid rgba(0,0,0,.06); }
+    .name{ font-size:18px; font-weight:900; color:#0b0b0b; letter-spacing:.2px; }
+    .row{ display:flex; align-items:center; gap:10px; margin-top:8px; }
+    .order{ display:inline-flex; align-items:center; justify-content:center; min-width:46px; padding:6px 10px; border-radius:999px; background:var(--highlight); color:#000; font-weight:900; font-size:14px; box-shadow:0 1px 0 rgba(255,255,255,.35) inset, 0 8px 18px rgba(0,0,0,.18); }
+    .chip{ display:inline-flex; align-items:center; gap:6px; padding:6px 10px; border-radius:999px; background:#111; color:#fff; font-weight:700; font-size:12px; }
+    .muted{ color:#666; font-size:12px; }
+    .pop{ animation:pop .18s ease-out; transform-origin:top left; }
+    @keyframes pop{ from{ transform:scale(.98); opacity:0 } to{ transform:scale(1); opacity:1 } }
   </style>
 </head>
 <body>
   <div data-sso>
     <div class="wrap">
 
-      <!-- Pillola versione -->
-      <div class="beta-row"><span class="beta-pill">Beta 3</span></div>
+      <div class="beta-row"><span class="beta-pill">Beta</span></div>
 
-      <!-- Unico riquadro bianco -->
       <section class="section" aria-labelledby="dev-title">
-        <h2 id="dev-title" class="dev-title">Pagina in sviluppo</h2>
-        <p class="dev-text">
-          Questa pagina è in fase di sviluppo e verrà rilasciata con la versione <strong>SSO 10</strong>.
-        </p>
+        <h2 id="dev-title" class="title"><span class="blink" aria-hidden="true"></span>Pagina in sviluppo</h2>
+        <p class="text">Questa pagina è in fase di sviluppo e verrà rilasciata con la versione <strong>SSO 10</strong>.</p>
+      </section>
+
+      <div class="divider" role="separator" aria-label="Inizio area operativa"></div>
+
+      <section class="section" aria-labelledby="search-title">
+        <h2 id="search-title" class="title">Ricerca rapida</h2>
+        <p class="text">Inserisci il <strong>nome cliente</strong> per risalire al numero d'ordine e alla posizione di stoccaggio.</p>
+        <div class="search" role="search">
+          <svg class="icon-search" aria-hidden="true" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="11" cy="11" r="7" stroke="#bdbdc3" stroke-width="1.6"/><path d="M16.5 16.5L21 21" stroke="#bdbdc3" stroke-width="1.6"/></svg>
+          <input id="q" class="input" type="search" inputmode="search" autocomplete="off" placeholder="Cerca nome cliente…" aria-label="Cerca per nome" />
+          <button id="go" class="btn" type="button" aria-label="Invia ricerca">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M3.5 12L20.5 3.5L16 12L20.5 20.5L3.5 12Z" stroke="currentColor" stroke-width="1.6"/></svg>
+            Invio
+          </button>
+        </div>
+        <div id="out" class="result" aria-live="polite"></div>
       </section>
 
     </div>
   </div>
+
+  <script>
+    const zones = ['NEGOZIO - SOPRA','NEGOZIO - SOTTO','CELLA SOPRA','CAMION SOPRA','CAMION SOTTO','SCALE','CARNE'];
+    const $ = s => document.querySelector(s);
+    const q = $('#q'), go = $('#go'), out = $('#out');
+
+    const orderFrom = n => { let h=0; for(let i=0;i<n.length;i++) h=(h*31+n.charCodeAt(i))>>>0; return 100+(h%900); };
+    const zoneFrom = n => { let h=0; for(let i=0;i<n.length;i++) h=(h*17+n.charCodeAt(i))>>>0; return zones[h%zones.length]; };
+
+    function render(name){
+      const ord=orderFrom(name), zone=zoneFrom(name);
+      out.innerHTML=`<div class='pop'><div class='name'>${name}</div><div class='row'><span class='order'>${ord}</span><span class='muted'>Numero ordine</span></div><div class='row'><span class='chip'>${zone}</span><span class='muted'>Posizione di stoccaggio</span></div></div>`;
+    }
+    function submit(){ const n=q.value.trim(); n?render(n):out.textContent='Inserisci un nome valido.'; }
+    go.addEventListener('click',submit);
+    q.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();submit();}});
+  </script>
 </body>
 </html>
