@@ -49,20 +49,17 @@
     }
 
     [data-sso] .section{
-      width: calc(100% + var(--pane-gutter) * 2);
-      max-width: calc(var(--pane-max) + var(--pane-gutter) * 2);
-      margin-left:  calc(var(--pane-gutter) * -1);
-      margin-right: calc(var(--pane-gutter) * -1);
-      margin-top:16px;
-      margin-bottom:16px;
-      border-radius:var(--radius-outer);
-      padding:12px;
-      background:#fff;
-      color:#111;
-      border:1px solid rgba(0,0,0,.08);
-      box-shadow:0 12px 28px rgba(0,0,0,.15);
-      transition:background .25s ease, box-shadow .25s ease, border-color .25s ease;
-      overflow:hidden;
+  width: 94vw;                 /* leggermente più larga, allineata alla tabbar */
+  margin: 14px auto;
+  border-radius: 26px;
+  padding: 14px 16px;
+  background: #fff;
+  color: #111;
+  border: 1px solid rgba(0,0,0,.08);
+  box-shadow: 0 10px 24px rgba(0,0,0,.15);
+  transition: background .25s ease, box-shadow .25s ease, border-color .25s ease;
+  overflow: hidden;
+}
       @media (max-width: 430px){
   [data-sso] .section{
     width: 96vw;             /* più edge-to-edge su iPhone */
@@ -194,7 +191,7 @@
     <div class="wrap">
 
       <!-- Pillola versione -->
-      <div class="beta-row"><span class="beta-pill">V 9.7.8</span></div>
+      <div class="beta-row"><span class="beta-pill">V 9.7.9</span></div>
 
       <!-- STEP 1 -->
       <div class="section active" id="section1">
