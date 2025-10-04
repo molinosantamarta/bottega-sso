@@ -11,10 +11,10 @@
     [data-sso] :where(*) { box-sizing:border-box; }
     [data-sso]{ --bg:#000; --fg:#fff; --accent:#0a84ff; --border:#2c2c2e; --highlight:#ffd60a; --pane-max:min(760px,100vw); --radius:22px; --elev:0 10px 24px rgba(0,0,0,.15); }
 
-    .wrap{ width:100%; max-width:var(--pane-max); margin:0 auto; padding:calc(8px + env(safe-area-inset-top)) 0 calc(24px + env(safe-area-inset-bottom)); display:flex; flex-direction:column; gap:14px; align-items:center; }
+    .wrap{ width:100%; max-width:var(--pane-max); margin:0 auto; padding:calc(8px + env(safe-area-inset-top)) 0 calc(24px + env(safe-area-inset-bottom)); display:flex; flex-direction:column; gap:14px; }
 
     /* ===== Card ===== */
-    .section{ width:calc(100% - 32px); max-width:var(--pane-max); margin:0; border-radius:var(--radius); padding:14px 16px; background:#fff; color:#111; border:1px solid rgba(0,0,0,.08); box-shadow:var(--elev); transition:transform .2s ease, box-shadow .25s ease, border-color .25s ease; overflow:hidden; }
+    .section{ width:calc(100% - 32px); max-width:var(--pane-max); margin:0; border-radius:var(--radius); padding:14px 16px; background:#fff; color:#111; border:1px solid rgba(0,0,0,.08); box-shadow:var(--elev); }
     .section:active{ transform:translateY(.5px); }
     @media (max-width:430px){ .section{ width:calc(100% - 24px); padding:12px; border-radius:18px; } }
 
@@ -23,7 +23,7 @@
 
     /* ===== Blink indicator ===== */
     .blink{ width:8px; height:8px; border-radius:999px; background:var(--highlight); box-shadow:0 0 0 3px rgba(255,214,10,.25); animation:blink 1.2s ease-in-out infinite; }
-    @keyframes blink{ 0%,100%{ opacity:1; box-shadow:0 0 0 3px rgba(255,214,10,.25), 0 0 0 rgba(255,214,10,0);} 50%{ opacity:.65; box-shadow:0 0 0 3px rgba(255,214,10,.25), 0 0 20px rgba(255,214,10,.55);} }
+    @keyframes blink{ 0%,100%{ opacity:1; box-shadow:0 0 0 3px rgba(255,214,10,.25), 0 0 0 rgba(255,214,10,0);} 50%{ opacity:.65; box-shadow:0 0 0 3px rgba(255,214,10,.25), 0 0 20px rgba(255,214,10,.5);} }
 
     /* ===== Divider ===== */
     .divider{ width:100%; max-width:var(--pane-max); position:relative; height:0; }
@@ -31,10 +31,10 @@
 
     /* ===== Search ===== */
     .search{ display:flex; flex-direction:column; gap:10px; margin-top:10px; }
-    .input{ flex:1; width:100%; padding:16px; border-radius:16px; border:1px solid var(--border); background:#fff; color:#111; font-size:16px; line-height:1.1; outline:none; transition:border .2s ease, box-shadow .2s ease; }
+    .input{ flex:1; width:100%; padding:16px; border-radius:16px; border:1px solid var(--border); background:#fff; color:#111; font-size:16px; line-height:1.1; outline:none; transition:border .2s ease; }
     .input:focus{ border-color:var(--accent); box-shadow:0 0 0 3px rgba(10,132,255,.25); }
     .input::placeholder{ color:#777; }
-    .btn{ width:100%; height:48px; border:none; border-radius:16px; background:#0a84ff; color:#fff; font-weight:700; font-size:15px; letter-spacing:.2px; cursor:pointer; box-shadow:0 4px 14px rgba(10,132,255,.35); transition:background .2s ease; }
+    .btn{ width:100%; height:48px; border:none; border-radius:16px; background:#0a84ff; color:#fff; font-weight:700; font-size:15px; letter-spacing:.2px; cursor:pointer; box-shadow:0 4px 14px rgba(10,132,255,.10); transition:background .2s,transform .1s; }
     .btn:hover{ background:#0068e6; }
     .btn:active{ transform:translateY(.5px); }
     @media (min-width:520px){ .search{ flex-direction:row; align-items:center; } .btn{ width:auto; height:auto; padding:12px 20px; } }
@@ -53,21 +53,21 @@
 
     /* ===== Tabs / selectors ===== */
     .tabs{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin:6px 0 10px; }
-    .tab{ appearance:none; border:none; padding:10px 14px; border-radius:999px; background:#f2f2f3; color:#111; font-weight:800; font-size:13px; letter-spacing:.2px; cursor:pointer; border:1px solid rgba(0,0,0,.06); }
+    .tab{ appearance:none; border:none; padding:10px 14px; border-radius:999px; background:#f2f2f3; color:#111; font-weight:800; font-size:13px; letter-spacing:.2px; cursor:pointer; border:1px solid rgba(0,0,0,.08); transition:background .2s, color .2s, border .2s, transform .1s; }
     .tab.active{ background:#111; color:#fff; border-color:#111; }
     .tab:active{ transform:translateY(.5px); }
 
     /* ===== Date picker (mobile-friendly) ===== */
     .date-picker{ display:none; margin-left:auto; }
     .tabs.show-date .date-picker{ display:flex; }
-    .date-input{ appearance:none; padding:10px 14px; border-radius:999px; border:1px solid rgba(0,0,0,.08); background:#fff; color:#111; font-weight:800; font-size:13px; letter-spacing:.2px; box-shadow:var(--elev); }
+    .date-input{ appearance:none; padding:10px 14px; border-radius:999px; border:1px solid rgba(0,0,0,.08); background:#fff; color:#111; font-weight:800; font-size:13px; letter-spacing:.2px; box-shadow:0 1px 4px rgba(0,0,0,.04); }
     .date-input::-webkit-calendar-picker-indicator{ cursor:pointer; }
 
     /* ===== Fullscreen order sheet ===== */
     .sheet{ position:fixed; inset:0; z-index:50; display:none; }
     .sheet[open]{ display:block; }
     .sheet-backdrop{ position:absolute; inset:0; background:rgba(0,0,0,.55); backdrop-filter:saturate(120%) blur(2px); }
-    .sheet-panel{ position:absolute; inset:env(safe-area-inset-top) 0 env(safe-area-inset-bottom) 0; margin:0 auto; max-width:var(--pane-max); height:calc(100% - env(safe-area-inset-top) - env(safe-area-inset-bottom)); background:#fff; color:#111; border:1px solid rgba(0,0,0,.08); border-radius:0; box-shadow:0 20px 40px rgba(0,0,0,.35); display:flex; flex-direction:column; }
+    .sheet-panel{ position:absolute; inset:env(safe-area-inset-top) 0 env(safe-area-inset-bottom) 0; margin:0 auto; max-width:var(--pane-max); height:calc(100% - env(safe-area-inset-top) - env(safe-area-inset-bottom)); background:#fff; color:#111; border-radius:var(--radius); box-shadow:0 10px 40px rgba(0,0,0,.15); display:flex; flex-direction:column; }
     .sheet-head{ padding:12px 14px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid rgba(0,0,0,.08); }
     .sheet-title{ font-weight:900; font-size:18px; }
     .sheet-sub{ font-size:12px; color:#444; }
@@ -226,8 +226,8 @@
         const mesi = ['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno','Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'];
         return `${giorni[d.getDay()]}, ${String(d.getDate()).padStart(2,'0')} ${mesi[d.getMonth()]}`;
       }
-    }, ${String(d.getDate()).padStart(2,'0')} ${mesi[d.getMonth()]}`;
     }
+
     function setRitiriTitle(dateLike){
       const d = (typeof dateLike === 'string') ? new Date(dateLike) : new Date(dateLike);
       const el = document.getElementById('ritiri-title-date');
@@ -291,9 +291,6 @@
     document.addEventListener('DOMContentLoaded', ()=>{
       activate('oggi');
       setRitiriTitle(new Date());
-    });
-      activate('oggi');
-      setRitiriTitle(today);
     });
 
     // ===== Fullscreen order sheet logic =====
