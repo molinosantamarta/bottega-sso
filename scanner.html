@@ -25,7 +25,7 @@
       --yellow:#ffd60a;
       /* Larghezza allineata alla tabbar (stesso contenitore bianco) */
       --pane-w: 100%;
-      --pane-max: 760px, 100vw);
+      --pane-max: min(760px, 100vw);
       --pane-gutter: 16px;
       --radius-outer: 28px;  /* come tabbar */
       --radius-inner: 20px;
@@ -49,9 +49,12 @@
     }
 
     [data-sso] .section{
-      width:var(--pane-w);
-      max-width:var(--pane-max);
-      margin:16px auto;
+      width: calc(100% + var(--pane-gutter) * 2);
+      max-width: calc(var(--pane-max) + var(--pane-gutter) * 2);
+      margin-left:  calc(var(--pane-gutter) * -1);
+      margin-right: calc(var(--pane-gutter) * -1);
+      margin-top:16px;
+      margin-bottom:16px;
       border-radius:var(--radius-outer);
       padding:12px;
       background:#fff;
