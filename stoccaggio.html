@@ -51,10 +51,11 @@
 
     .date-accent{ color:#22c55e; font-weight:900; }
     .empty{ padding:12px; border-radius:14px; border:1px dashed rgba(0,0,0,.15); background:#fff; color:#333; font-size:14px; text-align:center; }
+    .status{ margin-top:8px; font-size:12px; color:#555; }
   </style>
 </head>
 <body>
-  <!-- ROOT NAMESPACED: nessuna collisione con altri ID della pagina genitore -->
+  <!-- ROOT NAMESPACED -->
   <div data-sso id="sso-app">
     <div class="wrap">
       <section class="section">
@@ -73,6 +74,7 @@
           <button id="sso-go" class="btn">Cerca</button>
         </div>
         <div id="sso-out" class="orders"></div>
+        <div id="sso-status" class="status"></div>
       </section>
 
       <!-- Blocco: Elenco ritiri -->
@@ -89,180 +91,208 @@
   </div>
 
   <script>
-    (function(){
-      // ===== ROOT & HELPERS (scoped: nessun $ globale) =====
-      const root = document.getElementById('sso-app');
-      if(!root){ console.warn('SSO root non trovato'); return; }
-      const QS = sel => root.querySelector(sel);
+  (function(){
+    const root = document.getElementById('sso-app');
+    const QS = sel => root.querySelector(sel);
 
-      // ===== CONFIG con fallback gviz (CORS-friendly per GitHub Pages) =====
-      const CSV_URLS = [
-        'https://docs.google.com/spreadsheets/d/e/2PACX-1vS6a2Ij-RW70-i-hk_Qw_0gChVKzsVljdvMjSNwqpF4CXyeHfDurxRBIcGa8AEd0HR-tNW6y_LZSn5t/gviz/tq?tqx=out:csv&gid=685210709',
-        'https://docs.google.com/spreadsheets/d/e/2PACX-1vS6a2Ij-RW70-i-hk_Qw_0gChVKzsVljdvMjSNwqpF4CXyeHfDurxRBIcGa8AEd0HR-tNW6y_LZSn5t/pub?gid=685210709&single=true&output=csv'
-      ];
+    // === API: Apps Script (AGGREGATO) ===
+    const API_URL = 'https://script.google.com/macros/s/AKfycbzp_2RNQO9ROQkpcGebBpZ9P_MyZEmxkqLh5G-ODe4Yo2x9E0aRbEQIbmofaxhod9VGFA/exec';
 
-      const ymd = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-      const ddmmyyyy = d => `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
-      const fmtIT = d => new Intl.DateTimeFormat('it-IT',{weekday:'long',day:'2-digit',month:'long'}).format(d);
-      const norm = s => (s||'').toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu,'');
+    // === Helpers ===
+    const ymd = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    const ddmmyyyy = d => `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
+    const fmtIT = d => new Intl.DateTimeFormat('it-IT',{weekday:'long',day:'2-digit',month:'long'}).format(d);
+    const norm = s => (s||'').toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu,'');
 
-      async function loadCSV(urls){
-        for(const url of urls){
-          try{
-            const res = await fetch(url, { cache:'no-store' });
-            if(!res.ok) continue;
-            const text = await res.text();
-            if(text && text.length>0) return text;
-          }catch(_){ /* tenta prossimo */ }
+    function parseAnyDate(s){
+      if(!s) return null;
+      const str=String(s).trim();
+      let m=str.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})$/); // gg/mm/aaaa
+      if(m){ const dd=+m[1], mm=+m[2]-1, yy=+m[3]; return new Date(yy<100?2000+yy:yy, mm, dd, 12,0,0); }
+      m=str.match(/^(\d{4})-(\d{2})-(\d{2})$/); // yyyy-mm-dd
+      if(m){ return new Date(+m[1], +m[2]-1, +m[3], 12,0,0); }
+      const d=new Date(str); return Number.isNaN(d.getTime())? null : d;
+    }
+
+    // Stato
+    let DATA_ROWS = []; // {ord,name,dateKey,dateText,time,zone}
+    let UPDATED_AT = null;
+
+    // Mappa flessibile di colonne dal JSON completo dell'API
+    function mapRowsFromAPI(rows){
+      // Prova a trovare colonne per nome (case-insensitive)
+      const pickKey = (obj, candidates) => {
+        const keys = Object.keys(obj);
+        for(const cand of candidates){
+          const k = keys.find(x => norm(x) === norm(cand));
+          if(k) return k;
         }
-        throw new Error('CSV non raggiungibile');
-      }
-
-      function parseCSV(text){
-        const rows=[]; let cur=[], val='', inQ=false; const push=()=>{cur.push(val); val='';};
-        for(let i=0;i<text.length;i++){
-          const ch=text[i], nx=text[i+1];
-          if(inQ){ if(ch==='"' && nx==='"'){ val+='"'; i++; } else if(ch==='"'){ inQ=false; } else { val+=ch; } }
-          else { if(ch==='"'){ inQ=true; } else if(ch===','){ push(); } else if(ch==='\n'){ push(); rows.push(cur); cur=[]; } else if(ch==='\r'){ } else { val+=ch; } }
+        // fallback: cerca包含 parole chiave
+        for(const cand of candidates){
+          const k = keys.find(x => norm(x).includes(norm(cand)));
+          if(k) return k;
         }
-        if(val!=='' || cur.length){ push(); rows.push(cur); }
-        return rows;
-      }
+        return null;
+      };
 
-      function parseAnyDate(s){
-        if(!s) return null;
-        const str = String(s).trim();
-        let m = str.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})$/);
-        if(m){ const dd=Number(m[1]), mm=Number(m[2])-1, yy=Number(m[3]); return new Date(yy<100?2000+yy:yy, mm, dd, 12, 0, 0); }
-        m = str.match(/^(\d{4})-(\d{2})-(\d{2})$/);
-        if(m){ return new Date(Number(m[1]), Number(m[2])-1, Number(m[3]), 12, 0, 0); }
-        const d = new Date(str); return Number.isNaN(d.getTime())? null : d;
-      }
+      const out = [];
+      for(const r of rows){
+        const nameKey = pickKey(r, ['NOME CLIENTE','NOME','CLIENTE']);
+        const dateKeyRaw = pickKey(r, ['DATA ORDINE','DATA','GIORNO']);
+        const timeKey = pickKey(r, ['ORA','ORARIO']);
+        const zoneKey = pickKey(r, ['ZONA STOCCAGGIO','ZONA','STOCCAGGIO','UBICAZIONE']);
 
-      // ===== Stato =====
-      let DATA_ROWS = [];
+        const name = nameKey ? (r[nameKey]||'').trim() : '';
+        if(!name) continue;
+        const d = dateKeyRaw ? parseAnyDate(r[dateKeyRaw]) : null;
+        const time = timeKey ? String(r[timeKey]||'').trim() : '';
+        const zone = zoneKey ? String(r[zoneKey]||'').trim() : '';
+        const ord = r.ord != null ? Number(r.ord) : null;
 
-      // Mappa specifica: B=Nome, D=Data, E=Ora, V=Zona — ord = numero riga (header escluso)
-      function rowsFromCSV(text){
-        const raw = parseCSV(text);
-        if(!raw.length) return [];
-        const body = raw.slice(1); // dalla riga 2 in giù
-        const out = [];
-        for(let i=0;i<body.length;i++){
-          const r = body[i]; if(!r || r.length===0) continue;
-          const name = (r[1]||'').trim(); if(!name) continue; // B
-          const d = parseAnyDate(r[3]||'');                    // D
-          const time = (r[4]||'').trim();                      // E
-          const zone = (r[21]||'').trim();                     // V (0-indexed 21)
-          const sheetRow = 2 + i;                              // numero riga reale
-          out.push({
-            ord: sheetRow,
-            name,
-            dateKey: d ? ymd(d) : null,
-            dateText: d ? ddmmyyyy(d) : '',
-            time: time || '',
-            zone: zone || '?'
-          });
-        }
-        return out;
-      }
-
-      function orderCard(o, opts={}){
-        const { hideDate=false, showDateFirst=false } = opts;
-        const datePill = hideDate ? '' : `<span class='order-pill order-date'>${o.dateText||''}</span>`;
-        const timePill = `<span class='order-pill order-time'>${o.time||''}</span>`;
-        const pills = showDateFirst ? `${datePill}${timePill}` : `${timePill}${datePill}`;
-        return `
-          <div class='order-card'>
-            <span class='order-badge'>${o.ord??'—'}</span>
-            <div class='order-main'>
-              <div class='order-name'>${o.name}</div>
-              <div class='order-sub'>
-                ${pills}
-                <span class='order-pill order-zone'>${o.zone||'?'}</span>
-              </div>
-            </div>
-          </div>`;
-      }
-
-      const rowsForDate = d => {
-        const key = ymd(new Date(d));
-        const rows = DATA_ROWS.filter(r=>r.dateKey===key);
-        rows.sort((a,b)=>{
-          const ta=a.time||'', tb=b.time||'';
-          if(ta && tb){ return ta.localeCompare(tb); }
-          if(ta && !tb) return -1; if(!ta && tb) return 1;
-          return a.name.localeCompare(b.name);
+        out.push({
+          ord: ord || null,
+          name,
+          dateKey: d? ymd(d) : null,
+          dateText: d? ddmmyyyy(d) : '',
+          time,
+          zone: zone || '?'
         });
-        return rows;
-      };
-
-      function renderList(d){
-        const rows = rowsForDate(d);
-        const html = rows.length ? rows.map(o=>orderCard(o,{hideDate:true})).join('') : `<div class='empty'>Nessun ritiro</div>`;
-        QS('#sso-ritiri-list').innerHTML = html;
-        QS('#sso-ritiri-title-date').textContent=fmtIT(d);
       }
-
-      function findByName(q){
-        const n = norm(q.trim()); if(!n) return [];
-        const exact = DATA_ROWS.filter(r=>norm(r.name)===n); if(exact.length) return exact;
-        const starts = DATA_ROWS.filter(r=>norm(r.name).startsWith(n)); if(starts.length) return starts;
-        return DATA_ROWS.filter(r=>norm(r.name).includes(n));
-      }
-
-      function submit(){
-        const qv = (QS('#sso-q').value||'').trim();
-        let rows = qv ? findByName(qv) : rowsForDate(new Date());
-        QS('#sso-out').innerHTML = rows.map(o=>orderCard(o,{showDateFirst:true})).join('') || `<div class='empty'>Nessun risultato</div>`;
-        if(rows.length) QS('#sso-out').scrollIntoView({behavior:'smooth',block:'start'});
-      }
-
-      // Tabs & Date inline (scoped)
-      const tabs={
-        oggi:QS('#sso-tab-oggi'),
-        domani:QS('#sso-tab-domani'),
-        data:QS('#sso-tab-data')
-      };
-      const dateInput=QS('#sso-ritiri-date');
-      const dateLabel=QS('#sso-tab-date-label');
-      const setDateTabLabel = d => { dateLabel.textContent = ddmmyyyy(d); };
-
-      function activate(which){
-        Object.values(tabs).forEach(t=>{ t.classList.remove('active'); t.setAttribute('aria-selected','false'); });
-        tabs[which].classList.add('active'); tabs[which].setAttribute('aria-selected','true');
-        if(which==='data'){
-          if(!dateInput.value) dateInput.value = ymd(new Date());
-          const d = new Date(`${dateInput.value}T12:00:00`);
-          setDateTabLabel(d); renderList(d);
-          if(dateInput.showPicker){ try{ dateInput.showPicker(); }catch{} }
-        } else {
-          dateLabel.textContent='Data';
-          const base=new Date(); if(which==='domani') base.setDate(base.getDate()+1); renderList(base);
-        }
-      }
-
-      // click su card → pagina bianca "test"
-      root.addEventListener('click', e=>{
-        const card = e.target.closest('.order-card');
-        if(card){ const w = window.open('', '_blank'); if(w){ w.document.open(); w.document.write('<!doctype html><title>test</title><style>html,body{height:100%;margin:0}body{display:flex;align-items:center;justify-content:center;font:700 24px system-ui;background:#fff;color:#000}</style><body>test</body>'); w.document.close(); } }
+      // ordina per data/ora/nome quando possibile
+      out.sort((a,b)=>{
+        if(a.dateKey && b.dateKey && a.dateKey!==b.dateKey) return a.dateKey.localeCompare(b.dateKey);
+        const ta=a.time||'', tb=b.time||'';
+        if(ta && tb){ const cmp=ta.localeCompare(tb); if(cmp!==0) return cmp; }
+        return a.name.localeCompare(b.name);
       });
+      return out;
+    }
 
-      // ===== Boot (scoped) =====
-      (async function init(){
+    function orderCard(o, opts={}){
+      const { hideDate=false, showDateFirst=false } = opts;
+      const datePill = hideDate ? '' : `<span class='order-pill order-date'>${o.dateText||''}</span>`;
+      const timePill = `<span class='order-pill order-time'>${o.time||''}</span>`;
+      const pills = showDateFirst ? `${datePill}${timePill}` : `${timePill}${datePill}`;
+      return `
+        <div class='order-card'>
+          <span class='order-badge'>${o.ord??'—'}</span>
+          <div class='order-main'>
+            <div class='order-name'>${o.name}</div>
+            <div class='order-sub'>
+              ${pills}
+              <span class='order-pill order-zone'>${o.zone||'?'}</span>
+            </div>
+          </div>
+        </div>`;
+    }
+
+    const rowsForDate = d => {
+      const key = ymd(new Date(d));
+      return DATA_ROWS.filter(r=>r.dateKey===key).sort((a,b)=>{
+        const ta=a.time||'', tb=b.time||'';
+        if(ta && tb){ const cmp=ta.localeCompare(tb); if(cmp!==0) return cmp; }
+        return a.name.localeCompare(b.name);
+      });
+    };
+
+    function renderList(d){
+      const rows = rowsForDate(d);
+      const html = rows.length ? rows.map(o=>orderCard(o,{hideDate:true})).join('') : `<div class='empty'>Nessun ritiro</div>`;
+      QS('#sso-ritiri-list').innerHTML = html;
+      QS('#sso-ritiri-title-date').textContent = fmtIT(d);
+    }
+
+    function findByName(q){
+      const n = norm(q.trim()); if(!n) return [];
+      const exact = DATA_ROWS.filter(r=>norm(r.name)===n); if(exact.length) return exact;
+      const starts = DATA_ROWS.filter(r=>norm(r.name).startsWith(n)); if(starts.length) return starts;
+      return DATA_ROWS.filter(r=>norm(r.name).includes(n));
+    }
+
+    async function submit(){
+      const qv = (QS('#sso-q').value||'').trim();
+      try{ await refreshData(); }catch(_){ /* se fallisce, uso dati correnti */ }
+      const rows = qv ? findByName(qv) : rowsForDate(new Date());
+      QS('#sso-out').innerHTML = rows.map(o=>orderCard(o,{showDateFirst:true})).join('') || `<div class='empty'>Nessun risultato</div>`;
+      if(rows.length) QS('#sso-out').scrollIntoView({behavior:'smooth',block:'start'});
+    }
+
+    // Tabs & Date
+    const tabs={ oggi:QS('#sso-tab-oggi'), domani:QS('#sso-tab-domani'), data:QS('#sso-tab-data') };
+    const dateInput=QS('#sso-ritiri-date');
+    const dateLabel=QS('#sso-tab-date-label');
+    const setDateTabLabel = d => { dateLabel.textContent = ddmmyyyy(d); };
+
+    function activate(which){
+      Object.values(tabs).forEach(t=>{ t.classList.remove('active'); t.setAttribute('aria-selected','false'); });
+      tabs[which].classList.add('active'); tabs[which].setAttribute('aria-selected','true');
+      if(which==='data'){
+        if(!dateInput.value) dateInput.value = ymd(new Date());
+        const d = new Date(`${dateInput.value}T12:00:00`);
+        setDateTabLabel(d); renderList(d);
+        if(dateInput.showPicker){ try{ dateInput.showPicker(); }catch{} }
+      } else {
+        dateLabel.textContent='Data';
+        const base=new Date(); if(which==='domani') base.setDate(base.getDate()+1); renderList(base);
+      }
+    }
+
+    // click su card → pagina "test"
+    root.addEventListener('click', e=>{
+      const card = e.target.closest('.order-card');
+      if(card){ const w = window.open('', '_blank'); if(w){ w.document.open(); w.document.write('<!doctype html><title>test</title><style>html,body{height:100%;margin:0}body{display:flex;align-items:center;justify-content:center;font:700 24px system-ui;background:#fff;color:#000}</style><body>test</body>'); w.document.close(); } }
+    });
+
+    // === Boot ===
+    async function refreshData(){
+      const res = await fetch(API_URL + '?_ts=' + Date.now(), { cache:'no-store' });
+      if(!res.ok) throw new Error('HTTP ' + res.status);
+      const data = await res.json();
+      UPDATED_AT = data.updatedAt || null;
+      DATA_ROWS = mapRowsFromAPI(data.rows || []);
+      QS('#sso-status').textContent = UPDATED_AT ? `Dati aggiornati: ${new Date(UPDATED_AT).toLocaleString('it-IT')}` : '';
+    }
+
+    catch(err){ /* ignora singolo fallimento */ }
+      }, POLL_MS);
+    }
+
+    (async function init(){
+      try{
+        await refreshData();
+      }catch(err){
+        console.warn('Errore API:', err);
+        DATA_ROWS = [];
+        QS('#sso-status').textContent = 'Errore nel caricamento dei dati';
+      }
+      QS('#sso-go').onclick=submit; QS('#sso-q').onkeydown=e=>{ if(e.key==='Enter') submit(); };
+      tabs.oggi.onclick=()=>activate('oggi'); tabs.domani.onclick=()=>activate('domani'); tabs.data.onclick=()=>activate('data');
+      dateInput.onchange=()=>activate('data');
+      // refresh di cortesia ogni 5 minuti
+      setInterval(async ()=>{
         try{
-          const text = await loadCSV(CSV_URLS);
-          DATA_ROWS = rowsFromCSV(text);
-        }catch(err){
-          console.warn('Errore nel fetch del CSV:', err);
-          DATA_ROWS = [];
-        }
-        QS('#sso-go').onclick=submit; QS('#sso-q').onkeydown=e=>{ if(e.key==='Enter') submit(); };
-        tabs.oggi.onclick=()=>activate('oggi'); tabs.domani.onclick=()=>activate('domani'); tabs.data.onclick=()=>activate('data');
-        dateInput.onchange=()=>activate('data');
-        activate('oggi');
-      })();
+          await refreshData();
+          // aggiorna vista attiva
+          const isDomani = tabs.domani.classList.contains('active');
+          const isData   = tabs.data.classList.contains('active');
+          if (isData) {
+            const d = new Date(`${dateInput.value||ymd(new Date())}T12:00:00`);
+            renderList(d);
+          } else {
+            const base = new Date(); if (isDomani) base.setDate(base.getDate()+1);
+            renderList(base);
+          }
+          // aggiorna eventuale ricerca visibile
+          const qv = (QS('#sso-q').value||'').trim();
+          if (qv) {
+            const rows = findByName(qv);
+            QS('#sso-out').innerHTML = rows.map(o=>orderCard(o,{showDateFirst:true})).join('') || `<div class='empty'>Nessun risultato</div>`;
+          }
+        }catch(_){ /* ignora singolo errore */ }
+      }, 300000);
+      activate('oggi');
     })();
+  })();
   </script>
 </body>
 </html>
