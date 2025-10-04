@@ -85,6 +85,9 @@
 
     /* Date accent for titles */
     .date-accent{ color:#22c55e; font-weight:900; }
+
+    /* ===== Empty states ===== */
+    .empty{ padding:12px; border-radius:14px; border:1px dashed rgba(0,0,0,.15); background:#fff; color:#333; font-size:14px; text-align:center; }
   </style>
 </head>
 <body>
@@ -93,7 +96,7 @@
 
       <!-- Blocco: Pagina in sviluppo -->
       <section class="section" aria-labelledby="dev-title">
-        <h2 id="dev-title" class="title"><span class="blink" aria-hidden="true"></span> Pagina in sviluppo(beta9)</h2>
+        <h2 id="dev-title" class="title"><span class="blink" aria-hidden="true"></span> Pagina in sviluppo</h2>
         <p class="text">Questa pagina è in fase di sviluppo e verrà rilasciata con la versione <strong>SSO 10</strong>.</p>
       </section>
 
@@ -165,18 +168,29 @@
 
     // ===== Utilities =====
     const $ = s => document.querySelector(s);
-    const zones = ['NEGOZIO - SOPRA','NEGOZIO - SOTTO','CELLA SOPRA','CAMION SOPRA','CAMION SOTTO','SCALE','CARNE'];
     const escapeHTML = s => s?.replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c])) ?? '';
 
     // Date helpers
-    const atMidnight = d => { const x = new Date(d); x.setHours(0,0,0,0); return x; };
-    const fmtTime = (h,m) => `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
     const addDays = (d,n) => { const x=new Date(d); x.setDate(x.getDate()+n); return x; };
     const ymd = d => new Date(d).toISOString().slice(0,10);
-    function fullItalianDate(d){ try{ const s=new Intl.DateTimeFormat('it-IT',{weekday:'long',day:'2-digit',month:'long'}).format(d); return s.charAt(0).toUpperCase()+s.slice(1);}catch{ const g=['Domenica','Lunedì','Martedì','Mercoledì','Giovedì','Venerdì','Sabato']; const m=['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno','Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre']; return `${g[d.getDay()]}, ${String(d.getDate()).padStart(2,'0')} ${m[d.getMonth()]}`; } }
-    function setRitiriTitle(dateLike){ const d = (typeof dateLike==='string')? new Date(dateLike): new Date(dateLike); const el=$('#ritiri-title-date'); const ok=d instanceof Date && !Number.isNaN(d.getTime()); el.textContent = ok? fullItalianDate(d) : '—'; }
+    function fullItalianDate(d){
+      try{
+        const s=new Intl.DateTimeFormat('it-IT',{weekday:'long',day:'2-digit',month:'long'}).format(d);
+        return s.charAt(0).toUpperCase()+s.slice(1);
+      }catch{
+        const g=['Domenica','Lunedì','Martedì','Mercoledì','Giovedì','Venerdì','Sabato'];
+        const m=['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno','Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'];
+        return `${g[d.getDay()]}, ${String(d.getDate()).padStart(2,'0')} ${m[d.getMonth()]}`;
+      }
+    }
+    function setRitiriTitle(dateLike){
+      const d = (typeof dateLike==='string')? new Date(dateLike): new Date(dateLike);
+      const el=$('#ritiri-title-date');
+      const ok=d instanceof Date && !Number.isNaN(d.getTime());
+      el.textContent = ok? fullItalianDate(d) : '—';
+    }
 
-    // ===== CSV loader (no lib) =====
+    // ===== CSV loader =====
     function parseCSV(text){
       const rows = [];
       let cur = [], val = '', inQuotes = false;
@@ -199,6 +213,14 @@
     }
     const norm = s => s.toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu,'').replace(/[^a-z0-9]+/g,'_').replace(/^_|_$/g,'');
 
+    function parseAnyDate(s){
+      if(!s) return null;
+      if(/\d{4}-\d{2}-\d{2}/.test(s)) return new Date(s);
+      const m = String(s).match(/(\d{1,2})\/(\d{1,2})\/(\d{2,4})/);
+      if(m){ const dd=Number(m[1]), mm=Number(m[2])-1, yy=Number(m[3]); return new Date(yy<100?2000+yy:yy, mm, dd); }
+      const d = new Date(s); return Number.isNaN(d.getTime())? null : d;
+    }
+
     function parseSheetCSV(text){
       const rows = parseCSV(text).filter(r=>r.some(c=>c && String(c).trim()!==''));
       if(!rows.length) return [];
@@ -215,46 +237,48 @@
 
       const out = [];
       for(const r of rows){
-        const rawDate = r[colDate]||''; const rawName=r[colName]||''; const rawOrd=r[colOrder]||''; const rawZone=r[colZone]||''; const rawTime=r[colTime]||'';
+        const rawDate = r[colDate]||'';
+        const rawName = r[colName]||'';
         if(!rawName) continue;
+        const rawOrd  = r[colOrder]||'';
         const ord = String(rawOrd||'').replace(/\D+/g,'');
-        const items = (r[colItems]||'').split(/\s*;\s*|\n+/).filter(Boolean);
-        const note = r[colNote]||'';
-        const reparti = r[colRepa]||'';
         const d = parseAnyDate(rawDate);
-        const dateKey = d? ymd(d): null;
-        out.push({ dateKey, name:rawName.trim(), ord: ord? Number(ord): null, zone: rawZone||null, time: (rawTime||'').trim()||null, items, note, reparti });
+        out.push({
+          dateKey: d? ymd(d): null,
+          name: rawName.trim(),
+          ord: ord? Number(ord): null,
+          zone: r[colZone]||null,
+          time: (r[colTime]||'').trim()||null,
+          items: (r[colItems]||'').split(/\s*;\s*|\n+/).filter(Boolean),
+          note: r[colNote]||'',
+          reparti: r[colRepa]||''
+        });
       }
       return out;
     }
 
-    function parseAnyDate(s){
-      if(!s) return null;
-      if(/\d{4}-\d{2}-\d{2}/.test(s)) return new Date(s);
-      const m = String(s).match(/(\d{1,2})\/(\d{1,2})\/(\d{2,4})/);
-      if(m){ const dd=Number(m[1]), mm=Number(m[2])-1, yy=Number(m[3]); return new Date(yy<100?2000+yy:yy, mm, dd); }
-      const d = new Date(s); return Number.isNaN(d.getTime())? null : d;
-    }
-
     // ===== App state =====
-    let SHEET_ROWS = null; // cache degli oggetti {dateKey,name,ord,zone,time,items,note,reparti}
-    const FALLBACK_NAMES = ['Abbiati','Negri','Tiziani','Monza','Invernizzi','Pontevecchio','Fontana','Rho','Pellegrino','Faspar'];
+    let SHEET_ROWS = [];
 
     async function loadSheet(){
+      const outBox = $('#out');
+      const listEl = $('#ritiri-list');
       try{
         const res = await fetch(SHEET_CSV_URL, { mode:'cors', cache:'no-store' });
         const text = await res.text();
         SHEET_ROWS = parseSheetCSV(text);
-        console.log('Sheet rows:', SHEET_ROWS?.length||0);
       }catch(err){
-        console.warn('Foglio non raggiungibile, uso mock.', err);
+        console.warn('Errore caricamento foglio', err);
         SHEET_ROWS = [];
+        // Empty states (nessun dato, niente demo)
+        outBox.innerHTML = `<div class="empty">Impossibile leggere i dati dal foglio Google.</div>`;
+        listEl.innerHTML = `<div class="empty">Nessun dato disponibile.</div>`;
       }
     }
 
     // ===== Shared card renderer =====
     function orderCard({ ord, name, zone, time }){
-      const safeName = escapeHTML(name);
+      const safeName = escapeHTML(name||'—');
       const safeZone = zone ? escapeHTML(zone) : null;
       return `
         <div class="order-card" role="listitem" data-ord="${ord??''}" data-name="${safeName}" data-zone="${safeZone||''}" data-time="${time||''}">
@@ -269,31 +293,29 @@
         </div>`;
     }
 
-    // ===== Ricerca rapida =====
+    // ===== Ricerca rapida (solo dati reali) =====
     const q = $('#q');
     const go = $('#go');
     const out = $('#out');
 
-    const synthOrderFrom = n => { let h=0; for(let i=0;i<n.length;i++) h=(h*31+n.charCodeAt(i))>>>0; return 100+(h%900); };
-    const synthZoneFrom  = n => { let h=0; for(let i=0;i<n.length;i++) h=(h*17+n.charCodeAt(i))>>>0; return zones[h%zones.length]; };
-
-    function findRowByName(name){
-      if(!SHEET_ROWS || !SHEET_ROWS.length) return null;
-      const needle = name.trim().toLowerCase();
-      // priorità: match esatto, poi startsWith, poi include
-      return SHEET_ROWS.find(r=>r.name.toLowerCase()===needle)
-          || SHEET_ROWS.find(r=>r.name.toLowerCase().startsWith(needle))
-          || SHEET_ROWS.find(r=>r.name.toLowerCase().includes(needle))
-          || null;
+    function findRowsByName(part){
+      if(!SHEET_ROWS.length) return [];
+      const needle = part.trim().toLowerCase();
+      if(!needle) return [];
+      // match flessibile: esatto > inizio > include
+      const exact = SHEET_ROWS.filter(r=>r.name?.toLowerCase()===needle);
+      if(exact.length) return exact;
+      const starts = SHEET_ROWS.filter(r=>r.name?.toLowerCase().startsWith(needle));
+      if(starts.length) return starts;
+      return SHEET_ROWS.filter(r=>r.name?.toLowerCase().includes(needle));
     }
 
     function renderSearch(name){
-      const row = findRowByName(name);
-      if(row){
-        out.innerHTML = orderCard({ ord: row.ord ?? synthOrderFrom(row.name), name: row.name, zone: row.zone ?? null, time: row.time });
+      const rows = findRowsByName(name);
+      if(rows.length){
+        out.innerHTML = rows.map(r => orderCard({ ord:r.ord??'—', name:r.name, zone:r.zone??null, time:r.time })).join('');
       } else {
-        // fallback sintetico
-        out.innerHTML = orderCard({ ord: synthOrderFrom(name), name, zone: synthZoneFrom(name), time: null });
+        out.innerHTML = `<div class="empty">Nessun risultato per "${escapeHTML(name)}".</div>`;
       }
     }
 
@@ -304,32 +326,24 @@
       requestAnimationFrame(()=>out.scrollIntoView({behavior:'smooth', block:'start'}));
     }
 
-    // ===== Ritiri (data-driven) =====
+    // ===== Ritiri (solo righe presenti) =====
     const tabs = { oggi: $('#tab-oggi'), domani: $('#tab-domani'), data: $('#tab-data') };
     const tabsWrap = $('#ritiri-tabs');
     const listEl = $('#ritiri-list');
     const dateEl = $('#ritiri-date');
 
     function rowsForDate(d){
-      if(!SHEET_ROWS || !SHEET_ROWS.length) return null;
+      if(!SHEET_ROWS.length) return [];
       const key = ymd(d);
       return SHEET_ROWS.filter(r=>r.dateKey===key);
     }
 
     function renderRitiri(date){
       const data = rowsForDate(date);
-      if(data && data.length){
+      if(data.length){
         listEl.innerHTML = data.map(o => orderCard({ ord:o.ord??'—', name:o.name, zone:o.zone??null, time:o.time })).join('');
       } else {
-        // fallback mock se non ci sono righe per quella data o nessun foglio
-        const base = atMidnight(date);
-        const count = 5;
-        const arr = Array.from({length:count}, (_,i)=>{
-          const name = FALLBACK_NAMES[(i+base.getDate())%FALLBACK_NAMES.length];
-          const h = 8 + ((i*2 + base.getDay()) % 9), m=(i*15)%60;
-          return { ord: 100 + ((base.getDate()*37 + i*19) % 900), name, zone: (i%4===0? null : zones[(i+base.getDay())%zones.length]), time: fmtTime(h,m) };
-        });
-        listEl.innerHTML = arr.map(orderCard).join('');
+        listEl.innerHTML = `<div class="empty">Nessun ritiro per questa data.</div>`;
       }
     }
 
@@ -373,15 +387,15 @@
     const shortFmt = (dateStr)=>{ const d=new Date(dateStr||Date.now()); const g=['dom','lun','mar','mer','gio','ven','sab']; const m=['gen','feb','mar','apr','mag','giu','lug','ago','set','ott','nov','dic']; return `${g[d.getDay()]} ${d.getDate()} ${m[d.getMonth()]}`; };
 
     function openSheet({ ord, name, zone, time }){
-      sheetTitle.textContent = name;
+      const row = (name? SHEET_ROWS.find(r=>r.name===name) : null) || null;
+      sheetTitle.textContent = name || '—';
       sheetSub.textContent = time ? time : shortFmt(dateEl.value || new Date());
       $('#sheet-order').textContent = `#${ord??'—'}`;
       $('#sheet-pren').textContent = 'SI';
-      sheetReparti.textContent = 'FRUTTA E VERDURA, CARNE';
-      const row = findRowByName(name);
-      const items = row?.items?.length ? row.items : ['—'];
-      sheetItems.innerHTML = items.map(it => `<li>${escapeHTML(it)}</li>`).join('');
-      sheetZone.textContent = `Zona: ${zone || row?.zone || '?'}`;
+      sheetReparti.textContent = row?.reparti || '—';
+      const items = row?.items?.length ? row.items : [];
+      sheetItems.innerHTML = items.length ? items.map(it => `<li>${escapeHTML(it)}</li>`).join('') : '<li>—</li>';
+      sheetZone.textContent = `Zona: ${zone || row?.zone || '—'}`;
       sheetNote.textContent = `Note: ${row?.note || '—'}`;
       sheet.setAttribute('open','');
       sheet.removeAttribute('aria-hidden');
@@ -410,7 +424,7 @@
       go.addEventListener('click', submit);
       q.addEventListener('keydown', e => { if(e.key==='Enter'){ e.preventDefault(); submit(); } });
 
-      // load sheet then render (fallback se fallisce)
+      // carica dati (niente demo) e inizializza
       await loadSheet();
       activate('oggi');
       setRitiriTitle(new Date());
