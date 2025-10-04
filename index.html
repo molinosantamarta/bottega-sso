@@ -53,19 +53,25 @@
     [data-view].active{display:block}
 
     /* -------------------------------------------------------------------
-       RINFORZO: qualsiasi pagina caricata che usi [data-sso]
-       eredita una larghezza massima pari a var(--pane-max) impostata da index.
-       Questo assicura coerenza anche se il file interno non lo facesse già.
+       RINFORZO: allinea le pagine caricate a .x-wrap usando --pane-max/gutter
+       (impostate via JS qui in index).
        ------------------------------------------------------------------- */
+    [data-view] [data-sso]{
+      /* default fallback in caso lo script non partisse */
+      --pane-max: 760px;
+      --pane-gutter: 16px;
+    }
     [data-view] [data-sso] .wrap{
-      max-width: var(--pane-max, 760px);
+      max-width: var(--pane-max);
+      padding-left: var(--pane-gutter);
+      padding-right: var(--pane-gutter);
       margin-left:auto;
       margin-right:auto;
     }
     [data-view] [data-sso] .section,
     [data-view] [data-sso] .btn-new-outer{
       width:100%;
-      max-width: var(--pane-max, 760px);
+      max-width: var(--pane-max);
       margin-left:auto;
       margin-right:auto;
     }
@@ -76,7 +82,7 @@
     <header>
       <h1>SSO - Scanner Stoccaggio Ordini</h1>
       <div class="subtitle">Scansiona le spese in pochi secondi e trovale subito al momento del ritiro!</div>
-      <div class="beta-row"><span class="beta-pill">SSO 9.5</span></div>
+      <div class="beta-row"><span class="beta-pill">SSO 9.5.2</span></div>
     </header>
 
     <div class="hero-img-wrap">
@@ -167,8 +173,8 @@
         }
         section.dataset.loaded = 'true';
 
-        // 🔗 appena caricata la pagina, sincronizza la sua --pane-max
-        syncPaneMaxFor(section);
+        // sincronizza variabili di layout per la pagina caricata
+        syncPaneVarsFor(section);
 
       } catch (err) {
         console.error('Errore nel caricamento di', url, err);
@@ -187,8 +193,8 @@
       $('#view-b').classList.toggle('active',view==='b');
       $$('.x-tab').forEach(t=>t.setAttribute('aria-selected',t.dataset.tab===view?'true':'false'));
 
-      // assicurati di risincronizzare quando cambi vista
-      syncPaneMaxFor(section);
+      // risincronizza quando cambi vista
+      syncPaneVarsFor(section);
     }
 
     loadExternalInto($('#view-a')).then(()=>activate('a'));
@@ -197,35 +203,50 @@
     });
 
     /* ===========================================================
-       SYNC WIDTH: imposta --pane-max sulle pagine caricate
-       pari alla larghezza effettiva del contenitore .x-wrap.
+       SYNC WIDTH + GUTTER: imposta --pane-max e --pane-gutter
+       sulle pagine caricate, copiandole da .x-wrap.
        =========================================================== */
     const wrapEl = document.querySelector('.x-wrap');
 
-    function applyPaneMaxToRoots(pixels){
-      // Applica a TUTTE le radici [data-sso] presenti nella pagina attiva
+    function readWrapDims() {
+      if (!wrapEl) return { w:760, g:16 };
+      const cs = getComputedStyle(wrapEl);
+      const w = wrapEl.getBoundingClientRect().width;
+      const pl = parseFloat(cs.paddingLeft) || 0;
+      const pr = parseFloat(cs.paddingRight) || 0;
+      // se vuoi usare lo stesso gutter su ambo i lati, prendo il max tra i due
+      const g = Math.max(pl, pr);
+      return { w, g };
+    }
+
+    function applyPaneVarsToRoots(pixels, gutter){
       document.querySelectorAll('[data-view].active [data-sso]').forEach(root=>{
         root.style.setProperty('--pane-max', Math.round(pixels) + 'px');
+        root.style.setProperty('--pane-gutter', Math.round(gutter) + 'px');
       });
     }
 
-    function syncPaneMaxFor(section){
-      if (!wrapEl || !section) return;
-      const w = wrapEl.getBoundingClientRect().width;
-      applyPaneMaxToRoots(w);
+    function syncPaneVarsFor(section){
+      if (!section) return;
+      const { w, g } = readWrapDims();
+      applyPaneVarsToRoots(w, g);
     }
 
-    // osserva i cambi di dimensione della .x-wrap (breakpoint, rotation, ecc.)
+    // osserva i cambi dimensione/padding di .x-wrap (resize, orientation, CSS)
     const ro = new ResizeObserver(entries=>{
       for (const e of entries){
+        const cs = getComputedStyle(e.target);
         const w = e.contentRect.width;
-        applyPaneMaxToRoots(w);
+        const pl = parseFloat(cs.paddingLeft) || 0;
+        const pr = parseFloat(cs.paddingRight) || 0;
+        const g = Math.max(pl, pr);
+        applyPaneVarsToRoots(w, g);
       }
     });
     if (wrapEl) ro.observe(wrapEl);
 
-    // se dentro la view attiva vengono aggiunti dinamicamente [data-sso], riallinea
-    const mo = new MutationObserver(()=>syncPaneMaxFor(document.querySelector('[data-view].active')));
+    // se dentro la view attiva vengono aggiunti [data-sso], riallinea
+    const mo = new MutationObserver(()=>syncPaneVarsFor(document.querySelector('[data-view].active')));
     mo.observe(document.body, { childList:true, subtree:true });
   </script>
 </body>
