@@ -53,6 +53,7 @@
 
     /* card sezione (edge-to-edge su mobile, centrata su viewport grandi) */
     [data-sso] .section{
+      position: relative; /* crea stacking context pulito */
       width:100%;
       max-width:var(--pane-max);
       margin:14px auto;
@@ -64,6 +65,7 @@
       box-shadow:0 10px 24px rgba(0,0,0,.15);
       transition:background .25s ease, box-shadow .25s ease, border-color .25s ease;
       overflow:hidden;
+      z-index: 0;
     }
     @media (max-width: 430px){
       [data-sso] .section{
@@ -82,6 +84,12 @@
       outline: 2px solid rgba(10,132,255,.35);
       box-shadow: 0 16px 36px rgba(10,132,255,.20), 0 10px 24px rgba(0,0,0,.15);
     }
+
+    /* --- HOT-FIX clickability --- */
+    #section1 { position: relative; z-index: 1000; }
+    .icon-btn.torch-on::before,
+    .icon-btn.torch-on::after { pointer-events: none !important; }
+    .seg, .chip, .opt { pointer-events: auto; }
 
     /* Pillola versione */
     .beta-row{display:flex;justify-content:center;margin:6px 0 2px}
@@ -180,6 +188,7 @@
       display:inline-flex; align-items:center; justify-content:center; cursor:pointer;
       box-shadow:inset 0 1px 0 rgba(255,255,255,.6), 0 4px 10px rgba(0,0,0,.12);
       overflow:visible;
+      z-index: 1;
     }
 
     /* Effetto torcia potenziato: alone + cono molto più visibili su sfondo bianco */
@@ -198,34 +207,36 @@
     /* Alone radiale attorno al pulsante */
     .icon-btn.torch-on::before{
       content:""; position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
-      width:140px; height:140px; border-radius:50%;
+      width:160px; height:160px; border-radius:50%;
       background:
         radial-gradient(circle at 50% 50%,
           rgba(255,240,170,0.95) 0%,
-          rgba(255,220,80,0.55) 35%,
-          rgba(255,214,10,0.25) 60%,
-          rgba(255,214,10,0) 75%);
+          rgba(255,228,120,0.65) 35%,
+          rgba(255,214,10,0.35) 60%,
+          rgba(255,214,10,0) 78%);
       filter:blur(8px);
       mix-blend-mode:screen;
       pointer-events:none;
       animation: torch-breathe 1.8s ease-in-out infinite;
+      z-index: 0;
     }
     /* Cono di luce verso il basso, grande e intenso */
     .icon-btn.torch-on::after{
       content:""; position:absolute; left:50%; bottom:44px; transform:translateX(-50%);
-      width: 380px; height: 520px;
+      width: 420px; height: 560px;
       background:
         linear-gradient(180deg,
-          rgba(255,240,170,0.90) 0%,
-          rgba(255,228,120,0.72) 10%,
-          rgba(255,220,80,0.35) 45%,
-          rgba(255,214,10,0.12) 70%,
+          rgba(255,240,170,0.92) 0%,
+          rgba(255,228,120,0.76) 12%,
+          rgba(255,220,80,0.42) 48%,
+          rgba(255,214,10,0.16) 72%,
           rgba(255,214,10,0.00) 100%);
-      clip-path: polygon(50% 0%, 14% 100%, 86% 100%); /* forma a cono ampia */
+      clip-path: polygon(50% 0%, 12% 100%, 88% 100%); /* cono ampio */
       filter: blur(10px) saturate(120%);
       mix-blend-mode: screen;
       pointer-events:none;
       animation: torch-breathe 2s ease-in-out infinite;
+      z-index: 0;
     }
 
     .icon-btn:active{ transform:scale(.97); }
@@ -262,27 +273,27 @@
           <div class="seg-label">CELLA NEGOZIO</div>
           <div class="seg" id="segNegozio">
             <!-- i data-zone restano invariati per preservare la logica -->
-            <button class="opt" data-zone="NEGOZIO - SOPRA">SOPRA</button>
-            <button class="opt" data-zone="NEGOZIO - SOTTO">SOTTO</button>
+            <button class="opt" data-zone="NEGOZIO - SOPRA" type="button">SOPRA</button>
+            <button class="opt" data-zone="NEGOZIO - SOTTO" type="button">SOTTO</button>
           </div>
         </div>
 
         <div class="seg-row">
           <div class="seg-label">CELLA CAMION</div>
           <div class="seg" id="segCamion">
-            <button class="opt" data-zone="CAMION - SOPRA">SOPRA</button>
-            <button class="opt" data-zone="CAMION - SOTTO">SOTTO</button>
+            <button class="opt" data-zone="CAMION - SOPRA" type="button">SOPRA</button>
+            <button class="opt" data-zone="CAMION - SOTTO" type="button">SOTTO</button>
           </div>
         </div>
 
         <div class="chips">
-          <button class="chip" data-zone="CARNE">CELLA CARNE</button>
-          <button class="chip" data-zone="SCALE">SCALE</button>
+          <button class="chip" data-zone="CARNE" type="button">CELLA CARNE</button>
+          <button class="chip" data-zone="SCALE" type="button">SCALE</button>
         </div>
 
         <div class="custom">
           <input id="customZone" placeholder="Scrivi tu la zona..">
-          <button id="useCustom">Usa</button>
+          <button id="useCustom" type="button">Usa</button>
         </div>
 
         <div class="selected-zone" id="selectedZone"><span class="selected-dot"></span> <span id="loc">Nessuna zona selezionata</span></div>
@@ -293,11 +304,11 @@
         <div class="step-title"><span class="step-badge" id="badge2">2</span> Avvia scansione</div>
 
         <div class="controls nowrap">
-          <button id="btnScan" class="btn primary">Avvia scansione</button>
+          <button id="btnScan" class="btn primary" type="button">Avvia scansione</button>
           <div class="spacer"></div>
           <div class="torch-wrap">
             <div class="torch-label"><span>torcia</span><strong id="torchState">OFF</strong></div>
-            <button id="btnTorch" class="icon-btn" title="Torcia" aria-label="Torcia">
+            <button id="btnTorch" class="icon-btn" title="Torcia" aria-label="Torcia" type="button">
               <svg viewBox="0 0 512 512" aria-hidden="true">
                 <path d="M128 96h256v64l-64 96v128a64 64 0 0 1-64 64h-0a64 64 0 0 1-64-64V256l-64-96V96z" fill="currentColor"/>
                 <rect x="208" y="48" width="96" height="24" rx="12" fill="currentColor"/>
@@ -362,8 +373,8 @@
           <div class="divider"></div>
 
           <div class="controls split" style="margin-top:0;">
-            <button id="btnCopy" class="btn success" disabled>Termina e invia</button>
-            <button id="btnClear" class="btn danger" disabled>Cancella e rifai</button>
+            <button id="btnCopy" class="btn success" disabled type="button">Termina e invia</button>
+            <button id="btnClear" class="btn danger" disabled type="button">Cancella e rifai</button>
           </div>
         </div>
       </div>
@@ -373,7 +384,7 @@
         <div class="step-title"><span class="step-badge" id="badge4">4</span> Invio scansioni</div>
         <div class="box gradient-border" id="step4Box"></div>
         <div class="progress-done" id="pDoneOuter" style="display:none">
-          <button id="btnNew" class="btn btn-yellow">Nuova scansione</button>
+          <button id="btnNew" class="btn btn-yellow" type="button">Nuova scansione</button>
         </div>
       </div>
 
@@ -439,6 +450,14 @@
     /* nascondo le guide QR all'inizio */
     if (qrGuide) qrGuide.style.display = 'none';
     if (qrHint)  qrHint.style.display  = 'none';
+
+    /* HOT-FIX difensivo: assicurati che i controlli siano clickabili e non disabilitati */
+    document.querySelectorAll('#segNegozio .opt, #segCamion .opt, .chip, #useCustom').forEach(el=>{
+      if (el.tagName === 'BUTTON' && !el.hasAttribute('type')) el.setAttribute('type','button');
+      el.removeAttribute('disabled');
+    });
+    const section1 = document.getElementById('section1');
+    if (section1) section1.style.zIndex = '1000';
 
     /* Audio feedback minimo */
     const AC = window.AudioContext || window.webkitAudioContext;
@@ -611,20 +630,25 @@
       }
     });
 
-    // Selettori zona
-    root.querySelectorAll('#segNegozio .opt, #segCamion .opt, .chip').forEach(btn=>{
-      btn.addEventListener('click', ()=>{
+    /* === CLICK ZONE: event delegation robusto === */
+    root.addEventListener('click', (e)=>{
+      const target = e.target.closest('#segNegozio .opt, #segCamion .opt, .chip, #useCustom');
+      if (!target || !root.contains(target)) return;
+
+      if (target.id === 'useCustom') {
+        if (scanningLocked){ alert('Non puoi cambiare zona dopo aver avviato la scansione.'); return; }
+        const v = (root.querySelector('#customZone').value||'').trim(); if (!v) return;
+        root.querySelectorAll('.opt,.chip').forEach(b=>b.classList.remove('active'));
+        select(v);
+        return;
+      }
+
+      if (target.matches('.opt, .chip')) {
         if (scanningLocked){ alert('Non puoi cambiare zona dopo aver avviato la scansione.'); return; }
         root.querySelectorAll('.opt, .chip').forEach(b=>b.classList.remove('active'));
-        btn.classList.add('active');
-        select(btn.dataset.zone);
-      });
-    });
-    root.querySelector('#useCustom').addEventListener('click', ()=>{
-      if (scanningLocked){ alert('Non puoi cambiare zona dopo aver avviato la scansione.'); return; }
-      const v = (root.querySelector('#customZone').value||'').trim(); if (!v) return;
-      root.querySelectorAll('.opt,.chip').forEach(b=>b.classList.remove('active'));
-      select(v);
+        target.classList.add('active');
+        select(target.dataset.zone);
+      }
     });
 
     // === Camera / QR ===
@@ -966,8 +990,6 @@
     lockZoneSelectors(false);
 
     /* ---------- Evidenziazione dinamica del blocco 1 quando tab = scanner ---------- */
-    const section1 = document.getElementById('section1');
-
     function applyTabHighlight(tab){
       if (!section1) return;
       if (tab === 'scanner') {
