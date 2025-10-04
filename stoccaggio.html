@@ -34,7 +34,7 @@
     .input{ flex:1; width:100%; padding:16px; border-radius:16px; border:1px solid var(--border); background:#fff; color:#111; font-size:16px; line-height:1.1; outline:none; transition:border .2s ease, box-shadow .2s ease; }
     .input:focus{ border-color:var(--accent); box-shadow:0 0 0 3px rgba(10,132,255,.25); }
     .input::placeholder{ color:#777; }
-    .btn{ width:100%; height:48px; border:none; border-radius:16px; background:var(--accent); color:#fff; font-weight:700; font-size:15px; letter-spacing:.2px; cursor:pointer; box-shadow:0 4px 14px rgba(10,132,255,.35); transition:background .2s ease; }
+    .btn{ width:100%; height:48px; border:none; border-radius:16px; background:#0a84ff; color:#fff; font-weight:700; font-size:15px; letter-spacing:.2px; cursor:pointer; box-shadow:0 4px 14px rgba(10,132,255,.35); transition:background .2s ease; }
     .btn:hover{ background:#0068e6; }
     .btn:active{ transform:translateY(.5px); }
     @media (min-width:520px){ .search{ flex-direction:row; align-items:center; } .btn{ width:auto; height:auto; padding:12px 20px; } }
@@ -82,6 +82,9 @@
     .sheet-list ul{ list-style:none; padding:0; margin:0; text-align:center; }
     .sheet-list li{ padding:6px 0; border-bottom:1px dashed rgba(0,0,0,.08); }
     .sheet-meta{ display:flex; justify-content:space-between; align-items:center; font-size:12px; color:#555; margin-top:6px; }
+
+    /* Date accent for titles */
+    .date-accent{ color:#22c55e; font-weight:900; }
   </style>
 </head>
 <body>
@@ -110,7 +113,7 @@
 
       <!-- Blocco: Elenco ritiri -->
       <section class="section" aria-labelledby="ritiri-title">
-        <h2 id="ritiri-title" class="title">Ritiri</h2>
+        <h2 id="ritiri-title" class="title">Ritiri di <span id="ritiri-title-date" class="date-accent">—</span></h2>
         <div id="ritiri-tabs" class="tabs" role="tablist">
           <button class="tab active" role="tab" aria-selected="true" id="tab-oggi">Oggi</button>
           <button class="tab" role="tab" aria-selected="false" id="tab-domani">Domani</button>
@@ -159,7 +162,7 @@
     // ===== Utilities =====
     const $ = s => document.querySelector(s);
     const zones = ['NEGOZIO - SOPRA','NEGOZIO - SOTTO','CELLA SOPRA','CAMION SOPRA','CAMION SOTTO','SCALE','CARNE'];
-    const escapeHTML = (s) => s.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[m]));
+    const escapeHTML = s => s.replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
 
     // ===== Shared card renderer =====
     function orderCard({ ord, name, zone, time }){
@@ -183,8 +186,8 @@
     const go = $('#go');
     const out = $('#out');
 
-    const orderFrom = (n) => { let h=0; for(let i=0;i<n.length;i++) h=(h*31+n.charCodeAt(i))>>>0; return 100+(h%900); };
-    const zoneFrom  = (n) => { let h=0; for(let i=0;i<n.length;i++) h=(h*17+n.charCodeAt(i))>>>0; return zones[h%zones.length]; };
+    const orderFrom = n => { let h=0; for(let i=0;i<n.length;i++) h=(h*31+n.charCodeAt(i))>>>0; return 100+(h%900); };
+    const zoneFrom  = n => { let h=0; for(let i=0;i<n.length;i++) h=(h*17+n.charCodeAt(i))>>>0; return zones[h%zones.length]; };
 
     function renderSearch(name){
       const ord = orderFrom(name);
@@ -212,6 +215,16 @@
     function fmtTime(h,m){ return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`; }
     function addDays(d,n){ const x=new Date(d); x.setDate(x.getDate()+n); return x; }
     function ymd(d){ return new Date(d).toISOString().slice(0,10); }
+    function fullItalianDate(d){
+      const giorni = ['Domenica','Lunedì','Martedì','Mercoledì','Giovedì','Venerdì','Sabato'];
+      const mesi = ['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno','Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'];
+      return `${giorni[d.getDay()]}, ${String(d.getDate()).padStart(2,'0')} ${mesi[d.getMonth()]}`;
+    }
+    function setRitiriTitle(dateLike){
+      const d = typeof dateLike === 'string' ? new Date(dateLike) : new Date(dateLike);
+      const el = document.getElementById('ritiri-title-date');
+      if(el && !isNaN(d)) el.textContent = fullItalianDate(d);
+    }
 
     const names = ['Abbiati','Negri','Tiziani','Monza','Invernizzi','Pontevecchio','Fontana','Rho','Pellegrino','Faspar'];
     const pick = (arr,i) => arr[i % arr.length];
@@ -243,10 +256,13 @@
         tabsWrap.classList.add('show-date');
         if(!dateEl.value) dateEl.value = ymd(new Date());
         renderRitiri(dateEl.value);
+        setRitiriTitle(dateEl.value);
       } else {
         tabsWrap.classList.remove('show-date');
         const base = new Date();
-        renderRitiri(which==='oggi' ? base : addDays(base,1));
+        const target = (which==='oggi' ? base : addDays(base,1));
+        renderRitiri(target);
+        setRitiriTitle(target);
       }
     }
 
@@ -255,11 +271,18 @@
     tabs.data.addEventListener('click', ()=>activate('data'));
 
     dateEl.addEventListener('change', ()=>{
-      if(tabs.data.classList.contains('active')) renderRitiri(dateEl.value);
+      if(tabs.data.classList.contains('active')){
+        renderRitiri(dateEl.value);
+        setRitiriTitle(dateEl.value);
+      }
     });
 
-    // init
-    activate('oggi');
+    // === Init con data reale del dispositivo ===
+    document.addEventListener('DOMContentLoaded', ()=>{
+      const today = new Date();
+      activate('oggi');
+      setRitiriTitle(today);
+    });
 
     // ===== Fullscreen order sheet logic =====
     const sheet = $('#order-sheet');
@@ -270,7 +293,7 @@
     const sheetZone = $('#sheet-zone');
     const sheetNote = $('#sheet-note');
 
-    function fmtItalianDate(dateStr){
+    function fmtItalianShort(dateStr){
       const d = new Date(dateStr || Date.now());
       const giorni = ['dom','lun','mar','mer','gio','ven','sab'];
       const mesi = ['gen','feb','mar','apr','mag','giu','lug','ago','set','ott','nov','dic'];
@@ -290,7 +313,7 @@
 
     function openSheet({ ord, name, zone, time }){
       sheetTitle.textContent = name;
-      sheetSub.textContent = time ? time : fmtItalianDate(dateEl.value || new Date());
+      sheetSub.textContent = time ? time : fmtItalianShort(dateEl.value || new Date());
       document.getElementById('sheet-order').textContent = `#${ord}`;
       document.getElementById('sheet-pren').textContent = 'SI';
       sheetReparti.textContent = 'FRUTTA E VERDURA, CARNE';
@@ -325,4 +348,5 @@
   </script>
 </body>
 </html>
+
 
