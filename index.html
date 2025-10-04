@@ -9,51 +9,37 @@
     html,body{height:100%;background:#000;margin:0;font-family:-apple-system,system-ui,Segoe UI,Roboto,sans-serif;color:#eaeaea}
     .x-wrap{padding:8px 16px 24px;max-width:760px;margin:0 auto;position:relative}
 
-    header{position:relative;z-index:2;text-align:center;padding:18px 12px 10px}
+    /* Header/hero/tabbar sopra ma non bloccano i tap sotto, tranne i loro figli */
+    header{position:relative;z-index:2;text-align:center;padding:18px 12px 10px;pointer-events:none}
+    header *{pointer-events:auto}
     header h1{margin:0;font-size:20px;font-weight:800;color:#fff}
     header .subtitle{margin-top:6px;font-size:13px;font-weight:500;color:#bdbdbd;opacity:.95}
-    /* Evita che header “copra” i click fuori dai suoi controlli */
-    header{pointer-events:none}
-    header *{pointer-events:auto}
-
-    .beta-row{display:flex;justify-content:center;margin-top:8px;position:relative;top:3px}
+    .beta-row{display:flex;justify-content:center;margin-top:8px}
     .beta-pill{display:inline-flex;align-items:center;justify-content:center;padding:5px 10px;border-radius:999px;background:#ffd60a;color:#000;font-weight:800;font-size:11px;box-shadow:0 1px 0 rgba(255,255,255,.25) inset,0 4px 12px rgba(0,0,0,.25);border:1px solid #e6c408}
 
-    /* Immagini incrociate */
-    .hero-img-wrap{display:flex;align-items:center;justify-content:center;margin-top:6px;position:relative;z-index:2}
+    .hero-img-wrap{display:flex;align-items:center;justify-content:center;margin-top:6px;position:relative;z-index:2;pointer-events:none}
+    .hero-img-wrap *{pointer-events:auto}
     .hero-img-wrap img{width:92px;max-width:106px;height:auto;border-radius:12px;position:relative}
     .hero-img-wrap img:first-child{left:10px;z-index:1}
     .hero-img-wrap img:last-child{right:0;margin-left:-10px;z-index:2;top:5px}
-    /* Anche l’hero non deve “bloccare” tocchi sotto */
-    .hero-img-wrap{pointer-events:none}
-    .hero-img-wrap *{pointer-events:auto}
 
-    /* Tabbar */
-    .x-tabbar{margin-top:8px;display:flex;justify-content:center;position:relative;z-index:2}
+    .x-tabbar{margin-top:8px;display:flex;justify-content:center;position:relative;z-index:2;pointer-events:none}
+    .x-tabbar *{pointer-events:auto}
     .x-tabbar-inner{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;width:92%;max-width:480px;padding:8px;border-radius:38px;background:#f7f7f7;border:0 solid rgba(0,0,0,.1);box-shadow:0 12px 28px rgba(0,0,0,.15)}
     .x-tab{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:10px 12px;border-radius:28px;text-decoration:none;cursor:pointer;-webkit-tap-highlight-color:transparent;color:#6b6b70;border:0 solid transparent;transition:background .15s,color .15s,border-color .15s,box-shadow .15s}
     .x-tab[aria-selected="true"]{background:#ffd60a;color:#000;font-weight:700;border-color:#e6c408;box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 6px 16px rgba(0,0,0,.35)}
-    .ico-bubble{display:flex;align-items:center;justify-content:center;background:transparent;border:none;box-shadow:none;width:auto;height:auto;border-radius:0}
-    .x-tabbar .x-tab[aria-selected="false"] span{color:#222}
-    /* Tabbar trasparente ai click fuori dai tab */
-    .x-tabbar{pointer-events:none}
-    .x-tabbar *{pointer-events:auto}
+    .ico-bubble{display:flex;align-items:center;justify-content:center}
 
-    /* Views: la vista attiva sta DAVANTI a tutto ed è click-safe */
+    /* Viste: solo l’attiva è visibile e sta davanti a tutto */
     [data-view]{display:none;position:relative}
-    [data-view].active{
-      display:block;
-      position:relative;
-      z-index:10;           /* sopra header/hero/tabbar */
-      isolation:isolate;    /* nuovo stacking context */
-    }
+    [data-view].active{display:block;position:relative;z-index:10;isolation:isolate}
 
-    /* Allineamento edge-to-edge delle sotto-pagine */
+    /* Edge-to-edge nelle sotto-pagine */
     [data-view] [data-sso]{--pane-max:760px;--pane-gutter:0px}
     [data-view] [data-sso] .wrap{max-width:var(--pane-max);padding-left:0!important;padding-right:0!important;margin-left:auto;margin-right:auto}
     [data-view] [data-sso] .section,[data-view] [data-sso] .btn-new-outer{width:100%;max-width:var(--pane-max);margin-left:auto;margin-right:auto}
 
-    /* Placeholder cards (prima del load) */
+    /* Placeholder cards */
     .card{margin:14px auto 0;border-radius:16px;padding:22px;background:#0b0b0c;border:1px solid rgba(255,255,255,.08);min-height:110px;width:92%;max-width:760px}
   </style>
 </head>
@@ -72,12 +58,10 @@
 
     <nav class="x-tabbar" role="tablist" aria-label="Navigazione pagine">
       <div class="x-tabbar-inner">
-        <!-- Sinistra: Stoccaggio (selezionato all’avvio) -->
         <a class="x-tab" role="tab" href="#a" data-tab="a" aria-selected="true">
           <span class="ico-bubble"><span id="lottie-stoccaggio" style="width:68px;height:68px"></span></span>
           <span>Stoccaggio</span>
         </a>
-        <!-- Destra: Scanner -->
         <a class="x-tab" role="tab" href="#b" data-tab="b" aria-selected="false">
           <span class="ico-bubble"><span id="lottie-scanner" style="width:68px;height:68px"></span></span>
           <span>Scanner</span>
@@ -85,145 +69,135 @@
       </div>
     </nav>
 
-    <!-- Vista A: STOCCAGGIO (attiva all’avvio) -->
+    <!-- Vista A: Stoccaggio (apre per prima) -->
     <section id="view-a" data-view class="active" data-src="./stoccaggio.html">
       <div style="max-width:820px;margin:18px auto 0;padding:16px 18px;border:1px dashed rgba(255,255,255,.35);border-radius:14px;background:#0b0b0c;color:#eaeaea;font:14px/1.45 -apple-system,system-ui,Segoe UI,Roboto,sans-serif">
-        questa pagina è in fase di sviluppo, verrà rilasciata con la versione 10.0 dell'app nei prossimi aggiornamenti.
+        pagina in sviluppo, arriverà con la versione 10.0.
       </div>
     </section>
 
-    <!-- Vista B: SCANNER -->
+    <!-- Vista B: Scanner -->
     <section id="view-b" data-view data-src="./scanner.html">
       <div class="card"></div><div class="card"></div><div class="card"></div><div class="card"></div>
     </section>
   </div>
 
+  <!-- Lottie -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
   <script>
-    /* Lottie */
+    /* Lottie animazioni */
     lottie.loadAnimation({container:document.getElementById('lottie-scanner'),renderer:'svg',loop:true,autoplay:true,path:'./scanner.lotties.json'});
     lottie.loadAnimation({container:document.getElementById('lottie-stoccaggio'),renderer:'svg',loop:true,autoplay:true,path:'./shopping-cart.lotties.json'});
 
-    /* Utility */
+    /* Helpers */
     const VIEWS=['a','b'];
-    const $=s=>document.querySelector(s);
-    const $$=s=>Array.from(document.querySelectorAll(s));
+    const $ = s => document.querySelector(s);
+    const $$ = s => Array.from(document.querySelectorAll(s));
 
-    /* Caricamento pagine esterne */
-    const loadedStyles=new Set();
+    /* Loader HTML + CSS + JS (ordine preservato) */
+    const loadedStyles = new Set();
     async function loadExternalInto(section){
-      const url=section.getAttribute('data-src');
-      if(!url||section.dataset.loaded==='true')return;
-      try{
-        const res=await fetch(url,{credentials:'same-origin'});
-        if(!res.ok)throw new Error('HTTP '+res.status);
-        const html=await res.text();
-        const doc=new DOMParser().parseFromString(html,'text/html');
+      const url = section.getAttribute('data-src');
+      if(!url || section.dataset.loaded==='true') return;
 
-        /* Inietto <style> PRIMA del contenuto per evitare flash */
-        doc.querySelectorAll('style').forEach(styleEl=>{
-          const s=document.createElement('style'); s.textContent=styleEl.textContent;
-          document.head.appendChild(s);
-        });
+      const res = await fetch(url,{credentials:'same-origin'});
+      if(!res.ok) throw new Error('HTTP '+res.status);
+      const html = await res.text();
+      const doc = new DOMParser().parseFromString(html,'text/html');
 
-        /* Eventuali <link rel=stylesheet> */
-        doc.querySelectorAll('link[rel="stylesheet"]').forEach(link=>{
-          const href=link.getAttribute('href'); if(!href)return;
-          const abs=new URL(href,url).href;
-          if(loadedStyles.has(abs))return;
-          const l=document.createElement('link'); l.rel='stylesheet'; l.href=abs;
-          document.head.appendChild(l); loadedStyles.add(abs);
-        });
+      /* 1) Style inline subito in <head> */
+      doc.querySelectorAll('style').forEach(styleEl=>{
+        const s = document.createElement('style');
+        s.textContent = styleEl.textContent;
+        document.head.appendChild(s);
+      });
 
-        /* Contenuto body */
-        section.innerHTML=doc.body?doc.body.innerHTML:html;
+      /* 2) Link CSS esterni una sola volta */
+      doc.querySelectorAll('link[rel="stylesheet"]').forEach(link=>{
+        const href = link.getAttribute('href'); if(!href) return;
+        const abs = new URL(href, url).href;
+        if(loadedStyles.has(abs)) return;
+        const l = document.createElement('link');
+        l.rel = 'stylesheet'; l.href = abs;
+        document.head.appendChild(l);
+        loadedStyles.add(abs);
+      });
 
-        /* Script inline + esterni, ordine preservato */
-        doc.querySelectorAll('script').forEach(oldS=>{
-          const s=document.createElement('script');
-          if(oldS.type)s.type=oldS.type;
-          if(oldS.noModule)s.noModule=true;
-          if(oldS.defer)s.defer=true;
-          if(oldS.async)s.async=true;
-          const src=oldS.getAttribute('src');
-          if(src){ s.src=new URL(src,url).href; } else { s.textContent=oldS.textContent||''; }
-          /* Assicuro esecuzione nella sotto-vista */
-          section.appendChild(s);
-        });
+      /* 3) HTML del body */
+      const bodyHTML = doc.body ? doc.body.innerHTML : html;
+      section.innerHTML = bodyHTML;
 
-        section.dataset.loaded='true';
-        syncPaneVarsFor(section);
-      }catch(err){
-        console.error('Errore nel caricamento di',url,err);
-        const msg=document.createElement('div');
-        msg.style.cssText='margin:18px auto 0;padding:16px 18px;border:1px dashed rgba(255,255,255,.35);border-radius:14px;background:#0b0b0c;color:#eaeaea;font:14px/1.45 -apple-system,system-ui,Segoe UI,Roboto,sans-serif';
-        msg.textContent=`Non riesco a caricare ${url}. Assicurati che il file esista e sia stessa origine.`;
-        section.innerHTML=''; section.appendChild(msg);
+      /* 4) Script (moduli e non) ricreati e appesi alla section */
+      const scripts = doc.querySelectorAll('script');
+      for(const oldS of scripts){
+        const s = document.createElement('script');
+        if(oldS.type) s.type = oldS.type;                // es: "module"
+        if(oldS.noModule) s.noModule = true;
+        if(oldS.defer) s.defer = true;
+        if(oldS.async) s.async = true;
+
+        const src = oldS.getAttribute('src');
+        if(src){
+          s.src = new URL(src, url).href;
+        }else{
+          s.textContent = oldS.textContent || '';
+        }
+        section.appendChild(s);
       }
+
+      section.dataset.loaded = 'true';
+      syncPaneVarsFor(section);
     }
 
     async function activate(view){
-      if(!VIEWS.includes(view))view='a'; // default: Stoccaggio
-      const section=view==='a'?$('#view-a'):$('#view-b');
+      if(!VIEWS.includes(view)) view = 'a';
+      const section = view==='a' ? $('#view-a') : $('#view-b');
       await loadExternalInto(section);
 
-      $('#view-a').classList.toggle('active',view==='a');
-      $('#view-b').classList.toggle('active',view==='b');
-      $$('.x-tab').forEach(t=>t.setAttribute('aria-selected',t.dataset.tab===view?'true':'false'));
+      $('#view-a').classList.toggle('active', view==='a');
+      $('#view-b').classList.toggle('active', view==='b');
+      $$('.x-tab').forEach(t => t.setAttribute('aria-selected', t.dataset.tab===view ? 'true' : 'false'));
 
-      // Porta davanti SOLO la vista attiva (click-safe)
-      $('#view-a').style.zIndex=(view==='a')?10:0;
-      $('#view-b').style.zIndex=(view==='b')?10:0;
+      /* Porta DAVANTI solo la vista attiva */
+      $('#view-a').style.zIndex = (view==='a') ? 10 : 0;
+      $('#view-b').style.zIndex = (view==='b') ? 10 : 0;
 
       syncPaneVarsFor(section);
 
-      // Avvisa la sotto-pagina (scanner) per highlight dinamico
+      /* Notifica allo scanner per highlight step 1 */
       if(view==='b'){
         document.dispatchEvent(new CustomEvent('sso:tabchange',{detail:{tab:'scanner'}}));
       }
     }
 
-    /* Avvio: carica e attiva Stoccaggio */
+    /* Avvio: Stoccaggio selezionato, Scanner deselezionato */
     loadExternalInto($('#view-a')).then(()=>activate('a'));
 
-    document.querySelector('.x-tabbar-inner').addEventListener('click',e=>{
-      const a=e.target.closest('.x-tab'); if(!a)return; e.preventDefault(); activate(a.dataset.tab);
+    /* Switch tab */
+    document.querySelector('.x-tabbar-inner').addEventListener('click', e=>{
+      const a = e.target.closest('.x-tab'); if(!a) return;
+      e.preventDefault();
+      activate(a.dataset.tab);
     });
 
-    /* Sync width + gutter (gutter fisso = 0) */
-    const EXTERNAL_GUTTER_PX=0;
-    const wrapEl=document.querySelector('.x-wrap');
-
-    function readWrapDims(){
-      if(!wrapEl)return{w:760,g:0};
-      const w=wrapEl.getBoundingClientRect().width;
-      return{w,g:0};
-    }
-
-    function applyPaneVarsToRoots(pixels,gutter){
-      const g=(typeof EXTERNAL_GUTTER_PX==='number')?EXTERNAL_GUTTER_PX:gutter;
+    /* Edge-to-edge width sync */
+    const wrapEl = document.querySelector('.x-wrap');
+    function paneWidth(){ return wrapEl ? wrapEl.getBoundingClientRect().width : 760; }
+    function applyPaneVars(w){
       document.querySelectorAll('[data-view].active [data-sso]').forEach(root=>{
-        root.style.setProperty('--pane-max',Math.round(pixels)+'px');
-        root.style.setProperty('--pane-gutter',Math.round(g)+'px');
+        root.style.setProperty('--pane-max', Math.round(w)+'px');
+        root.style.setProperty('--pane-gutter', '0px');
       });
     }
-
     function syncPaneVarsFor(section){
-      if(!section)return;
-      const {w,g}=readWrapDims();
-      applyPaneVarsToRoots(w,g);
+      if(!section) return;
+      const w = paneWidth();
+      applyPaneVars(w);
     }
-
-    const ro=new ResizeObserver(entries=>{
-      for(const e of entries){
-        const w=e.contentRect.width;
-        applyPaneVarsToRoots(w,0);
-      }
+    const ro = new ResizeObserver(entries=>{
+      for(const e of entries){ applyPaneVars(e.contentRect.width); }
     });
-    if(wrapEl)ro.observe(wrapEl);
-
-    const mo=new MutationObserver(()=>syncPaneVarsFor(document.querySelector('[data-view].active')));
-    mo.observe(document.body,{childList:true,subtree:true});
+    if(wrapEl) ro.observe(wrapEl);
   </script>
 </body>
 </html>
