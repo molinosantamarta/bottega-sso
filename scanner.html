@@ -174,11 +174,62 @@
     .controls.split .btn{ flex:1; }
     #section3 .controls.split .btn{ font-size:18px; padding:21px 16px; }
 
-    .icon-btn{ width:44px; height:44px; border-radius:999px; position:relative; border:1px solid #e6e6ea; background:#fff; color:#000; display:inline-flex; align-items:center; justify-content:center; cursor:pointer; box-shadow:inset 0 1px 0 rgba(255,255,255,.6), 0 4px 10px rgba(0,0,0,.12); overflow:visible; }
-    .icon-btn.torch-on{ background:var(--torch-on); color:#111; border-color:#d8be07; box-shadow:0 6px 16px rgba(0,0,0,.16); }
+    .icon-btn{
+      width:44px; height:44px; border-radius:999px; position:relative;
+      border:1px solid #e6e6ea; background:#fff; color:#000;
+      display:inline-flex; align-items:center; justify-content:center; cursor:pointer;
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.6), 0 4px 10px rgba(0,0,0,.12);
+      overflow:visible;
+    }
+
+    /* Effetto torcia potenziato: alone + cono molto più visibili su sfondo bianco */
+    @keyframes torch-breathe {
+      0%, 100% { transform:translateX(-50%) scale(1); opacity:1; }
+      50%      { transform:translateX(-50%) scale(1.04); opacity:.95; }
+    }
+    .icon-btn.torch-on{
+      background:var(--torch-on); color:#111; border-color:#d8be07;
+      box-shadow:
+        0 0 0 1px rgba(216,190,7,.35) inset,
+        0 10px 22px rgba(0,0,0,.16),
+        0 0 32px rgba(255,214,10,.55),
+        0 0 64px rgba(255,214,10,.35);
+    }
+    /* Alone radiale attorno al pulsante */
+    .icon-btn.torch-on::before{
+      content:""; position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
+      width:140px; height:140px; border-radius:50%;
+      background:
+        radial-gradient(circle at 50% 50%,
+          rgba(255,240,170,0.95) 0%,
+          rgba(255,220,80,0.55) 35%,
+          rgba(255,214,10,0.25) 60%,
+          rgba(255,214,10,0) 75%);
+      filter:blur(8px);
+      mix-blend-mode:screen;
+      pointer-events:none;
+      animation: torch-breathe 1.8s ease-in-out infinite;
+    }
+    /* Cono di luce verso il basso, grande e intenso */
+    .icon-btn.torch-on::after{
+      content:""; position:absolute; left:50%; bottom:44px; transform:translateX(-50%);
+      width: 380px; height: 520px;
+      background:
+        linear-gradient(180deg,
+          rgba(255,240,170,0.90) 0%,
+          rgba(255,228,120,0.72) 10%,
+          rgba(255,220,80,0.35) 45%,
+          rgba(255,214,10,0.12) 70%,
+          rgba(255,214,10,0.00) 100%);
+      clip-path: polygon(50% 0%, 14% 100%, 86% 100%); /* forma a cono ampia */
+      filter: blur(10px) saturate(120%);
+      mix-blend-mode: screen;
+      pointer-events:none;
+      animation: torch-breathe 2s ease-in-out infinite;
+    }
+
     .icon-btn:active{ transform:scale(.97); }
     .icon-btn svg{ width:22px; height:22px; display:block; }
-    .icon-btn.torch-on::after{ content:""; position:absolute; left:50%; bottom:44px; transform:translateX(-50%) rotate(180deg); width:12px; height:0; border-left:60px solid transparent; border-right:60px solid transparent; border-bottom:160px solid rgba(255, 244, 200, .18); filter:blur(2px); pointer-events:none; }
 
     .torch-wrap{ display:flex; align-items:center; gap:7px; }
     .torch-label{ font-size:15px; line-height:1.05; text-align:right; opacity:.9; text-transform:lowercase; color:#222; }
@@ -201,7 +252,7 @@
     <div class="wrap">
 
       <!-- Pillola versione -->
-      <div class="beta-row"><span class="beta-pill">V 9.8.2</span></div>
+      <div class="beta-row"><span class="beta-pill">V 9.9</span></div>
 
       <!-- STEP 1 -->
       <div class="section active" id="section1">
@@ -225,7 +276,7 @@
         </div>
 
         <div class="chips">
-          <button class="chip" data-zone="CARNE">CARNE</button>
+          <button class="chip" data-zone="CARNE">CELLA CARNE</button>
           <button class="chip" data-zone="SCALE">SCALE</button>
         </div>
 
