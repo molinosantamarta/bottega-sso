@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html lang="it">
 <head>
@@ -7,59 +8,40 @@
   <style>
     /* Base dark */
     html,body{height:100%;background:#000;margin:0;font-family:-apple-system,system-ui,Segoe UI,Roboto,sans-serif;color:#eaeaea}
-    body{touch-action:manipulation;} /* elimina ritardi tap su mobile */
-    .x-wrap{padding:8px 16px 24px;max-width:760px;margin:0 auto;position:relative}
+    .x-wrap{padding:8px 16px 24px;max-width:760px;margin:0 auto}
 
-    header{position:relative;z-index:2;text-align:center;padding:18px 12px 10px}
+    header{text-align:center;padding:18px 12px 10px;position:relative;z-index:1}
     header h1{margin:0;font-size:20px;font-weight:800;color:#fff}
     header .subtitle{margin-top:6px;font-size:13px;font-weight:500;color:#bdbdbd;opacity:.95}
-    /* Evita che header “copra” i click fuori dai suoi controlli */
-    header{pointer-events:none}
-    header *{pointer-events:auto}
 
     .beta-row{display:flex;justify-content:center;margin-top:8px;position:relative;top:3px}
     .beta-pill{display:inline-flex;align-items:center;justify-content:center;padding:5px 10px;border-radius:999px;background:#ffd60a;color:#000;font-weight:800;font-size:11px;box-shadow:0 1px 0 rgba(255,255,255,.25) inset,0 4px 12px rgba(0,0,0,.25);border:1px solid #e6c408}
 
     /* Immagini incrociate */
-    .hero-img-wrap{display:flex;align-items:center;justify-content:center;margin-top:6px;position:relative;z-index:2}
+    .hero-img-wrap{display:flex;align-items:center;justify-content:center;margin-top:6px;position:relative;z-index:1}
     .hero-img-wrap img{width:92px;max-width:106px;height:auto;border-radius:12px;position:relative}
     .hero-img-wrap img:first-child{left:10px;z-index:1}
     .hero-img-wrap img:last-child{right:0;margin-left:-10px;z-index:2;top:5px}
-    /* Anche l’hero non deve “bloccare” tocchi sotto */
-    .hero-img-wrap{pointer-events:none}
-    .hero-img-wrap *{pointer-events:auto}
 
     /* Tabbar */
-    .x-tabbar{margin-top:8px;display:flex;justify-content:center;position:relative;z-index:2}
-    .x-tabbar-inner{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;width:92%;max-width:480px;padding:8px;border-radius:38px;background:#f7f7f7;border:0 solid rgba(0,0,0,.1);box-shadow:0 12px 28px rgba(0,0,0,.15)}
-    .x-tab{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:10px 12px;border-radius:28px;text-decoration:none;cursor:pointer;-webkit-tap-highlight-color:transparent;color:#6b6b70;border:0 solid transparent;transition:background .15s,color .15s,border-color .15s,box-shadow .15s}
+    .x-tabbar{margin-top:8px;display:flex;justify-content:center;position:relative;top:-16px;z-index:1}
+    .x-tabbar-inner{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;width:92%;max-width:480px;padding:8px;border-radius:38px;background:#f7f7f7;border:0px solid rgba(0,0,0,.1);box-shadow:0 12px 28px rgba(0,0,0,.15)}
+    .x-tab{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:10px 12px;border-radius:28px;text-decoration:none;cursor:pointer;-webkit-tap-highlight-color:transparent;color:#6b6b70;border:0px solid transparent;transition:background .15s,color .15s,border-color .15s,box-shadow .15s}
     .x-tab[aria-selected="true"]{background:#ffd60a;color:#000;font-weight:700;border-color:#e6c408;box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 6px 16px rgba(0,0,0,.35)}
     .ico-bubble{display:flex;align-items:center;justify-content:center;background:transparent;border:none;box-shadow:none;width:auto;height:auto;border-radius:0}
     .x-tabbar .x-tab[aria-selected="false"] span{color:#222}
-    /* Tabbar trasparente ai click fuori dai tab */
-    .x-tabbar{pointer-events:none}
-    .x-tabbar *{pointer-events:auto}
 
-    /* Views: la vista attiva sta DAVANTI e riceve i tap; quella inattiva non intercetta */
-    [data-view]{display:none;position:relative;pointer-events:none;}
-    [data-view].active{
-      display:block;
-      position:relative;
-      z-index:10;           /* sopra header/hero/tabbar */
-      isolation:isolate;    /* nuovo stacking context */
-      pointer-events:auto;
-    }
+    /* Views: metto la vista attiva sopra a tutto per evitare overlay “fantasma” */
+    [data-view]{display:none; position:relative;}
+    [data-view].active{display:block; z-index:5;}
 
-    /* Allineamento edge-to-edge delle sotto-pagine */
+    /* Allineamento e gutter delle pagine esterne (edge-to-edge) */
     [data-view] [data-sso]{--pane-max:760px;--pane-gutter:0px}
     [data-view] [data-sso] .wrap{max-width:var(--pane-max);padding-left:0!important;padding-right:0!important;margin-left:auto;margin-right:auto}
     [data-view] [data-sso] .section,[data-view] [data-sso] .btn-new-outer{width:100%;max-width:var(--pane-max);margin-left:auto;margin-right:auto}
 
-    /* Placeholder cards (prima del load) */
+    /* Placeholder cards (solo prima del load) */
     .card{margin:14px auto 0;border-radius:16px;padding:22px;background:#0b0b0c;border:1px solid rgba(255,255,255,.08);min-height:110px;width:92%;max-width:760px}
-
-    /* Salvagente: pseudo-elementi non devono bloccare i tap (es. bagliore torcia) */
-    *::before, *::after{pointer-events:none!important;}
   </style>
 </head>
 <body>
@@ -125,13 +107,13 @@
         const html=await res.text();
         const doc=new DOMParser().parseFromString(html,'text/html');
 
-        /* Inietto <style> PRIMA del contenuto per evitare flash */
+        /* inietto <style> PRIMA del contenuto per evitare flash e overlay strani */
         doc.querySelectorAll('style').forEach(styleEl=>{
           const s=document.createElement('style'); s.textContent=styleEl.textContent;
           document.head.appendChild(s);
         });
 
-        /* Eventuali <link rel=stylesheet> */
+        /* eventuali <link rel=stylesheet> */
         doc.querySelectorAll('link[rel="stylesheet"]').forEach(link=>{
           const href=link.getAttribute('href'); if(!href)return;
           const abs=new URL(href,url).href;
@@ -140,19 +122,18 @@
           document.head.appendChild(l); loadedStyles.add(abs);
         });
 
-        /* Contenuto body */
+        /* contenuto body */
         section.innerHTML=doc.body?doc.body.innerHTML:html;
 
-        /* Script inline + esterni, ordine preservato */
+        /* script (inline + esterni) */
         doc.querySelectorAll('script').forEach(oldS=>{
           const s=document.createElement('script');
-          if(oldS.type)s.type=oldS.type;            // preserva anche type="module"
+          if(oldS.type)s.type=oldS.type;
           if(oldS.noModule)s.noModule=true;
           if(oldS.defer)s.defer=true;
           if(oldS.async)s.async=true;
           const src=oldS.getAttribute('src');
-          if(src){ s.src=new URL(src,url).href; } else { s.textContent=oldS.textContent||''; }
-          /* esegui nello scope visivo della section */
+          if(src)s.src=new URL(src,url).href; else s.textContent=oldS.textContent||'';
           section.appendChild(s);
         });
 
@@ -162,7 +143,7 @@
         console.error('Errore nel caricamento di',url,err);
         const msg=document.createElement('div');
         msg.style.cssText='margin:18px auto 0;padding:16px 18px;border:1px dashed rgba(255,255,255,.35);border-radius:14px;background:#0b0b0c;color:#eaeaea;font:14px/1.45 -apple-system,system-ui,Segoe UI,Roboto,sans-serif';
-        msg.textContent=`Non riesco a caricare ${url}. Assicurati che il file esista e sia stessa origine.`;
+        msg.textContent=`Non riesco a caricare ${url}. Assicurati che il file esista su GitHub Pages ed abbia la stessa origine.`;
         section.innerHTML=''; section.appendChild(msg);
       }
     }
@@ -171,31 +152,30 @@
       if(!VIEWS.includes(view))view='a'; // default: Stoccaggio
       const section=view==='a'?$('#view-a'):$('#view-b');
       await loadExternalInto(section);
-
       $('#view-a').classList.toggle('active',view==='a');
       $('#view-b').classList.toggle('active',view==='b');
       $$('.x-tab').forEach(t=>t.setAttribute('aria-selected',t.dataset.tab===view?'true':'false'));
 
-      // Porta davanti SOLO la vista attiva (click-safe)
-      $('#view-a').style.zIndex=(view==='a')?10:0;
-      $('#view-b').style.zIndex=(view==='b')?10:0;
+      // porta la vista attiva in cima (click-safe)
+      $('#view-a').style.zIndex = (view==='a') ? 5 : 0;
+      $('#view-b').style.zIndex = (view==='b') ? 5 : 0;
 
       syncPaneVarsFor(section);
 
-      // Avvisa la sotto-pagina (scanner) per highlight dinamico
+      // avvisa la sotto-pagina per illuminare lo step 1 quando la tab è "scanner"
       if(view==='b'){
         document.dispatchEvent(new CustomEvent('sso:tabchange',{detail:{tab:'scanner'}}));
       }
     }
 
-    /* Avvio: carica e attiva Stoccaggio */
+    /* Avvio: carica e attiva la PRIMA pagina (Stoccaggio) */
     loadExternalInto($('#view-a')).then(()=>activate('a'));
 
     document.querySelector('.x-tabbar-inner').addEventListener('click',e=>{
       const a=e.target.closest('.x-tab'); if(!a)return; e.preventDefault(); activate(a.dataset.tab);
     });
 
-    /* Sync width + gutter (gutter fisso = 0) */
+    /* Sync width + gutter (gutter fisso = 0 per edge-to-edge) */
     const EXTERNAL_GUTTER_PX=0;
     const wrapEl=document.querySelector('.x-wrap');
 
