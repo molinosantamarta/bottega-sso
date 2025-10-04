@@ -18,8 +18,12 @@
     .section:active{ transform:translateY(.5px); }
     @media (max-width:430px){ .section{ width:calc(100% - 24px); padding:12px; border-radius:18px; } }
 
-    .title{ font-size:clamp(15px,3.8vw,18px); font-weight:800; color:#111; margin:2px 0 8px; letter-spacing:.2px; }
+    .title{ display:flex; align-items:center; gap:8px; font-size:clamp(15px,3.8vw,18px); font-weight:800; color:#111; margin:2px 0 8px; letter-spacing:.2px; }
     .text{ font-size:clamp(13px,3.5vw,15px); line-height:1.45; color:#222; opacity:.95; }
+
+    /* ===== Blink indicator ===== */
+    .blink{ width:8px; height:8px; border-radius:999px; background:var(--highlight); box-shadow:0 0 0 3px rgba(255,214,10,.25); animation:blink 1.2s ease-in-out infinite; }
+    @keyframes blink{ 0%,100%{ opacity:1; box-shadow:0 0 0 3px rgba(255,214,10,.25), 0 0 0 rgba(255,214,10,0);} 50%{ opacity:.65; box-shadow:0 0 0 3px rgba(255,214,10,.25), 0 0 20px rgba(255,214,10,.55);} }
 
     /* ===== Divider ===== */
     .divider{ width:100%; max-width:var(--pane-max); position:relative; height:0; }
@@ -37,8 +41,9 @@
 
     /* ===== Orders (shared UI) ===== */
     .orders{ display:flex; flex-direction:column; gap:10px; }
-    .order-card{ display:flex; align-items:center; gap:12px; padding:12px; border-radius:14px; background:#fff; border:1px solid rgba(0,0,0,.08); box-shadow:var(--elev); }
-    .order-badge{ min-width:46px; height:32px; display:inline-flex; align-items:center; justify-content:center; border-radius:999px; background:var(--highlight); color:#000; font-weight:900; }
+    #out.orders{ margin-top:18px; }
+    .order-card{ display:flex; align-items:center; gap:12px; padding:12px; border-radius:14px; background:#fff; border:1px solid rgba(0,0,0,.08); box-shadow:var(--elev); cursor:pointer; }
+    .order-badge{ min-width:46px; height:32px; display:inline-flex; align-items:center; justify-content:center; border-radius:999px; background:#ffd60a; color:#000; font-weight:900; }
     .order-main{ flex:1; min-width:0; }
     .order-name{ font-weight:800; color:#0b0b0b; font-size:15px; }
     .order-sub{ color:#555; font-size:12px; margin-top:3px; display:flex; gap:10px; flex-wrap:wrap; }
@@ -53,10 +58,30 @@
     .tab:active{ transform:translateY(.5px); }
 
     /* ===== Date picker (mobile-friendly) ===== */
-    .date-picker{ display:none; margin-left:auto; position:relative; }
-    .date-input{ position:absolute; inset:0; opacity:0; pointer-events:none; }
-    .date-btn{ appearance:none; border:none; padding:10px 14px; border-radius:999px; background:#fff; color:#111; font-weight:800; font-size:13px; letter-spacing:.2px; cursor:pointer; border:1px solid rgba(0,0,0,.08); box-shadow:var(--elev); }
-    .tabs.show-date .date-picker{ display:block; }
+    .date-picker{ display:none; margin-left:auto; }
+    .tabs.show-date .date-picker{ display:flex; }
+    .date-input{ appearance:none; padding:10px 14px; border-radius:999px; border:1px solid rgba(0,0,0,.08); background:#fff; color:#111; font-weight:800; font-size:13px; letter-spacing:.2px; box-shadow:var(--elev); }
+    .date-input::-webkit-calendar-picker-indicator{ cursor:pointer; }
+
+    /* ===== Fullscreen order sheet ===== */
+    .sheet{ position:fixed; inset:0; z-index:50; display:none; }
+    .sheet[open]{ display:block; }
+    .sheet-backdrop{ position:absolute; inset:0; background:rgba(0,0,0,.55); backdrop-filter:saturate(120%) blur(2px); }
+    .sheet-panel{ position:absolute; inset:env(safe-area-inset-top) 0 env(safe-area-inset-bottom) 0; margin:0 auto; max-width:var(--pane-max); height:calc(100% - env(safe-area-inset-top) - env(safe-area-inset-bottom)); background:#fff; color:#111; border:1px solid rgba(0,0,0,.08); border-radius:0; box-shadow:0 20px 40px rgba(0,0,0,.35); display:flex; flex-direction:column; }
+    .sheet-head{ padding:12px 14px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid rgba(0,0,0,.08); }
+    .sheet-title{ font-weight:900; font-size:18px; }
+    .sheet-sub{ font-size:12px; color:#444; }
+    .sheet-close{ appearance:none; border:none; background:#111; color:#fff; border-radius:999px; padding:8px 12px; font-weight:800; cursor:pointer; }
+    .sheet-body{ padding:12px 16px 24px; overflow:auto; }
+    .sheet-tags{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin:8px 0 12px; }
+    .tag{ display:inline-flex; align-items:center; justify-content:center; padding:6px 10px; border-radius:999px; font-weight:800; font-size:11px; border:1px solid rgba(0,0,0,.08); }
+    .tag.dark{ background:#111; color:#fff; border-color:#111; }
+    .tag.light{ background:#f3f3f4; color:#111; }
+    .brand-oval{ display:inline-flex; align-items:center; justify-content:center; padding:6px 16px; border-radius:999px; border:1px solid #111; font-weight:800; font-size:12px; }
+    .sheet-list{ margin:14px auto; max-width:520px; }
+    .sheet-list ul{ list-style:none; padding:0; margin:0; text-align:center; }
+    .sheet-list li{ padding:6px 0; border-bottom:1px dashed rgba(0,0,0,.08); }
+    .sheet-meta{ display:flex; justify-content:space-between; align-items:center; font-size:12px; color:#555; margin-top:6px; }
   </style>
 </head>
 <body>
@@ -65,7 +90,7 @@
 
       <!-- Blocco: Pagina in sviluppo -->
       <section class="section" aria-labelledby="dev-title">
-        <h2 id="dev-title" class="title">Pagina in sviluppo</h2>
+        <h2 id="dev-title" class="title"><span class="blink" aria-hidden="true"></span> Pagina in sviluppo</h2>
         <p class="text">Questa pagina è in fase di sviluppo e verrà rilasciata con la versione <strong>SSO 10</strong>.</p>
       </section>
 
@@ -91,7 +116,6 @@
           <button class="tab" role="tab" aria-selected="false" id="tab-domani">Domani</button>
           <button class="tab" role="tab" aria-selected="false" id="tab-data">Data</button>
           <div class="date-picker">
-            <button id="date-btn" class="date-btn" type="button" aria-label="Apri selettore data">Scegli data</button>
             <input id="ritiri-date" class="date-input" type="date" aria-label="Seleziona data" />
           </div>
         </div>
@@ -101,11 +125,40 @@
     </div>
   </div>
 
+  <!-- Fullscreen order sheet (modal) -->
+  <div id="order-sheet" class="sheet" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="sheet-backdrop" data-close></div>
+    <div class="sheet-panel">
+      <div class="sheet-head">
+        <div>
+          <div id="sheet-title" class="sheet-title">—</div>
+          <div id="sheet-sub" class="sheet-sub">—</div>
+        </div>
+        <button class="sheet-close" type="button" data-close>Chiudi</button>
+      </div>
+      <div class="sheet-body">
+        <div class="sheet-tags">
+          <span id="sheet-interno" class="tag light">ORDINE INTERNO</span>
+          <span id="sheet-pren" class="tag dark">SI</span>
+          <span id="sheet-order" class="tag light">#000</span>
+          <span class="brand-oval">La Bottega</span>
+        </div>
+        <div id="sheet-reparti" class="tag dark" style="margin-bottom:8px;">FRUTTA E VERDURA</div>
+        <div class="sheet-list">
+          <ul id="sheet-items"><li>—</li></ul>
+        </div>
+        <div class="sheet-meta">
+          <div id="sheet-zone">Zona: —</div>
+          <div id="sheet-note">Note: —</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script>
     // ===== Utilities =====
     const $ = s => document.querySelector(s);
     const zones = ['NEGOZIO - SOPRA','NEGOZIO - SOTTO','CELLA SOPRA','CAMION SOPRA','CAMION SOTTO','SCALE','CARNE'];
-
     const escapeHTML = (s) => s.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[m]));
 
     // ===== Shared card renderer =====
@@ -113,7 +166,7 @@
       const safeName = escapeHTML(name);
       const safeZone = zone ? escapeHTML(zone) : null;
       return `
-        <div class="order-card" role="listitem">
+        <div class="order-card" role="listitem" data-ord="${ord}" data-name="${safeName}" data-zone="${safeZone||''}" data-time="${time||''}">
           <span class="order-badge">${ord}</span>
           <div class="order-main">
             <div class="order-name">${safeName}</div>
@@ -154,7 +207,6 @@
     const tabsWrap = $('#ritiri-tabs');
     const listEl = $('#ritiri-list');
     const dateEl = $('#ritiri-date');
-    const dateBtn = $('#date-btn');
 
     function atMidnight(d){ const x=new Date(d); x.setHours(0,0,0,0); return x; }
     function fmtTime(h,m){ return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`; }
@@ -190,7 +242,6 @@
       if(which==='data'){
         tabsWrap.classList.add('show-date');
         if(!dateEl.value) dateEl.value = ymd(new Date());
-        dateBtn.textContent = dateEl.value;
         renderRitiri(dateEl.value);
       } else {
         tabsWrap.classList.remove('show-date');
@@ -204,14 +255,73 @@
     tabs.data.addEventListener('click', ()=>activate('data'));
 
     dateEl.addEventListener('change', ()=>{
-      dateBtn.textContent = dateEl.value || 'Scegli data';
       if(tabs.data.classList.contains('active')) renderRitiri(dateEl.value);
     });
-    dateBtn.addEventListener('click', ()=>{ if(dateEl.showPicker) dateEl.showPicker(); else dateEl.focus(); });
 
     // init
     activate('oggi');
+
+    // ===== Fullscreen order sheet logic =====
+    const sheet = $('#order-sheet');
+    const sheetTitle = $('#sheet-title');
+    const sheetSub = $('#sheet-sub');
+    const sheetReparti = $('#sheet-reparti');
+    const sheetItems = $('#sheet-items');
+    const sheetZone = $('#sheet-zone');
+    const sheetNote = $('#sheet-note');
+
+    function fmtItalianDate(dateStr){
+      const d = new Date(dateStr || Date.now());
+      const giorni = ['dom','lun','mar','mer','gio','ven','sab'];
+      const mesi = ['gen','feb','mar','apr','mag','giu','lug','ago','set','ott','nov','dic'];
+      return `${giorni[d.getDay()]} ${d.getDate()} ${mesi[d.getMonth()]}`;
+    }
+
+    function mockItems(seed){
+      const base = [
+        'patate montagna 1 sacco','cipolla tropea 1 kg','radicchio treviso 2','datterini 1 kg','zucchine 6',
+        'cavolfiore piccolo 1','carciofi 4','limoni naturali 2','uva senza semi 1 kg','kiwi gialli 2 kg',
+        'mandarini senza semi 1 kg','zucca mezza','finocchi 2','cetrioli 4','cosce pollo tagliate 4','petto tacchino sottile 6'
+      ];
+      const out = [];
+      for(let i=0;i<Math.min(16, 8 + (seed % 9)); i++) out.push(base[i % base.length]);
+      return out;
+    }
+
+    function openSheet({ ord, name, zone, time }){
+      sheetTitle.textContent = name;
+      sheetSub.textContent = time ? time : fmtItalianDate(dateEl.value || new Date());
+      document.getElementById('sheet-order').textContent = `#${ord}`;
+      document.getElementById('sheet-pren').textContent = 'SI';
+      sheetReparti.textContent = 'FRUTTA E VERDURA, CARNE';
+      const items = mockItems(Number(ord));
+      sheetItems.innerHTML = items.map(it => `<li>${escapeHTML(it)}</li>`).join('');
+      sheetZone.textContent = `Zona: ${zone || '?'}`;
+      sheetNote.textContent = 'Note: —';
+      sheet.setAttribute('open','');
+      sheet.removeAttribute('aria-hidden');
+    }
+
+    function closeSheet(){
+      sheet.removeAttribute('open');
+      sheet.setAttribute('aria-hidden','true');
+    }
+
+    document.addEventListener('click', (e)=>{
+      const card = e.target.closest('.order-card');
+      if(card){
+        const data = {
+          ord: card.getAttribute('data-ord'),
+          name: card.getAttribute('data-name'),
+          zone: card.getAttribute('data-zone') || null,
+          time: card.getAttribute('data-time') || null,
+        };
+        openSheet(data);
+      }
+      if(e.target.matches('[data-close]')) closeSheet();
+    });
+
+    document.addEventListener('keydown', (e)=>{ if(e.key==='Escape') closeSheet(); });
   </script>
 </body>
 </html>
-
