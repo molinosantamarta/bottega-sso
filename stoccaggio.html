@@ -93,7 +93,7 @@
 
       <!-- Blocco: Pagina in sviluppo -->
       <section class="section" aria-labelledby="dev-title">
-        <h2 id="dev-title" class="title"><span class="blink" aria-hidden="true"></span> Pagina in sviluppo (beta5)</h2>
+        <h2 id="dev-title" class="title"><span class="blink" aria-hidden="true"></span> Pagina in sviluppo (beta6)</h2>
         <p class="text">Questa pagina è in fase di sviluppo e verrà rilasciata con la versione <strong>SSO 10</strong>.</p>
       </section>
 
@@ -216,14 +216,24 @@
     function addDays(d,n){ const x=new Date(d); x.setDate(x.getDate()+n); return x; }
     function ymd(d){ return new Date(d).toISOString().slice(0,10); }
     function fullItalianDate(d){
-      const giorni = ['Domenica','Lunedì','Martedì','Mercoledì','Giovedì','Venerdì','Sabato'];
-      const mesi = ['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno','Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'];
-      return `${giorni[d.getDay()]}, ${String(d.getDate()).padStart(2,'0')} ${mesi[d.getMonth()]}`;
+      try{
+        const fmt = new Intl.DateTimeFormat('it-IT', { weekday:'long', day:'2-digit', month:'long' });
+        // es: "sabato 04 ottobre" -> capitalizza il primo carattere
+        const s = fmt.format(d);
+        return s.charAt(0).toUpperCase() + s.slice(1);
+      } catch(err){
+        const giorni = ['Domenica','Lunedì','Martedì','Mercoledì','Giovedì','Venerdì','Sabato'];
+        const mesi = ['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno','Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'];
+        return `${giorni[d.getDay()]}, ${String(d.getDate()).padStart(2,'0')} ${mesi[d.getMonth()]}`;
+      }
+    }, ${String(d.getDate()).padStart(2,'0')} ${mesi[d.getMonth()]}`;
     }
     function setRitiriTitle(dateLike){
-      const d = typeof dateLike === 'string' ? new Date(dateLike) : new Date(dateLike);
+      const d = (typeof dateLike === 'string') ? new Date(dateLike) : new Date(dateLike);
       const el = document.getElementById('ritiri-title-date');
-      if(el && !isNaN(d)) el.textContent = fullItalianDate(d);
+      if(!el) return;
+      const t = d instanceof Date && !Number.isNaN(d.getTime()) ? fullItalianDate(d) : '—';
+      el.textContent = t;
     }
 
     const names = ['Abbiati','Negri','Tiziani','Monza','Invernizzi','Pontevecchio','Fontana','Rho','Pellegrino','Faspar'];
@@ -279,7 +289,9 @@
 
     // === Init con data reale del dispositivo ===
     document.addEventListener('DOMContentLoaded', ()=>{
-      const today = new Date();
+      activate('oggi');
+      setRitiriTitle(new Date());
+    });
       activate('oggi');
       setRitiriTitle(today);
     });
