@@ -7,9 +7,9 @@
   <style>
     /* Reset pagina e sfondo nero pieno */
     html, body { height:100%; background:#000; }
-    body { margin:0; }
+    body { margin:0; touch-action: manipulation; } /* PATCH: tap immediati su mobile */
 
-    [data-sso] { color-scheme: dark; }
+    [data-sso] { color-scheme: dark; position: relative; } /* PATCH: stacking locale */
     [data-sso] :where(*) { box-sizing: border-box; }
     [data-sso]{
       --bg:#000;
@@ -256,6 +256,9 @@
       display:none;
     }
     .btn-new-outer .btn{ width:100%; }
+
+    /* PATCH: nessuno pseudo-elemento può bloccare i tap */
+    *::before, *::after{ pointer-events:none !important; }
   </style>
 </head>
 <body>
@@ -612,6 +615,8 @@
         refreshManualDisplay();
       }
     });
+
+    /* PATCH: evento click senza opzioni passive (per Safari vecchi) */
     keypad.addEventListener('click', (e)=>{
       const k = e.target.closest('.key'); if (!k) return;
       const act = k.dataset.act;
@@ -637,8 +642,7 @@
         root.querySelectorAll('.opt, .chip').forEach(b=>b.classList.remove('active'));
         btn.classList.add('active');
         select(btn.dataset.zone);
-      }, {passive:true});
-      // extra difensivo
+      }); /* PATCH: rimosso {passive:true} */
       btn.style.pointerEvents = 'auto';
     });
     root.querySelector('#useCustom').addEventListener('click', ()=>{
