@@ -127,7 +127,7 @@
           const k = keys.find(x => norm(x) === norm(cand));
           if(k) return k;
         }
-        // fallback: cerca包含 parole chiave
+        // fallback: cerca parole chiave parziali
         for(const cand of candidates){
           const k = keys.find(x => norm(x).includes(norm(cand)));
           if(k) return k;
@@ -209,9 +209,26 @@
       return DATA_ROWS.filter(r=>norm(r.name).includes(n));
     }
 
+    async function refreshData(){
+      const res = await fetch(API_URL + '?_ts=' + Date.now(), { cache:'no-store' });
+      if(!res.ok) throw new Error('HTTP ' + res.status);
+      const data = await res.json();
+      UPDATED_AT = data.updatedAt || null;
+      DATA_ROWS = mapRowsFromAPI(data.rows || []);
+      QS('#sso-status').textContent = UPDATED_AT ? `Dati aggiornati: ${new Date(UPDATED_AT).toLocaleString('it-IT')}` : '';
+
+      // --- Self-test leggero (test cases) ---
+      console.assert(Array.isArray(data.rows), '[TEST] data.rows deve essere un array');
+      if (DATA_ROWS.length > 0) {
+        const t = DATA_ROWS[0];
+        console.assert('ord' in t, '[TEST] ogni riga mappata ha ord');
+        console.assert('name' in t, '[TEST] ogni riga mappata ha name');
+      }
+    }
+
     async function submit(){
       const qv = (QS('#sso-q').value||'').trim();
-      try{ await refreshData(); }catch(_){ /* se fallisce, uso dati correnti */ }
+      try { await refreshData(); } catch(_) { /* se fallisce, uso dati correnti */ }
       const rows = qv ? findByName(qv) : rowsForDate(new Date());
       QS('#sso-out').innerHTML = rows.map(o=>orderCard(o,{showDateFirst:true})).join('') || `<div class='empty'>Nessun risultato</div>`;
       if(rows.length) QS('#sso-out').scrollIntoView({behavior:'smooth',block:'start'});
@@ -230,7 +247,7 @@
         if(!dateInput.value) dateInput.value = ymd(new Date());
         const d = new Date(`${dateInput.value}T12:00:00`);
         setDateTabLabel(d); renderList(d);
-        if(dateInput.showPicker){ try{ dateInput.showPicker(); }catch{} }
+        if(dateInput.showPicker){ try{ dateInput.showPicker(); }catch(_){} }
       } else {
         dateLabel.textContent='Data';
         const base=new Date(); if(which==='domani') base.setDate(base.getDate()+1); renderList(base);
@@ -240,23 +257,17 @@
     // click su card → pagina "test"
     root.addEventListener('click', e=>{
       const card = e.target.closest('.order-card');
-      if(card){ const w = window.open('', '_blank'); if(w){ w.document.open(); w.document.write('<!doctype html><title>test</title><style>html,body{height:100%;margin:0}body{display:flex;align-items:center;justify-content:center;font:700 24px system-ui;background:#fff;color:#000}</style><body>test</body>'); w.document.close(); } }
+      if(card){
+        const w = window.open('', '_blank');
+        if(w){
+          w.document.open();
+          w.document.write('<!doctype html><title>test</title><style>html,body{height:100%;margin:0}body{display:flex;align-items:center;justify-content:center;font:700 24px system-ui;background:#fff;color:#000}</style><body>test</body>');
+          w.document.close();
+        }
+      }
     });
 
     // === Boot ===
-    async function refreshData(){
-      const res = await fetch(API_URL + '?_ts=' + Date.now(), { cache:'no-store' });
-      if(!res.ok) throw new Error('HTTP ' + res.status);
-      const data = await res.json();
-      UPDATED_AT = data.updatedAt || null;
-      DATA_ROWS = mapRowsFromAPI(data.rows || []);
-      QS('#sso-status').textContent = UPDATED_AT ? `Dati aggiornati: ${new Date(UPDATED_AT).toLocaleString('it-IT')}` : '';
-    }
-
-    catch(err){ /* ignora singolo fallimento */ }
-      }, POLL_MS);
-    }
-
     (async function init(){
       try{
         await refreshData();
@@ -288,7 +299,7 @@
             const rows = findByName(qv);
             QS('#sso-out').innerHTML = rows.map(o=>orderCard(o,{showDateFirst:true})).join('') || `<div class='empty'>Nessun risultato</div>`;
           }
-        }catch(_){ /* ignora singolo errore */ }
+        }catch(_) { /* ignora singolo errore */ }
       }, 300000);
       activate('oggi');
     })();
