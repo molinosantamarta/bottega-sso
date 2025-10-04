@@ -23,8 +23,8 @@
       --success:#22c55e;
       --torch-on:#ffd60a;
       --yellow:#ffd60a;
-      /* Larghezza allineata alla tabbar */
-      --pane-w: min(92vw, 480px);
+      /* Larghezza allineata alla tabbar (stesso contenitore bianco) */
+      --pane-w: min(92%, 480px);
       --radius-outer: 28px;  /* come tabbar */
       --radius-inner: 20px;
       background:var(--bg);
@@ -43,15 +43,15 @@
       margin-right:auto;
       display:flex;
       flex-direction:column;
-      align-items:center;   /* centra i figli (.section) come fallback */
+      align-items:center;
     }
     [data-sso] .section{
       width:var(--pane-w);
       max-width:100%;
-      margin:16px auto;     /* centra anche senza flex (compatibilità) */
+      margin:16px auto;
       border-radius:var(--radius-outer);
       padding:12px;
-      background:#fff;      /* sfondo bianco richiesto */
+      background:#fff;
       color:#111;
       border:1px solid rgba(0,0,0,.08);
       box-shadow:0 12px 28px rgba(0,0,0,.15);
@@ -64,7 +64,7 @@
       border-color:rgba(0,0,0,.12);
     }
 
-    /* Pillola versione (nuova) */
+    /* Pillola versione */
     .beta-row{display:flex;justify-content:center;margin:6px 0 2px}
     .beta-pill{
       display:inline-flex;align-items:center;justify-content:center;
@@ -166,14 +166,25 @@
     .torch-label strong{ display:block; text-transform:uppercase; }
 
     .spacer{ height:1px; }
+
+    /* Contenitore ESTERNO per il pulsante finale (fuori dal blocco 4) */
+    .btn-new-outer{
+      width:var(--pane-w);
+      max-width:100%;
+      margin:16px auto 0;
+      display:none; /* verrà mostrato a fine progress */
+    }
+    .btn-new-outer .btn{
+      width:100%;
+    }
   </style>
 </head>
 <body>
   <div data-sso>
     <div class="wrap">
 
-      <!-- Pillola versione 9.2 (NUOVA) -->
-      <div class="beta-row"><span class="beta-pill">V 9.5.1</span></div>
+      <!-- Pillola versione -->
+      <div class="beta-row"><span class="beta-pill">V 9.7</span></div>
 
       <!-- STEP 1 -->
       <div class="section active" id="section1">
@@ -297,6 +308,9 @@
         </div>
       </div>
 
+      <!-- Pulsante finale FUORI dal blocco 4 -->
+      <div id="btnNewOuter" class="btn-new-outer"></div>
+
       <div class="spacer"></div>
     </div>
   </div>
@@ -327,6 +341,7 @@
     const step4Box = document.getElementById('step4Box');
     const pDoneOuter = document.getElementById('pDoneOuter');
     const btnNewExternal = document.getElementById('btnNew');
+    const btnNewOuter = document.getElementById('btnNewOuter');
 
     // Manual keypad
     const toggleKeypadBtn = document.getElementById('toggleKeypad');
@@ -348,8 +363,8 @@
     // === CONFIG GOOGLE FORM (2 domande: ZONA + ORDINI CSV) ===
     const GFORM = {
       ACTION: "https://docs.google.com/forms/d/e/1FAIpQLSdixUK5TjPdfYMeso-XXTJHYy2Vy23F44j5FEMWFddWRfRh7Q/formResponse",
-      ENTRY_ZONE:   "entry.1910612286",  // Domanda 1: ZONA (short answer)
-      ENTRY_ORDERS: "entry.1223265482"   // Domanda 2: ORDINI (short answer)
+      ENTRY_ZONE:   "entry.1910612286",
+      ENTRY_ORDERS: "entry.1223265482"
     };
 
     if (qrGuide) qrGuide.style.display = 'none';
@@ -772,6 +787,12 @@
       if (qrHint)  qrHint.style.display  = 'none';
 
       if (pDoneOuter) pDoneOuter.style.display = 'none';
+
+      /* Nascondi l'eventuale pulsante esterno e riporta il bottone dentro pDoneOuter */
+      if (btnNewOuter && btnNewExternal) {
+        btnNewOuter.style.display = 'none';
+        pDoneOuter.appendChild(btnNewExternal);
+      }
     }
 
     btnClear.addEventListener('click', async ()=>{
@@ -810,7 +831,15 @@
           setTimeout(()=>{
             pInner.style.width = '100%';
             pMsg.textContent = 'Completato ✔︎';
-            if (pDoneOuter) pDoneOuter.style.display = 'flex';
+
+            /* MOSTRA il pulsante fuori dal blocco 4, a tutta larghezza */
+            if (btnNewOuter && btnNewExternal){
+              btnNewOuter.innerHTML = '';
+              btnNewOuter.appendChild(btnNewExternal);
+              btnNewOuter.style.display = 'block';
+            }
+
+            /* Azione bottone nuova scansione */
             if (btnNewExternal){
               btnNewExternal.onclick = async ()=>{
                 await fullReset(true);
