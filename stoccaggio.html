@@ -5,93 +5,213 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>SSO – Pagina in sviluppo</title>
   <style>
-    html, body { height:100%; background:#000; }
-    body { margin:0; }
+    /* ===== Base ===== */
+    html, body { height:100%; background:#000; margin:0; }
     [data-sso] { color-scheme: dark; font-family:-apple-system,system-ui,Segoe UI,Roboto,sans-serif; background:var(--bg); color:var(--fg); -webkit-text-size-adjust:115%; text-size-adjust:115%; }
     [data-sso] :where(*) { box-sizing:border-box; }
-    [data-sso]{ --bg:#000; --fg:#fff; --muted:#1c1c1e; --accent:#0a84ff; --border:#2c2c2e; --highlight:#ffd60a; --pane-max:min(760px, 100vw); --radius-outer:28px; --radius-inner:20px; --elev:0 10px 24px rgba(0,0,0,.15); }
+    [data-sso]{ --bg:#000; --fg:#fff; --accent:#0a84ff; --border:#2c2c2e; --highlight:#ffd60a; --pane-max:min(760px,100vw); --radius:22px; --elev:0 10px 24px rgba(0,0,0,.15); }
 
-    .wrap{ width:100%; max-width:var(--pane-max); margin:0 auto; padding:8px 0 24px; display:flex; flex-direction:column; align-items:center; }
+    .wrap{ width:100%; max-width:var(--pane-max); margin:0 auto; padding:calc(8px + env(safe-area-inset-top)) 0 calc(24px + env(safe-area-inset-bottom)); display:flex; flex-direction:column; gap:14px; align-items:center; }
 
-    .beta-row{ display:flex; justify-content:center; margin:6px 0 2px; }
-    .beta-pill{ display:inline-flex; align-items:center; justify-content:center; padding:6px 12px; border-radius:999px; background:var(--highlight); color:#000; font-weight:800; font-size:12px; border:1px solid #e6c408; box-shadow:0 1px 0 rgba(255,255,255,.25) inset, 0 4px 12px rgba(0,0,0,.25); }
-
-    .section{ width:calc(100% - 32px); max-width:var(--pane-max); margin:14px; border-radius:26px; padding:14px 16px; background:#fff; color:#111; border:1px solid rgba(0,0,0,.08); box-shadow:var(--elev); transition:transform .2s ease, box-shadow .25s ease, border-color .25s ease; overflow:hidden; }
+    /* ===== Card ===== */
+    .section{ width:calc(100% - 32px); max-width:var(--pane-max); margin:0; border-radius:var(--radius); padding:14px 16px; background:#fff; color:#111; border:1px solid rgba(0,0,0,.08); box-shadow:var(--elev); transition:transform .2s ease, box-shadow .25s ease, border-color .25s ease; overflow:hidden; }
     .section:active{ transform:translateY(.5px); }
-    @media (max-width:430px){ .section{ width:calc(100% - 24px); border-radius:22px; } }
+    @media (max-width:430px){ .section{ width:calc(100% - 24px); padding:12px; border-radius:18px; } }
 
-    .title{ display:flex; align-items:center; gap:8px; font-size:16px; font-weight:800; color:#111; margin:2px 0 8px; letter-spacing:.2px; }
-    .blink{ width:8px; height:8px; border-radius:999px; background:var(--highlight); box-shadow:0 0 0 3px rgba(255,214,10,.25); animation:blink 1.2s ease-in-out infinite; }
-    .text{ font-size:14px; line-height:1.45; color:#222; opacity:.95; }
-    @keyframes blink{ 0%,100%{ opacity:1; box-shadow:0 0 0 3px rgba(255,214,10,.25), 0 0 0 rgba(255,214,10,0);} 50%{ opacity:.65; box-shadow:0 0 0 3px rgba(255,214,10,.25), 0 0 20px rgba(255,214,10,.55);} }
+    .title{ font-size:clamp(15px,3.8vw,18px); font-weight:800; color:#111; margin:2px 0 8px; letter-spacing:.2px; }
+    .text{ font-size:clamp(13px,3.5vw,15px); line-height:1.45; color:#222; opacity:.95; }
 
-    .divider{ width:100%; max-width:var(--pane-max); position:relative; height:0; margin:10px auto 6px; }
+    /* ===== Divider ===== */
+    .divider{ width:100%; max-width:var(--pane-max); position:relative; height:0; }
     .divider::before{ content:""; position:absolute; left:-24px; right:-24px; top:-1px; height:2px; background:var(--highlight); box-shadow:0 0 0 1px rgba(255,214,10,.65), 0 0 18px rgba(255,214,10,.25); }
 
-    .search{ position:relative; display:flex; gap:10px; align-items:center; margin-top:10px; }
-    .input{ flex:1; width:100%; appearance:none; -webkit-appearance:none; padding:14px 14px 14px 42px; border-radius:14px; border:1px solid var(--border); background:linear-gradient(180deg,#1d1d21,#17171a); color:#fff; font-size:16px; line-height:1.1; outline:none; box-shadow:inset 0 1px 0 rgba(255,255,255,.06); }
-    .input:focus{ border-color:#2f6fff; box-shadow:0 0 0 3px rgba(10,132,255,.25), inset 0 1px 0 rgba(255,255,255,.06); }
-    .input::placeholder{ color:#9a9aa0; }
-    .btn{ display:inline-flex; align-items:center; justify-content:center; gap:8px; padding:12px 16px; border-radius:999px; background:linear-gradient(180deg,#2a7bff,#0a84ff); color:#fff; font-weight:800; font-size:14px; letter-spacing:.2px; border:1px solid rgba(255,255,255,.12); box-shadow:0 1px 0 rgba(255,255,255,.15) inset, 0 8px 22px rgba(10,132,255,.28); cursor:pointer; }
-    .btn:hover{ filter:brightness(1.05); } .btn:active{ transform:translateY(.5px); }
-    .icon{ width:16px; height:16px; }
-    .icon-search{ position:absolute; left:12px; width:18px; height:18px; opacity:.7; }
+    /* ===== Search ===== */
+    .search{ display:flex; flex-direction:column; gap:10px; margin-top:10px; }
+    .input{ flex:1; width:100%; padding:16px; border-radius:16px; border:1px solid var(--border); background:#fff; color:#111; font-size:16px; line-height:1.1; outline:none; transition:border .2s ease, box-shadow .2s ease; }
+    .input:focus{ border-color:var(--accent); box-shadow:0 0 0 3px rgba(10,132,255,.25); }
+    .input::placeholder{ color:#777; }
+    .btn{ width:100%; height:48px; border:none; border-radius:16px; background:var(--accent); color:#fff; font-weight:700; font-size:15px; letter-spacing:.2px; cursor:pointer; box-shadow:0 4px 14px rgba(10,132,255,.35); transition:background .2s ease; }
+    .btn:hover{ background:#0068e6; }
+    .btn:active{ transform:translateY(.5px); }
+    @media (min-width:520px){ .search{ flex-direction:row; align-items:center; } .btn{ width:auto; height:auto; padding:12px 20px; } }
 
-    .result{ margin-top:14px; padding:12px; border-radius:14px; background:#f7f7f8; border:1px solid rgba(0,0,0,.06); }
-    .name{ font-size:18px; font-weight:900; color:#0b0b0b; letter-spacing:.2px; }
-    .row{ display:flex; align-items:center; gap:10px; margin-top:8px; }
-    .order{ display:inline-flex; align-items:center; justify-content:center; min-width:46px; padding:6px 10px; border-radius:999px; background:var(--highlight); color:#000; font-weight:900; font-size:14px; box-shadow:0 1px 0 rgba(255,255,255,.35) inset, 0 8px 18px rgba(0,0,0,.18); }
-    .chip{ display:inline-flex; align-items:center; gap:6px; padding:6px 10px; border-radius:999px; background:#111; color:#fff; font-weight:700; font-size:12px; }
-    .muted{ color:#666; font-size:12px; }
-    .pop{ animation:pop .18s ease-out; transform-origin:top left; }
-    @keyframes pop{ from{ transform:scale(.98); opacity:0 } to{ transform:scale(1); opacity:1 } }
+    /* ===== Orders (shared UI) ===== */
+    .orders{ display:flex; flex-direction:column; gap:10px; }
+    .order-card{ display:flex; align-items:center; gap:12px; padding:12px; border-radius:14px; background:#fff; border:1px solid rgba(0,0,0,.08); box-shadow:var(--elev); }
+    .order-badge{ min-width:46px; height:32px; display:inline-flex; align-items:center; justify-content:center; border-radius:999px; background:var(--highlight); color:#000; font-weight:900; }
+    .order-main{ flex:1; min-width:0; }
+    .order-name{ font-weight:800; color:#0b0b0b; font-size:15px; }
+    .order-sub{ color:#555; font-size:12px; margin-top:3px; display:flex; gap:10px; flex-wrap:wrap; }
+    .order-zone{ background:#111; color:#fff; border-radius:999px; padding:4px 8px; font-weight:700; font-size:11px; }
+    .order-zone.missing{ background:#f6f6f7; color:#111; border:1px dashed #bbb; }
+    .order-time{ background:#f2f2f3; color:#111; border-radius:999px; padding:4px 8px; font-weight:700; font-size:11px; }
+
+    /* ===== Tabs / selectors ===== */
+    .tabs{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin:6px 0 10px; }
+    .tab{ appearance:none; border:none; padding:10px 14px; border-radius:999px; background:#f2f2f3; color:#111; font-weight:800; font-size:13px; letter-spacing:.2px; cursor:pointer; border:1px solid rgba(0,0,0,.06); }
+    .tab.active{ background:#111; color:#fff; border-color:#111; }
+    .tab:active{ transform:translateY(.5px); }
+
+    /* ===== Date picker (mobile-friendly) ===== */
+    .date-picker{ display:none; margin-left:auto; position:relative; }
+    .date-input{ position:absolute; inset:0; opacity:0; pointer-events:none; }
+    .date-btn{ appearance:none; border:none; padding:10px 14px; border-radius:999px; background:#fff; color:#111; font-weight:800; font-size:13px; letter-spacing:.2px; cursor:pointer; border:1px solid rgba(0,0,0,.08); box-shadow:var(--elev); }
+    .tabs.show-date .date-picker{ display:block; }
   </style>
 </head>
 <body>
   <div data-sso>
     <div class="wrap">
 
-      <div class="beta-row"><span class="beta-pill">Beta</span></div>
-
+      <!-- Blocco: Pagina in sviluppo -->
       <section class="section" aria-labelledby="dev-title">
-        <h2 id="dev-title" class="title"><span class="blink" aria-hidden="true"></span>Pagina in sviluppo</h2>
+        <h2 id="dev-title" class="title">Pagina in sviluppo</h2>
         <p class="text">Questa pagina è in fase di sviluppo e verrà rilasciata con la versione <strong>SSO 10</strong>.</p>
       </section>
 
+      <!-- Divisione netta -->
       <div class="divider" role="separator" aria-label="Inizio area operativa"></div>
 
+      <!-- Blocco: Ricerca rapida -->
       <section class="section" aria-labelledby="search-title">
         <h2 id="search-title" class="title">Ricerca rapida</h2>
         <p class="text">Inserisci il <strong>nome cliente</strong> per risalire al numero d'ordine e alla posizione di stoccaggio.</p>
         <div class="search" role="search">
-          <svg class="icon-search" aria-hidden="true" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="11" cy="11" r="7" stroke="#bdbdc3" stroke-width="1.6"/><path d="M16.5 16.5L21 21" stroke="#bdbdc3" stroke-width="1.6"/></svg>
           <input id="q" class="input" type="search" inputmode="search" autocomplete="off" placeholder="Cerca nome cliente…" aria-label="Cerca per nome" />
-          <button id="go" class="btn" type="button" aria-label="Invia ricerca">
-            <svg class="icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M3.5 12L20.5 3.5L16 12L20.5 20.5L3.5 12Z" stroke="currentColor" stroke-width="1.6"/></svg>
-            Invio
-          </button>
+          <button id="go" class="btn" type="button" aria-label="Cerca">Cerca</button>
         </div>
-        <div id="out" class="result" aria-live="polite"></div>
+        <div id="out" class="orders" role="list" aria-live="polite"></div>
+      </section>
+
+      <!-- Blocco: Elenco ritiri -->
+      <section class="section" aria-labelledby="ritiri-title">
+        <h2 id="ritiri-title" class="title">Ritiri</h2>
+        <div id="ritiri-tabs" class="tabs" role="tablist">
+          <button class="tab active" role="tab" aria-selected="true" id="tab-oggi">Oggi</button>
+          <button class="tab" role="tab" aria-selected="false" id="tab-domani">Domani</button>
+          <button class="tab" role="tab" aria-selected="false" id="tab-data">Data</button>
+          <div class="date-picker">
+            <button id="date-btn" class="date-btn" type="button" aria-label="Apri selettore data">Scegli data</button>
+            <input id="ritiri-date" class="date-input" type="date" aria-label="Seleziona data" />
+          </div>
+        </div>
+        <div id="ritiri-list" class="orders" role="list" aria-live="polite"></div>
       </section>
 
     </div>
   </div>
 
   <script>
-    const zones = ['NEGOZIO - SOPRA','NEGOZIO - SOTTO','CELLA SOPRA','CAMION SOPRA','CAMION SOTTO','SCALE','CARNE'];
+    // ===== Utilities =====
     const $ = s => document.querySelector(s);
-    const q = $('#q'), go = $('#go'), out = $('#out');
+    const zones = ['NEGOZIO - SOPRA','NEGOZIO - SOTTO','CELLA SOPRA','CAMION SOPRA','CAMION SOTTO','SCALE','CARNE'];
 
-    const orderFrom = n => { let h=0; for(let i=0;i<n.length;i++) h=(h*31+n.charCodeAt(i))>>>0; return 100+(h%900); };
-    const zoneFrom = n => { let h=0; for(let i=0;i<n.length;i++) h=(h*17+n.charCodeAt(i))>>>0; return zones[h%zones.length]; };
+    const escapeHTML = (s) => s.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[m]));
 
-    function render(name){
-      const ord=orderFrom(name), zone=zoneFrom(name);
-      out.innerHTML=`<div class='pop'><div class='name'>${name}</div><div class='row'><span class='order'>${ord}</span><span class='muted'>Numero ordine</span></div><div class='row'><span class='chip'>${zone}</span><span class='muted'>Posizione di stoccaggio</span></div></div>`;
+    // ===== Shared card renderer =====
+    function orderCard({ ord, name, zone, time }){
+      const safeName = escapeHTML(name);
+      const safeZone = zone ? escapeHTML(zone) : null;
+      return `
+        <div class="order-card" role="listitem">
+          <span class="order-badge">${ord}</span>
+          <div class="order-main">
+            <div class="order-name">${safeName}</div>
+            <div class="order-sub">
+              ${time ? `<span class="order-time">${time}</span>` : ''}
+              <span class="order-zone ${safeZone ? '' : 'missing'}">${safeZone || '?'}</span>
+            </div>
+          </div>
+        </div>`;
     }
-    function submit(){ const n=q.value.trim(); n?render(n):out.textContent='Inserisci un nome valido.'; }
-    go.addEventListener('click',submit);
-    q.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();submit();}});
+
+    // ===== Ricerca rapida =====
+    const q = $('#q');
+    const go = $('#go');
+    const out = $('#out');
+
+    const orderFrom = (n) => { let h=0; for(let i=0;i<n.length;i++) h=(h*31+n.charCodeAt(i))>>>0; return 100+(h%900); };
+    const zoneFrom  = (n) => { let h=0; for(let i=0;i<n.length;i++) h=(h*17+n.charCodeAt(i))>>>0; return zones[h%zones.length]; };
+
+    function renderSearch(name){
+      const ord = orderFrom(name);
+      const zone = zoneFrom(name);
+      out.innerHTML = orderCard({ ord, name, zone, time:null });
+    }
+
+    function submit(){
+      const n = q.value.trim();
+      if(!n){ out.innerHTML = ''; return; }
+      renderSearch(n);
+      requestAnimationFrame(()=>out.scrollIntoView({behavior:'smooth', block:'start'}));
+    }
+
+    go.addEventListener('click', submit);
+    q.addEventListener('keydown', e => { if(e.key==='Enter'){ e.preventDefault(); submit(); } });
+
+    // ===== Ritiri (mock) =====
+    const tabs = { oggi: $('#tab-oggi'), domani: $('#tab-domani'), data: $('#tab-data') };
+    const tabsWrap = $('#ritiri-tabs');
+    const listEl = $('#ritiri-list');
+    const dateEl = $('#ritiri-date');
+    const dateBtn = $('#date-btn');
+
+    function atMidnight(d){ const x=new Date(d); x.setHours(0,0,0,0); return x; }
+    function fmtTime(h,m){ return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`; }
+    function addDays(d,n){ const x=new Date(d); x.setDate(x.getDate()+n); return x; }
+    function ymd(d){ return new Date(d).toISOString().slice(0,10); }
+
+    const names = ['Abbiati','Negri','Tiziani','Monza','Invernizzi','Pontevecchio','Fontana','Rho','Pellegrino','Faspar'];
+    const pick = (arr,i) => arr[i % arr.length];
+
+    function genOrdersFor(date){
+      const base = atMidnight(date);
+      const count = 4 + (base.getDate() % 3); // 4..6
+      const orders = [];
+      for(let i=0;i<count;i++){
+        const h = 8 + ((i*2 + base.getDay()) % 9); // 8..16
+        const m = (i*15) % 60;
+        const name = pick(names, i + base.getDate());
+        const ord = 100 + ((base.getDate()*37 + i*19) % 900);
+        const maybeZone = ((i + base.getDate()) % 4 === 0) ? null : pick(zones, i + base.getDay()); // 25% senza zona
+        orders.push({ ord, name, time: fmtTime(h,m), zone: maybeZone });
+      }
+      return orders;
+    }
+
+    function renderRitiri(date){
+      const data = genOrdersFor(date);
+      listEl.innerHTML = data.map(o => orderCard(o)).join('');
+    }
+
+    function activate(which){
+      Object.values(tabs).forEach(btn=>{ btn.classList.remove('active'); btn.setAttribute('aria-selected','false'); });
+      tabs[which].classList.add('active'); tabs[which].setAttribute('aria-selected','true');
+      if(which==='data'){
+        tabsWrap.classList.add('show-date');
+        if(!dateEl.value) dateEl.value = ymd(new Date());
+        dateBtn.textContent = dateEl.value;
+        renderRitiri(dateEl.value);
+      } else {
+        tabsWrap.classList.remove('show-date');
+        const base = new Date();
+        renderRitiri(which==='oggi' ? base : addDays(base,1));
+      }
+    }
+
+    tabs.oggi.addEventListener('click', ()=>activate('oggi'));
+    tabs.domani.addEventListener('click', ()=>activate('domani'));
+    tabs.data.addEventListener('click', ()=>activate('data'));
+
+    dateEl.addEventListener('change', ()=>{
+      dateBtn.textContent = dateEl.value || 'Scegli data';
+      if(tabs.data.classList.contains('active')) renderRitiri(dateEl.value);
+    });
+    dateBtn.addEventListener('click', ()=>{ if(dateEl.showPicker) dateEl.showPicker(); else dateEl.focus(); });
+
+    // init
+    activate('oggi');
   </script>
 </body>
 </html>
+
