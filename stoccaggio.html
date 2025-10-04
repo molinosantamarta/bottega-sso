@@ -11,7 +11,9 @@
     [data-sso]{ --bg:#000; --fg:#fff; --accent:#0a84ff; --border:#2c2c2e; --highlight:#ffd60a; --radius:22px; --elev:0 10px 24px rgba(0,0,0,.15); }
 
     .wrap{ width:100%; max-width:min(760px,100vw); margin:0 auto; padding:calc(8px + env(safe-area-inset-top)) 0 calc(24px + env(safe-area-inset-bottom)); display:flex; flex-direction:column; gap:14px; align-items:center; }
-    .section{ width:calc(100% - 32px); border-radius:var(--radius); padding:14px 16px; background:#fff; color:#111; border:1px solid rgba(0,0,0,.08); box-shadow:var(--elev); }
+    /* Riduco leggermente il padding-top per alzare i titoli nelle sezioni */
+    .section{ width:calc(100% - 32px); border-radius:var(--radius); padding:12px 16px 14px; background:#fff; color:#111; border:1px solid rgba(0,0,0,.08); box-shadow:var(--elev); }
+    .section > .title{ margin-top:0; }
 
     .title{ display:flex; align-items:center; gap:8px; font-weight:800; font-size:18px; margin-bottom:8px; color:#111; }
     .text{ font-size:15px; color:#222; }
@@ -41,7 +43,7 @@
     .order-pill{ padding:4px 8px; border-radius:999px; font-weight:700; font-size:11px; }
     .order-time{ background:#f2f2f3; color:#111; }
     .order-date{ background:#e9e9eb; color:#111; }
-    /* Richiesta: stoccaggio azzurro con gradiente + testo nero */
+    /* Stoccaggio: azzurro a gradiente + testo nero */
     .order-zone{ background:linear-gradient(135deg,#cfe9ff,#7dc4ff); color:#000; border:1px solid rgba(0,0,0,.08); }
 
     /* ===== Tabs / Date ===== */
@@ -56,14 +58,14 @@
     .status{ margin-top:8px; font-size:12px; color:#555; }
 
     /* ===== Modal Fullscreen ===== */
-    .modal{ position:fixed; inset:0; display:none; }
+    .modal{ position:fixed; inset:0; display:none; z-index:2147483647; }
     .modal.open{ display:block; }
     .modal .backdrop{ position:absolute; inset:0; background:rgba(0,0,0,.55); backdrop-filter:saturate(1.2) blur(6px); }
-    .modal .sheet{ position:absolute; inset:0; background:#fff; color:#111; border-radius:0; box-shadow:0 40px 120px rgba(0,0,0,.45); display:flex; flex-direction:column; }
-    .modal header{ display:flex; align-items:center; justify-content:space-between; padding:14px 16px; border-bottom:1px solid #ececec; position:sticky; top:0; background:#fff; z-index:1; }
+    .modal .sheet{ position:absolute; inset:0; background:#fff; color:#111; display:flex; flex-direction:column; }
+    .modal header{ display:flex; align-items:center; justify-content:space-between; gap:12px; padding:14px 16px; border-bottom:1px solid #ececec; position:sticky; top:0; background:#fff; z-index:1; }
     .modal header .h{ font-weight:900; font-size:16px; }
-    .modal header .zone{ font-size:12px; padding:6px 10px; border-radius:999px; background:linear-gradient(135deg,#cfe9ff,#7dc4ff); color:#000; border:1px solid rgba(0,0,0,.08); }
-    .modal .close{ -webkit-appearance:none; appearance:none; border:1px solid #ddd; background:#fff; border-radius:999px; padding:8px 12px; font-weight:800; cursor:pointer; }
+    .modal header .zone{ font-size:12px; padding:6px 10px; border-radius:999px; background:linear-gradient(135deg,#cfe9ff,#7dc4ff); color:#000; border:1px solid rgba(0,0,0,.08); white-space:nowrap; }
+    .modal .close{ border:1px solid #ddd; background:#fff; border-radius:999px; padding:8px 12px; font-weight:800; cursor:pointer; }
     .modal .content{ padding:12px 16px 28px; overflow:auto; }
     .kv{ width:100%; border-collapse:collapse; }
     .kv th, .kv td{ text-align:left; padding:10px 8px; border-bottom:1px solid #f1f1f1; font-size:14px; }
@@ -112,9 +114,9 @@
     <div class="backdrop"></div>
     <div class="sheet">
       <header>
-        <div>
-          <div id="sso-modal-title" class="h">Dettaglio ordine</div>
-          <div id="sso-modal-sub" class="text" style="margin-top:4px;color:#555;font-size:13px;"></div>
+        <div style="min-width:0;">
+          <div id="sso-modal-title" class="h" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">Dettaglio ordine</div>
+          <div id="sso-modal-sub" class="text" style="margin-top:4px;color:#555;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></div>
         </div>
         <div class="zone" id="sso-modal-zone">—</div>
         <button id="sso-modal-close" class="close" aria-label="Chiudi">Chiudi</button>
@@ -156,14 +158,12 @@
 
     // Mappa flessibile di colonne dal JSON completo dell'API
     function mapRowsFromAPI(rows){
-      // Prova a trovare colonne per nome (case-insensitive)
       const pickKey = (obj, candidates) => {
         const keys = Object.keys(obj);
         for(const cand of candidates){
           const k = keys.find(x => norm(x) === norm(cand));
           if(k) return k;
         }
-        // fallback: cerca parole chiave parziali
         for(const cand of candidates){
           const k = keys.find(x => norm(x).includes(norm(cand)));
           if(k) return k;
@@ -177,13 +177,15 @@
         const dateKeyRaw = pickKey(r, ['DATA ORDINE','DATA','GIORNO']);
         const timeKey = pickKey(r, ['ORA','ORARIO']);
         const zoneKey = pickKey(r, ['ZONA STOCCAGGIO','ZONA','STOCCAGGIO','UBICAZIONE']);
+        const ordKey = pickKey(r, ['NUMERO ORDINE','ORDINE','N° ORDINE','ORD']);
 
         const name = nameKey ? (r[nameKey]||'').trim() : '';
         if(!name) continue;
         const d = dateKeyRaw ? parseAnyDate(r[dateKeyRaw]) : null;
         const time = timeKey ? String(r[timeKey]||'').trim() : '';
         const zone = zoneKey ? String(r[zoneKey]||'').trim() : '';
-        const ord = r.ord != null ? Number(r.ord) : (r['NUMERO ORDINE'] != null ? Number(r['NUMERO ORDINE']) : null);
+        const ordRaw = ordKey ? r[ordKey] : r.ord;
+        const ord = ordRaw != null ? Number(ordRaw) : null;
 
         out.push({
           ord: Number.isFinite(ord)? ord : null,
@@ -195,14 +197,12 @@
           src: r // conserva tutte le colonne originali
         });
       }
-      // ordina per data/ora/nome quando possibile
       out.sort((a,b)=>{
         if(a.dateKey && b.dateKey && a.dateKey!==b.dateKey) return a.dateKey.localeCompare(b.dateKey);
         const ta=a.time||'', tb=b.time||'';
         if(ta && tb){ const cmp=ta.localeCompare(tb); if(cmp!==0) return cmp; }
         return a.name.localeCompare(b.name);
       });
-      // indicizza per riferimento stabile
       out.forEach((o,i)=>o.__i=i);
       return out;
     }
@@ -255,14 +255,6 @@
       UPDATED_AT = data.updatedAt || null;
       DATA_ROWS = mapRowsFromAPI(data.rows || []);
       document.getElementById('sso-status').textContent = UPDATED_AT ? `Dati aggiornati: ${new Date(UPDATED_AT).toLocaleString('it-IT')}` : '';
-
-      // --- Self-test leggero (test cases) ---
-      console.assert(Array.isArray(data.rows), '[TEST] data.rows deve essere un array');
-      if (DATA_ROWS.length > 0) {
-        const t = DATA_ROWS[0];
-        console.assert('ord' in t, '[TEST] ogni riga mappata ha ord');
-        console.assert('name' in t, '[TEST] ogni riga mappata ha name');
-      }
     }
 
     async function submit(){
@@ -306,12 +298,10 @@
     const modalZone = document.getElementById('sso-modal-zone');
 
     function openModal(row){
-      // Header
       modalTitle.textContent = row.name || 'Dettaglio ordine';
       modalSub.textContent = [ row.ord? `Ordine #${row.ord}`: null, row.dateText? row.dateText: null, row.time? row.time: null ].filter(Boolean).join(' • ');
       modalZone.textContent = row.zone || '—';
 
-      // Tabella dettagli: tutte le colonne originali + campi derivati non duplicati
       const entries = Object.entries(row.src || {});
       const extra = [ ['Numero Ordine (parsed)', row.ord ?? '—'], ['Data (parsed)', row.dateText || '—'], ['Ora (parsed)', row.time || '—'], ['Zona (parsed)', row.zone || '—'] ];
 
@@ -328,7 +318,6 @@
       modalTable.innerHTML = rowsHtml || `<tr><td>Nessun dettaglio</td></tr>`;
       modal.classList.add('open');
       modal.setAttribute('aria-hidden','false');
-      // Evita scroll background su iOS
       document.documentElement.style.overflow = 'hidden';
       document.body.style.overflow = 'hidden';
     }
@@ -345,13 +334,12 @@
     document.addEventListener('keydown', (e)=>{ if(e.key==='Escape' && modal.classList.contains('open')) closeModal(); });
 
     // Click su card → apre modale
-    document.addEventListener('click', e=>{
+    root.addEventListener('click', e=>{
       const card = e.target.closest('.order-card');
       if(card){
         const idx = Number(card.getAttribute('data-idx'));
-        if(Number.isInteger(idx) && DATA_ROWS[idx]){
-          openModal(DATA_ROWS[idx]);
-        }
+        const row = DATA_ROWS.find(x=>x.__i===idx);
+        if(row) openModal(row);
       }
     });
 
@@ -367,11 +355,9 @@
       document.getElementById('sso-go').onclick=submit; document.getElementById('sso-q').onkeydown=e=>{ if(e.key==='Enter') submit(); };
       tabs.oggi.onclick=()=>activate('oggi'); tabs.domani.onclick=()=>activate('domani'); tabs.data.onclick=()=>activate('data');
       dateInput.onchange=()=>activate('data');
-      // refresh di cortesia ogni 5 minuti
       setInterval(async ()=>{
         try{
           await refreshData();
-          // aggiorna vista attiva
           const isDomani = tabs.domani.classList.contains('active');
           const isData   = tabs.data.classList.contains('active');
           if (isData) {
@@ -381,13 +367,12 @@
             const base = new Date(); if (isDomani) base.setDate(base.getDate()+1);
             renderList(base);
           }
-          // aggiorna eventuale ricerca visibile
           const qv = (document.getElementById('sso-q').value||'').trim();
           if (qv) {
             const rows = findByName(qv);
             document.getElementById('sso-out').innerHTML = rows.map(o=>orderCard(o,{showDateFirst:true})).join('') || `<div class='empty'>Nessun risultato</div>`;
           }
-        }catch(_) { /* ignora singolo errore */ }
+        }catch(_){}
       }, 300000);
       activate('oggi');
     })();
