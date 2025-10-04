@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>SSO – Pagina in sviluppo</title>
   <style>
+    /* ===== Base ===== */
     html, body { height:100%; background:#000; margin:0; }
     [data-sso] { color-scheme: dark; font-family:-apple-system,system-ui,Segoe UI,Roboto,sans-serif; background:var(--bg); color:var(--fg); }
     [data-sso]{ --bg:#000; --fg:#fff; --accent:#0a84ff; --border:#2c2c2e; --highlight:#ffd60a; --radius:22px; --elev:0 10px 24px rgba(0,0,0,.15); }
@@ -20,14 +21,16 @@
 
     .divider{ width:100%; height:2px; background:var(--highlight); box-shadow:0 0 8px rgba(255,214,10,.3); margin:10px 0; }
 
+    /* ===== Search ===== */
     .search{ display:flex; flex-direction:column; gap:10px; margin-top:10px; }
     .input{ flex:1; padding:14px; border-radius:16px; border:1px solid var(--border); font-size:16px; background:#fff; color:#111; }
     .btn{ border:none; border-radius:16px; padding:14px 20px; background:#0a84ff; color:#fff; font-weight:700; cursor:pointer; box-shadow:0 4px 14px rgba(10,132,255,.35); }
     @media(min-width:520px){.search{flex-direction:row;}.btn{width:auto;}}
 
+    /* ===== Orders ===== */
     .orders{ display:flex; flex-direction:column; gap:10px; }
-    #out.orders{ margin-top:16px; }
-    #ritiri-list.orders{ margin-top:16px; }
+    #out.orders{ margin-top:16px; }               /* spazio extra sotto la barra di ricerca */
+    #ritiri-list.orders{ margin-top:16px; }       /* spazio extra sotto i bottoni Oggi/Domani/Data */
 
     .order-card{ display:flex; align-items:center; gap:12px; padding:12px; border-radius:14px; background:#fff; border:1px solid rgba(0,0,0,.08); box-shadow:var(--elev); cursor:pointer; }
     .order-badge{ min-width:46px; height:32px; display:inline-flex; align-items:center; justify-content:center; border-radius:999px; background:#ffd60a; color:#000; font-weight:900; }
@@ -39,6 +42,7 @@
     .order-date{ background:#e9e9eb; color:#111; }
     .order-zone{ background:#111; color:#fff; }
 
+    /* ===== Tabs / Date ===== */
     .tabs{ display:flex; gap:12px; flex-wrap:nowrap; overflow:auto; }
     .tab{ padding:10px 14px; border-radius:999px; border:1px solid rgba(0,0,0,.06); background:#f2f2f3; font-weight:800; cursor:pointer; white-space:nowrap; color:#111; }
     .tab.active{ background:#111; color:#fff; }
@@ -59,6 +63,7 @@
 
       <div class="divider"></div>
 
+      <!-- Blocco: Ricerca rapida -->
       <section class="section">
         <h2 class="title">Ricerca rapida</h2>
         <p class="text">Inserisci il <strong>nome cliente</strong> per risalire al numero d'ordine e alla posizione di stoccaggio.</p>
@@ -69,6 +74,7 @@
         <div id="out" class="orders"></div>
       </section>
 
+      <!-- Blocco: Elenco ritiri -->
       <section class="section">
         <h2 class="title">Ritiri di <span id="ritiri-title-date" class="date-accent">—</span></h2>
         <div class="tabs">
@@ -82,48 +88,42 @@
   </div>
 
   <script>
-    // ====== CONFIG ======
-    const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS6a2Ij-RW70-i-hk_Qw_0gChVKzsVljdvMjSNwqpF4CXyeHfDurxRBIcGa8AEd0HR-tNW6y_LZSn5t/pub?gid=685210709&single=true&output=csv';
-
-    // ====== HELPERS ======
+    // ===== Helpers =====
     const $ = s => document.querySelector(s);
     const ymd = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
     const ddmmyyyy = d => `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
     const fmtIT = d => new Intl.DateTimeFormat('it-IT',{weekday:'long',day:'2-digit',month:'long'}).format(d);
 
-    function parseAnyDate(s){
-      if(!s) return null;
-      // supporto dd/mm/yyyy o yyyy-mm-dd
-      const m = String(s).match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})$/);
-      if(m){ const dd=+m[1], mm=+m[2]-1, yy=+m[3]; return new Date(yy<100?2000+yy:yy, mm, dd, 12); }
-      const d = new Date(s); return Number.isNaN(d.getTime())? null : d;
-    }
-
-    function parseCSV(text){
-      const rows=[]; let cur=[], val='', inQ=false; const push=()=>{cur.push(val); val='';};
-      for(let i=0;i<text.length;i++){
-        const ch=text[i], nx=text[i+1];
-        if(inQ){ if(ch==='"' && nx==='"'){ val+='"'; i++; } else if(ch==='"'){ inQ=false; } else { val+=ch; } }
-        else { if(ch==='"'){ inQ=true; } else if(ch===','){ push(); } else if(ch==='\n'){ push(); rows.push(cur); cur=[]; } else if(ch==='\r'){ } else { val+=ch; } }
-      }
-      if(val!=='' || cur.length){ push(); rows.push(cur); }
-      return rows;
-    }
-
-    // ====== STATO ======
+    // ===== Demo data only =====
     let DATA_ROWS = [];
+    function genDemo(){
+      const zones = ['NEGOZIO - SOPRA','NEGOZIO - SOTTO','CELLA SOPRA','CAMION SOPRA','CAMION SOTTO','SCALE','CARNE'];
+      const names = ['Abbiati','Negri','Tiziani','Monza','Invernizzi','Pontevecchio','Fontana','Rho','Pellegrino','Faspar','Pagani','Bernardi','Colombo','Brambilla'];
+      const today = new Date(); today.setHours(12,0,0,0);
+      const tomorrow = new Date(today); tomorrow.setDate(today.getDate()+1);
+      const mk=(d,i)=>({
+        dateKey: ymd(d),
+        dateText: ddmmyyyy(d),
+        name: names[i%names.length],
+        ord: 100 + ((d.getDate()*37 + i*19) % 900),
+        zone: (i%3===0? null : zones[(i+d.getDay())%zones.length]),
+        time: `${String(8 + ((i*2 + d.getDay()) % 9)).padStart(2,'0')}:${String((i*15)%60).padStart(2,'0')}`,
+      });
+      const arr=[]; for(let i=0;i<8;i++) arr.push(mk(today,i)); for(let i=0;i<6;i++) arr.push(mk(tomorrow,i));
+      return arr;
+    }
 
-    // ====== RENDER ======
+    // ===== Card renderer con opzioni =====
     function orderCard(o, opts={}){
       const { hideDate=false, showDateFirst=false } = opts;
       const datePill = hideDate ? '' : `<span class='order-pill order-date'>${o.dateText||''}</span>`;
       const timePill = `<span class='order-pill order-time'>${o.time||''}</span>`;
       const pills = showDateFirst ? `${datePill}${timePill}` : `${timePill}${datePill}`;
       return `
-        <div class='order-card' data-ord='${o.ord}'>
-          <span class='order-badge'>${o.ord}</span>
+        <div class='order-card'>
+          <span class='order-badge'>${o.ord??'—'}</span>
           <div class='order-main'>
-            <div class='order-name'>${o.name||'—'}</div>
+            <div class='order-name'>${o.name}</div>
             <div class='order-sub'>
               ${pills}
               <span class='order-pill order-zone'>${o.zone||'?'}</span>
@@ -135,21 +135,25 @@
     function rowsForDate(d){ return DATA_ROWS.filter(r=>r.dateKey===ymd(d)); }
     function renderList(d){
       const rows = rowsForDate(d);
+      // NEL BLOCCO RITIRI: niente pillola data nelle card (già nel titolo verde)
       const html = rows.length ? rows.map(o=>orderCard(o,{hideDate:true})).join('') : `<div class='empty'>Nessun ritiro</div>`;
       $('#ritiri-list').innerHTML = html;
       $('#ritiri-title-date').textContent=fmtIT(d);
     }
 
-    // ====== SEARCH ======
-    function findByName(q){ const n=q.trim().toLowerCase(); if(!n) return []; const exact=DATA_ROWS.filter(r=>r.name?.toLowerCase()===n); if(exact.length) return exact; const starts=DATA_ROWS.filter(r=>r.name?.toLowerCase().startsWith(n)); if(starts.length) return starts; return DATA_ROWS.filter(r=>r.name?.toLowerCase().includes(n)); }
+    // ===== Ricerca: data PRIMA dell'ora nelle card =====
+    function findByName(q){ const n=q.trim().toLowerCase(); if(!n) return []; const exact=DATA_ROWS.filter(r=>r.name.toLowerCase()===n); if(exact.length) return exact; const starts=DATA_ROWS.filter(r=>r.name.toLowerCase().startsWith(n)); if(starts.length) return starts; return DATA_ROWS.filter(r=>r.name.toLowerCase().includes(n)); }
+    function demoOrdersForSearch(){ const sample = rowsForDate(new Date()); return sample.length? sample.slice(0,3): []; }
     function submit(){
       const qv = ($('#q').value||'').trim();
       let rows = qv ? findByName(qv) : rowsForDate(new Date());
-      $('#out').innerHTML = rows.length ? rows.map(o=>orderCard(o,{showDateFirst:true})).join('') : `<div class='empty'>Nessun risultato</div>`;
+      if(!rows.length) rows = demoOrdersForSearch();
+      // NEL BLOCCO RICERCA: mostra la data PRIMA dell'ora
+      $('#out').innerHTML = rows.map(o=>orderCard(o,{showDateFirst:true})).join('');
       if(rows.length) $('#out').scrollIntoView({behavior:'smooth',block:'start'});
     }
 
-    // ====== TABS & DATE INLINE ======
+    // ===== Tabs & Date inline =====
     const tabs={oggi:$('#tab-oggi'),domani:$('#tab-domani'),data:$('#tab-data')};
     const dateInput=$('#ritiri-date'); const dateLabel=$('#tab-date-label');
     const setDateTabLabel = d => { dateLabel.textContent = ddmmyyyy(d); };
@@ -168,44 +172,15 @@
       }
     }
 
-    // ====== LOAD CSV ======
-    async function loadData(){
-      const res = await fetch(CSV_URL, { mode:'cors', cache:'no-store' });
-      const text = await res.text();
-      const rows = parseCSV(text).filter(r=>r.some(c=>String(c||'').trim()!==''));
-      if(!rows.length){ DATA_ROWS=[]; return; }
-      const body = rows.slice(1); // skip header
-
-      const out=[];
-      for(let i=0;i<body.length;i++){
-        const r = body[i];
-        const ordinal = 2 + i; // riga effettiva nel CSV (header = 1) → ordine = numero riga
-        const name = (r[1]||'').trim();       // colonna B
-        const day  = parseAnyDate(r[3]||'');  // colonna D
-        const time = (r[4]||'').trim();       // colonna E
-        const zone = (r[21]||'').trim();      // colonna V (0-based index 21)
-        if(!name && !day && !time && !zone) continue; // salta righe completamente vuote
-        out.push({
-          ord: ordinal,
-          name,
-          dateKey: day? ymd(day): null,
-          dateText: day? ddmmyyyy(day): '',
-          time: time || null,
-          zone: zone || null
-        });
-      }
-      DATA_ROWS = out;
-    }
-
     // click su card → apri pagina bianca "test"
     document.addEventListener('click', e=>{
       const card = e.target.closest('.order-card');
       if(card){ const w = window.open('', '_blank'); if(w){ w.document.open(); w.document.write('<!doctype html><title>test</title><style>html,body{height:100%;margin:0}body{display:flex;align-items:center;justify-content:center;font:700 24px system-ui;background:#fff;color:#000}</style><body>test</body>'); w.document.close(); } }
     });
 
-    // ====== BOOT ======
-    (async function init(){
-      try{ await loadData(); }catch(e){ console.warn('Errore CSV', e); DATA_ROWS=[]; }
+    // ===== Boot =====
+    (function init(){
+      DATA_ROWS = genDemo();
       $('#go').onclick=submit; $('#q').onkeydown=e=>{ if(e.key==='Enter') submit(); };
       tabs.oggi.onclick=()=>activate('oggi'); tabs.domani.onclick=()=>activate('domani'); tabs.data.onclick=()=>activate('data');
       dateInput.onchange=()=>activate('data');
@@ -214,4 +189,3 @@
   </script>
 </body>
 </html>
-
