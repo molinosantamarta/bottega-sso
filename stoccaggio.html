@@ -1,1 +1,106 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>SSO – Pagina in sviluppo</title>
+  <style>
+    /* Base dark OLED */
+    html, body { height:100%; background:#000; }
+    body { margin:0; }
 
+    [data-sso] { color-scheme: dark; }
+    [data-sso] :where(*) { box-sizing: border-box; }
+    [data-sso]{
+      --bg:#000;
+      --fg:#fff;
+      --muted:#1c1c1e;
+      --accent:#0a84ff;
+      --danger:#ff453a;
+      --ok:#34c759;
+      --chip:#1f1f22;
+      --border:#2c2c2e;
+      --success:#22c55e;
+      --torch-on:#ffd60a;
+      --yellow:#ffd60a;
+      /* Larghezza allineata alla tabbar (stesso contenitore bianco) */
+      --pane-w: 100%;
+      --pane-max: min(760px, 100vw);
+      --pane-gutter: 16px;
+      --radius-outer: 28px;  /* come tabbar */
+      --radius-inner: 20px;
+
+      background:var(--bg);
+      color:var(--fg);
+      font-family:-apple-system,system-ui,Segoe UI,Roboto,sans-serif;
+      -webkit-text-size-adjust:115%;
+      text-size-adjust:115%;
+    }
+
+    /* Centraggio blocchi */
+    [data-sso] .wrap{
+      width:100%;
+      padding:8px 0 24px;
+      max-width:var(--pane-max);
+      margin-left:auto;
+      margin-right:auto;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+    }
+
+    /* Pillola versione */
+    .beta-row{ display:flex; justify-content:center; margin:6px 0 2px; }
+    .beta-pill{
+      display:inline-flex; align-items:center; justify-content:center;
+      padding:6px 12px; border-radius:999px; background:#ffd60a; color:#000;
+      font-weight:800; font-size:12px; border:1px solid #e6c408;
+      box-shadow:0 1px 0 rgba(255,255,255,.25) inset, 0 4px 12px rgba(0,0,0,.25);
+    }
+
+    /* Card (riquadro bianco) */
+    [data-sso] .section{
+      width:100vw;
+      margin:14px;
+      border-radius:26px;
+      padding:14px 16px;
+      background:#fff;
+      color:#111;
+      border:1px solid rgba(0,0,0,.08);
+      box-shadow:0 10px 24px rgba(0,0,0,.15);
+      transition:background .25s ease, box-shadow .25s ease, border-color .25s ease;
+      overflow:hidden;
+    }
+    @media (max-width:430px){
+      [data-sso] .section{ width:96vw; border-radius:22px; }
+    }
+
+    /* Contenuto card */
+    .dev-title{
+      font-size:16px; font-weight:800; margin:2px 0 8px; color:#111;
+      letter-spacing:.2px;
+    }
+    .dev-text{
+      font-size:14px; line-height:1.45; color:#222; opacity:.95;
+    }
+  </style>
+</head>
+<body>
+  <div data-sso>
+    <div class="wrap">
+
+      <!-- Pillola versione -->
+      <div class="beta-row"><span class="beta-pill">Beta 3</span></div>
+
+      <!-- Unico riquadro bianco -->
+      <section class="section" aria-labelledby="dev-title">
+        <h2 id="dev-title" class="dev-title">Pagina in sviluppo</h2>
+        <p class="dev-text">
+          Questa pagina è in fase di sviluppo e verrà rilasciata con la versione <strong>SSO 10</strong>.
+        </p>
+      </section>
+
+    </div>
+  </div>
+</body>
+</html>
