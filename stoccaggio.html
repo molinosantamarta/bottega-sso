@@ -88,32 +88,66 @@
   </div>
 
   <script>
+    // ===== CONFIG =====
+    const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS6a2Ij-RW70-i-hk_Qw_0gChVKzsVljdvMjSNwqpF4CXyeHfDurxRBIcGa8AEd0HR-tNW6y_LZSn5t/pub?gid=685210709&single=true&output=csv';
+
     // ===== Helpers =====
     const $ = s => document.querySelector(s);
     const ymd = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
     const ddmmyyyy = d => `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
     const fmtIT = d => new Intl.DateTimeFormat('it-IT',{weekday:'long',day:'2-digit',month:'long'}).format(d);
 
-    // ===== Demo data only =====
-    let DATA_ROWS = [];
-    function genDemo(){
-      const zones = ['NEGOZIO - SOPRA','NEGOZIO - SOTTO','CELLA SOPRA','CAMION SOPRA','CAMION SOTTO','SCALE','CARNE'];
-      const names = ['Abbiati','Negri','Tiziani','Monza','Invernizzi','Pontevecchio','Fontana','Rho','Pellegrino','Faspar','Pagani','Bernardi','Colombo','Brambilla'];
-      const today = new Date(); today.setHours(12,0,0,0);
-      const tomorrow = new Date(today); tomorrow.setDate(today.getDate()+1);
-      const mk=(d,i)=>({
-        dateKey: ymd(d),
-        dateText: ddmmyyyy(d),
-        name: names[i%names.length],
-        ord: 100 + ((d.getDate()*37 + i*19) % 900),
-        zone: (i%3===0? null : zones[(i+d.getDay())%zones.length]),
-        time: `${String(8 + ((i*2 + d.getDay()) % 9)).padStart(2,'0')}:${String((i*15)%60).padStart(2,'0')}`,
-      });
-      const arr=[]; for(let i=0;i<8;i++) arr.push(mk(today,i)); for(let i=0;i<6;i++) arr.push(mk(tomorrow,i));
-      return arr;
+    // CSV parser minimale (supporta virgolette)
+    function parseCSV(text){
+      const rows=[]; let cur=[], val='', inQ=false; const push=()=>{cur.push(val); val='';};
+      for(let i=0;i<text.length;i++){
+        const ch=text[i], nx=text[i+1];
+        if(inQ){ if(ch==='"' && nx==='"'){ val+='"'; i++; } else if(ch==='"'){ inQ=false; } else { val+=ch; } }
+        else { if(ch==='"'){ inQ=true; } else if(ch===','){ push(); } else if(ch==='\n'){ push(); rows.push(cur); cur=[]; } else if(ch==='\r'){ } else { val+=ch; } }
+      }
+      if(val!=='' || cur.length){ push(); rows.push(cur); }
+      return rows;
     }
 
-    // ===== Card renderer con opzioni =====
+    function parseAnyDate(s){
+      if(!s) return null;
+      const m = String(s).match(/(\d{1,2})\/(\d{1,2})\/(\d{2,4})/);
+      if(m){ const dd=Number(m[1]), mm=Number(m[2])-1, yy=Number(m[3]); return new Date(yy<100?2000+yy:yy, mm, dd, 12, 0, 0); }
+      const d = new Date(s); return Number.isNaN(d.getTime())? null : d;
+    }
+
+    // ===== Stato =====
+    let DATA_ROWS = [];
+
+    // Mappa specifica: A=indice riga (ordine), B=Nome, D=Data, E=Ora, V=Zona
+    function rowsFromCSV(text){
+      const raw = parseCSV(text);
+      if(!raw.length) return [];
+      const header = raw[0];
+      const body = raw.slice(1); // dalla riga 2 in giù
+      const out = [];
+      for(let i=0;i<body.length;i++){
+        const r = body[i];
+        if(!r || r.length===0) continue;
+        const name = (r[1]||'').trim(); // B
+        if(!name) continue;
+        const d = parseAnyDate(r[3]||''); // D
+        const time = (r[4]||'').trim();   // E
+        const zone = (r[21]||'').trim();  // V (0-indexed 21)
+        const sheetRow = 2 + i;           // riga reale nel foglio (2 = prima riga dati)
+        out.push({
+          ord: sheetRow,                 // numero nel pallino giallo = numero di riga
+          name,
+          dateKey: d ? ymd(d) : null,
+          dateText: d ? ddmmyyyy(d) : '',
+          time: time || '',
+          zone: zone || '?'
+        });
+      }
+      return out;
+    }
+
+    // Render
     function orderCard(o, opts={}){
       const { hideDate=false, showDateFirst=false } = opts;
       const datePill = hideDate ? '' : `<span class='order-pill order-date'>${o.dateText||''}</span>`;
@@ -132,28 +166,32 @@
         </div>`;
     }
 
-    function rowsForDate(d){ return DATA_ROWS.filter(r=>r.dateKey===ymd(d)); }
+    const rowsForDate = d => DATA_ROWS.filter(r=>r.dateKey===ymd(d));
+
     function renderList(d){
       const rows = rowsForDate(d);
-      // NEL BLOCCO RITIRI: niente pillola data nelle card (già nel titolo verde)
       const html = rows.length ? rows.map(o=>orderCard(o,{hideDate:true})).join('') : `<div class='empty'>Nessun ritiro</div>`;
       $('#ritiri-list').innerHTML = html;
       $('#ritiri-title-date').textContent=fmtIT(d);
     }
 
-    // ===== Ricerca: data PRIMA dell'ora nelle card =====
-    function findByName(q){ const n=q.trim().toLowerCase(); if(!n) return []; const exact=DATA_ROWS.filter(r=>r.name.toLowerCase()===n); if(exact.length) return exact; const starts=DATA_ROWS.filter(r=>r.name.toLowerCase().startsWith(n)); if(starts.length) return starts; return DATA_ROWS.filter(r=>r.name.toLowerCase().includes(n)); }
+    // Ricerca (B – nome cliente)
+    function findByName(q){
+      const n=q.trim().toLowerCase(); if(!n) return [];
+      const exact = DATA_ROWS.filter(r=>r.name.toLowerCase()===n); if(exact.length) return exact;
+      const starts = DATA_ROWS.filter(r=>r.name.toLowerCase().startsWith(n)); if(starts.length) return starts;
+      return DATA_ROWS.filter(r=>r.name.toLowerCase().includes(n));
+    }
     function demoOrdersForSearch(){ const sample = rowsForDate(new Date()); return sample.length? sample.slice(0,3): []; }
     function submit(){
       const qv = ($('#q').value||'').trim();
       let rows = qv ? findByName(qv) : rowsForDate(new Date());
       if(!rows.length) rows = demoOrdersForSearch();
-      // NEL BLOCCO RICERCA: mostra la data PRIMA dell'ora
       $('#out').innerHTML = rows.map(o=>orderCard(o,{showDateFirst:true})).join('');
       if(rows.length) $('#out').scrollIntoView({behavior:'smooth',block:'start'});
     }
 
-    // ===== Tabs & Date inline =====
+    // Tabs & Date inline
     const tabs={oggi:$('#tab-oggi'),domani:$('#tab-domani'),data:$('#tab-data')};
     const dateInput=$('#ritiri-date'); const dateLabel=$('#tab-date-label');
     const setDateTabLabel = d => { dateLabel.textContent = ddmmyyyy(d); };
@@ -172,15 +210,22 @@
       }
     }
 
-    // click su card → apri pagina bianca "test"
+    // click su card → pagina bianca "test"
     document.addEventListener('click', e=>{
       const card = e.target.closest('.order-card');
       if(card){ const w = window.open('', '_blank'); if(w){ w.document.open(); w.document.write('<!doctype html><title>test</title><style>html,body{height:100%;margin:0}body{display:flex;align-items:center;justify-content:center;font:700 24px system-ui;background:#fff;color:#000}</style><body>test</body>'); w.document.close(); } }
     });
 
-    // ===== Boot =====
-    (function init(){
-      DATA_ROWS = genDemo();
+    // Boot
+    (async function init(){
+      try{
+        const res = await fetch(CSV_URL, { mode:'cors', cache:'no-store' });
+        const text = await res.text();
+        DATA_ROWS = rowsFromCSV(text);
+      }catch(err){
+        console.warn('Errore nel fetch del CSV:', err);
+        DATA_ROWS = [];
+      }
       $('#go').onclick=submit; $('#q').onkeydown=e=>{ if(e.key==='Enter') submit(); };
       tabs.oggi.onclick=()=>activate('oggi'); tabs.domani.onclick=()=>activate('domani'); tabs.data.onclick=()=>activate('data');
       dateInput.onchange=()=>activate('data');
