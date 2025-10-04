@@ -58,28 +58,28 @@
 
     <nav class="x-tabbar" role="tablist" aria-label="Navigazione pagine">
       <div class="x-tabbar-inner">
-        <!-- 1° tab: SToccaggio -->
-        <a class="x-tab" role="tab" href="#a" data-tab="a" aria-selected="false">
+        <!-- Sinistra: Stoccaggio (selezionato all’avvio) -->
+        <a class="x-tab" role="tab" href="#a" data-tab="a" aria-selected="true">
           <span class="ico-bubble"><span id="lottie-stoccaggio" style="width:68px;height:68px"></span></span>
           <span>Stoccaggio</span>
         </a>
-        <!-- 2° tab: Scanner (pre-selezionato) -->
-        <a class="x-tab" role="tab" href="#b" data-tab="b" aria-selected="true">
+        <!-- Destra: Scanner -->
+        <a class="x-tab" role="tab" href="#b" data-tab="b" aria-selected="false">
           <span class="ico-bubble"><span id="lottie-scanner" style="width:68px;height:68px"></span></span>
           <span>Scanner</span>
         </a>
       </div>
     </nav>
 
-    <!-- Vista A: SToccaggio -->
-    <section id="view-a" data-view data-src="./stoccaggio.html">
+    <!-- Vista A: STOCCAGGIO (attiva all’avvio) -->
+    <section id="view-a" data-view class="active" data-src="./stoccaggio.html">
       <div style="max-width:820px;margin:18px auto 0;padding:16px 18px;border:1px dashed rgba(255,255,255,.35);border-radius:14px;background:#0b0b0c;color:#eaeaea;font:14px/1.45 -apple-system,system-ui,Segoe UI,Roboto,sans-serif">
         questa pagina è in fase di sviluppo, verrà rilasciata con la versione 10.0 dell'app nei prossimi aggiornamenti.
       </div>
     </section>
 
-    <!-- Vista B: SCANNER (attiva all’avvio) -->
-    <section id="view-b" data-view class="active" data-src="./scanner.html">
+    <!-- Vista B: SCANNER -->
+    <section id="view-b" data-view data-src="./scanner.html">
       <div class="card"></div><div class="card"></div><div class="card"></div><div class="card"></div>
     </section>
   </div>
@@ -144,7 +144,7 @@
     }
 
     async function activate(view){
-      if(!VIEWS.includes(view))view='b'; // default alla seconda pagina (Scanner)
+      if(!VIEWS.includes(view))view='a'; // default: Stoccaggio
       const section=view==='a'?$('#view-a'):$('#view-b');
       await loadExternalInto(section);
       $('#view-a').classList.toggle('active',view==='a');
@@ -153,8 +153,8 @@
       syncPaneVarsFor(section);
     }
 
-    /* Avvio: carica e attiva la SECONDA pagina (Scanner) */
-    loadExternalInto($('#view-b')).then(()=>activate('b'));
+    /* Avvio: carica e attiva la PRIMA pagina (Stoccaggio) */
+    loadExternalInto($('#view-a')).then(()=>activate('a'));
 
     document.querySelector('.x-tabbar-inner').addEventListener('click',e=>{
       const a=e.target.closest('.x-tab'); if(!a)return; e.preventDefault(); activate(a.dataset.tab);
