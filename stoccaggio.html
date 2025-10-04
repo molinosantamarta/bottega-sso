@@ -33,6 +33,7 @@
     #sso-ritiri-list.orders{ margin-top:16px; }
 
     .order-card{ display:flex; align-items:center; gap:12px; padding:12px; border-radius:14px; background:#fff; border:1px solid rgba(0,0,0,.08); box-shadow:var(--elev); cursor:pointer; }
+    .order-card:active{ transform:scale(.995); }
     .order-badge{ min-width:46px; height:32px; display:inline-flex; align-items:center; justify-content:center; border-radius:999px; background:#ffd60a; color:#000; font-weight:900; }
     .order-main{ flex:1; min-width:0; }
     .order-name{ font-weight:800; color:#0b0b0b; font-size:15px; }
@@ -40,7 +41,8 @@
     .order-pill{ padding:4px 8px; border-radius:999px; font-weight:700; font-size:11px; }
     .order-time{ background:#f2f2f3; color:#111; }
     .order-date{ background:#e9e9eb; color:#111; }
-    .order-zone{ background:#111; color:#fff; }
+    /* Richiesta: stoccaggio azzurro con gradiente + testo nero */
+    .order-zone{ background:linear-gradient(135deg,#cfe9ff,#7dc4ff); color:#000; border:1px solid rgba(0,0,0,.08); }
 
     /* ===== Tabs / Date ===== */
     .tabs{ display:flex; gap:12px; flex-wrap:nowrap; overflow:auto; }
@@ -52,6 +54,21 @@
     .date-accent{ color:#22c55e; font-weight:900; }
     .empty{ padding:12px; border-radius:14px; border:1px dashed rgba(0,0,0,.15); background:#fff; color:#333; font-size:14px; text-align:center; }
     .status{ margin-top:8px; font-size:12px; color:#555; }
+
+    /* ===== Modal Fullscreen ===== */
+    .modal{ position:fixed; inset:0; display:none; }
+    .modal.open{ display:block; }
+    .modal .backdrop{ position:absolute; inset:0; background:rgba(0,0,0,.55); backdrop-filter:saturate(1.2) blur(6px); }
+    .modal .sheet{ position:absolute; inset:0; background:#fff; color:#111; border-radius:0; box-shadow:0 40px 120px rgba(0,0,0,.45); display:flex; flex-direction:column; }
+    .modal header{ display:flex; align-items:center; justify-content:space-between; padding:14px 16px; border-bottom:1px solid #ececec; position:sticky; top:0; background:#fff; z-index:1; }
+    .modal header .h{ font-weight:900; font-size:16px; }
+    .modal header .zone{ font-size:12px; padding:6px 10px; border-radius:999px; background:linear-gradient(135deg,#cfe9ff,#7dc4ff); color:#000; border:1px solid rgba(0,0,0,.08); }
+    .modal .close{ -webkit-appearance:none; appearance:none; border:1px solid #ddd; background:#fff; border-radius:999px; padding:8px 12px; font-weight:800; cursor:pointer; }
+    .modal .content{ padding:12px 16px 28px; overflow:auto; }
+    .kv{ width:100%; border-collapse:collapse; }
+    .kv th, .kv td{ text-align:left; padding:10px 8px; border-bottom:1px solid #f1f1f1; font-size:14px; }
+    .kv th{ width:36%; color:#444; font-weight:700; }
+    .kv tr:last-child th, .kv tr:last-child td{ border-bottom:none; }
   </style>
 </head>
 <body>
@@ -90,6 +107,24 @@
     </div>
   </div>
 
+  <!-- ===== Fullscreen Modal (hidden by default) ===== -->
+  <div id="sso-modal" class="modal" aria-hidden="true" role="dialog">
+    <div class="backdrop"></div>
+    <div class="sheet">
+      <header>
+        <div>
+          <div id="sso-modal-title" class="h">Dettaglio ordine</div>
+          <div id="sso-modal-sub" class="text" style="margin-top:4px;color:#555;font-size:13px;"></div>
+        </div>
+        <div class="zone" id="sso-modal-zone">—</div>
+        <button id="sso-modal-close" class="close" aria-label="Chiudi">Chiudi</button>
+      </header>
+      <div class="content">
+        <table class="kv" id="sso-modal-table"></table>
+      </div>
+    </div>
+  </div>
+
   <script>
   (function(){
     const root = document.getElementById('sso-app');
@@ -103,6 +138,7 @@
     const ddmmyyyy = d => `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
     const fmtIT = d => new Intl.DateTimeFormat('it-IT',{weekday:'long',day:'2-digit',month:'long'}).format(d);
     const norm = s => (s||'').toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu,'');
+    const esc = s => String(s==null? '': s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[m]));
 
     function parseAnyDate(s){
       if(!s) return null;
@@ -115,7 +151,7 @@
     }
 
     // Stato
-    let DATA_ROWS = []; // {ord,name,dateKey,dateText,time,zone}
+    let DATA_ROWS = []; // {ord,name,dateKey,dateText,time,zone, src, __i}
     let UPDATED_AT = null;
 
     // Mappa flessibile di colonne dal JSON completo dell'API
@@ -147,15 +183,16 @@
         const d = dateKeyRaw ? parseAnyDate(r[dateKeyRaw]) : null;
         const time = timeKey ? String(r[timeKey]||'').trim() : '';
         const zone = zoneKey ? String(r[zoneKey]||'').trim() : '';
-        const ord = r.ord != null ? Number(r.ord) : null;
+        const ord = r.ord != null ? Number(r.ord) : (r['NUMERO ORDINE'] != null ? Number(r['NUMERO ORDINE']) : null);
 
         out.push({
-          ord: ord || null,
+          ord: Number.isFinite(ord)? ord : null,
           name,
           dateKey: d? ymd(d) : null,
           dateText: d? ddmmyyyy(d) : '',
           time,
-          zone: zone || '?'
+          zone: zone || '?',
+          src: r // conserva tutte le colonne originali
         });
       }
       // ordina per data/ora/nome quando possibile
@@ -165,22 +202,24 @@
         if(ta && tb){ const cmp=ta.localeCompare(tb); if(cmp!==0) return cmp; }
         return a.name.localeCompare(b.name);
       });
+      // indicizza per riferimento stabile
+      out.forEach((o,i)=>o.__i=i);
       return out;
     }
 
     function orderCard(o, opts={}){
       const { hideDate=false, showDateFirst=false } = opts;
-      const datePill = hideDate ? '' : `<span class='order-pill order-date'>${o.dateText||''}</span>`;
-      const timePill = `<span class='order-pill order-time'>${o.time||''}</span>`;
+      const datePill = (!hideDate && o.dateText) ? `<span class='order-pill order-date'>${esc(o.dateText)}</span>` : '';
+      const timePill = o.time ? `<span class='order-pill order-time'>${esc(o.time)}</span>` : '';
       const pills = showDateFirst ? `${datePill}${timePill}` : `${timePill}${datePill}`;
       return `
-        <div class='order-card'>
-          <span class='order-badge'>${o.ord??'—'}</span>
+        <div class='order-card' data-idx='${o.__i}'>
+          <span class='order-badge'>${o.ord ?? '—'}</span>
           <div class='order-main'>
-            <div class='order-name'>${o.name}</div>
+            <div class='order-name'>${esc(o.name)}</div>
             <div class='order-sub'>
               ${pills}
-              <span class='order-pill order-zone'>${o.zone||'?'}</span>
+              <span class='order-pill order-zone'>${esc(o.zone||'?')}</span>
             </div>
           </div>
         </div>`;
@@ -198,8 +237,8 @@
     function renderList(d){
       const rows = rowsForDate(d);
       const html = rows.length ? rows.map(o=>orderCard(o,{hideDate:true})).join('') : `<div class='empty'>Nessun ritiro</div>`;
-      QS('#sso-ritiri-list').innerHTML = html;
-      QS('#sso-ritiri-title-date').textContent = fmtIT(d);
+      document.getElementById('sso-ritiri-list').innerHTML = html;
+      document.getElementById('sso-ritiri-title-date').textContent = fmtIT(d);
     }
 
     function findByName(q){
@@ -215,7 +254,7 @@
       const data = await res.json();
       UPDATED_AT = data.updatedAt || null;
       DATA_ROWS = mapRowsFromAPI(data.rows || []);
-      QS('#sso-status').textContent = UPDATED_AT ? `Dati aggiornati: ${new Date(UPDATED_AT).toLocaleString('it-IT')}` : '';
+      document.getElementById('sso-status').textContent = UPDATED_AT ? `Dati aggiornati: ${new Date(UPDATED_AT).toLocaleString('it-IT')}` : '';
 
       // --- Self-test leggero (test cases) ---
       console.assert(Array.isArray(data.rows), '[TEST] data.rows deve essere un array');
@@ -227,17 +266,21 @@
     }
 
     async function submit(){
-      const qv = (QS('#sso-q').value||'').trim();
-      try { await refreshData(); } catch(_) { /* se fallisce, uso dati correnti */ }
+      const qv = (document.getElementById('sso-q').value||'').trim();
+      try { await refreshData(); } catch(_) { /* fallback: uso cache */ }
       const rows = qv ? findByName(qv) : rowsForDate(new Date());
-      QS('#sso-out').innerHTML = rows.map(o=>orderCard(o,{showDateFirst:true})).join('') || `<div class='empty'>Nessun risultato</div>`;
-      if(rows.length) QS('#sso-out').scrollIntoView({behavior:'smooth',block:'start'});
+      document.getElementById('sso-out').innerHTML = rows.map(o=>orderCard(o,{showDateFirst:true})).join('') || `<div class='empty'>Nessun risultato</div>`;
+      if(rows.length) document.getElementById('sso-out').scrollIntoView({behavior:'smooth',block:'start'});
     }
 
     // Tabs & Date
-    const tabs={ oggi:QS('#sso-tab-oggi'), domani:QS('#sso-tab-domani'), data:QS('#sso-tab-data') };
-    const dateInput=QS('#sso-ritiri-date');
-    const dateLabel=QS('#sso-tab-date-label');
+    const tabs={
+      oggi:document.getElementById('sso-tab-oggi'),
+      domani:document.getElementById('sso-tab-domani'),
+      data:document.getElementById('sso-tab-data')
+    };
+    const dateInput=document.getElementById('sso-ritiri-date');
+    const dateLabel=document.getElementById('sso-tab-date-label');
     const setDateTabLabel = d => { dateLabel.textContent = ddmmyyyy(d); };
 
     function activate(which){
@@ -254,15 +297,60 @@
       }
     }
 
-    // click su card → pagina "test"
-    root.addEventListener('click', e=>{
+    // ===== Modal logic =====
+    const modal = document.getElementById('sso-modal');
+    const modalClose = document.getElementById('sso-modal-close');
+    const modalTable = document.getElementById('sso-modal-table');
+    const modalTitle = document.getElementById('sso-modal-title');
+    const modalSub = document.getElementById('sso-modal-sub');
+    const modalZone = document.getElementById('sso-modal-zone');
+
+    function openModal(row){
+      // Header
+      modalTitle.textContent = row.name || 'Dettaglio ordine';
+      modalSub.textContent = [ row.ord? `Ordine #${row.ord}`: null, row.dateText? row.dateText: null, row.time? row.time: null ].filter(Boolean).join(' • ');
+      modalZone.textContent = row.zone || '—';
+
+      // Tabella dettagli: tutte le colonne originali + campi derivati non duplicati
+      const entries = Object.entries(row.src || {});
+      const extra = [ ['Numero Ordine (parsed)', row.ord ?? '—'], ['Data (parsed)', row.dateText || '—'], ['Ora (parsed)', row.time || '—'], ['Zona (parsed)', row.zone || '—'] ];
+
+      const seen = new Set();
+      const rowsHtml = [
+        ...entries.map(([k,v])=>{
+          const key = String(k).trim();
+          seen.add(norm(key));
+          return `<tr><th>${esc(key)}</th><td>${esc(v)}</td></tr>`;
+        }),
+        ...extra.filter(([k,_])=>!seen.has(norm(k))).map(([k,v])=>`<tr><th>${esc(k)}</th><td>${esc(v)}</td></tr>`)
+      ].join('');
+
+      modalTable.innerHTML = rowsHtml || `<tr><td>Nessun dettaglio</td></tr>`;
+      modal.classList.add('open');
+      modal.setAttribute('aria-hidden','false');
+      // Evita scroll background su iOS
+      document.documentElement.style.overflow = 'hidden';
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal(){
+      modal.classList.remove('open');
+      modal.setAttribute('aria-hidden','true');
+      document.documentElement.style.overflow = '';
+      document.body.style.overflow = '';
+    }
+
+    modalClose.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e)=>{ if(e.target.classList.contains('backdrop')) closeModal(); });
+    document.addEventListener('keydown', (e)=>{ if(e.key==='Escape' && modal.classList.contains('open')) closeModal(); });
+
+    // Click su card → apre modale
+    document.addEventListener('click', e=>{
       const card = e.target.closest('.order-card');
       if(card){
-        const w = window.open('', '_blank');
-        if(w){
-          w.document.open();
-          w.document.write('<!doctype html><title>test</title><style>html,body{height:100%;margin:0}body{display:flex;align-items:center;justify-content:center;font:700 24px system-ui;background:#fff;color:#000}</style><body>test</body>');
-          w.document.close();
+        const idx = Number(card.getAttribute('data-idx'));
+        if(Number.isInteger(idx) && DATA_ROWS[idx]){
+          openModal(DATA_ROWS[idx]);
         }
       }
     });
@@ -274,9 +362,9 @@
       }catch(err){
         console.warn('Errore API:', err);
         DATA_ROWS = [];
-        QS('#sso-status').textContent = 'Errore nel caricamento dei dati';
+        document.getElementById('sso-status').textContent = 'Errore nel caricamento dei dati';
       }
-      QS('#sso-go').onclick=submit; QS('#sso-q').onkeydown=e=>{ if(e.key==='Enter') submit(); };
+      document.getElementById('sso-go').onclick=submit; document.getElementById('sso-q').onkeydown=e=>{ if(e.key==='Enter') submit(); };
       tabs.oggi.onclick=()=>activate('oggi'); tabs.domani.onclick=()=>activate('domani'); tabs.data.onclick=()=>activate('data');
       dateInput.onchange=()=>activate('data');
       // refresh di cortesia ogni 5 minuti
@@ -294,10 +382,10 @@
             renderList(base);
           }
           // aggiorna eventuale ricerca visibile
-          const qv = (QS('#sso-q').value||'').trim();
+          const qv = (document.getElementById('sso-q').value||'').trim();
           if (qv) {
             const rows = findByName(qv);
-            QS('#sso-out').innerHTML = rows.map(o=>orderCard(o,{showDateFirst:true})).join('') || `<div class='empty'>Nessun risultato</div>`;
+            document.getElementById('sso-out').innerHTML = rows.map(o=>orderCard(o,{showDateFirst:true})).join('') || `<div class='empty'>Nessun risultato</div>`;
           }
         }catch(_) { /* ignora singolo errore */ }
       }, 300000);
