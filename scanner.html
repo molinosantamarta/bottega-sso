@@ -11,7 +11,7 @@
 
     [data-sso] { color-scheme: dark; }
     [data-sso] :where(*) { box-sizing: border-box; }
-    [data-sso] {
+    [data-sso]{
       --bg:#000;
       --fg:#fff;
       --muted:#1c1c1e;
@@ -23,12 +23,15 @@
       --success:#22c55e;
       --torch-on:#ffd60a;
       --yellow:#ffd60a;
-      /* Larghezza allineata alla tabbar (stesso contenitore bianco) */
+
+      /* dimensionamento coerente con tabbar */
       --pane-w: 100%;
       --pane-max: min(760px, 100vw);
       --pane-gutter: 16px;
+
       --radius-outer: 28px;  /* come tabbar */
       --radius-inner: 20px;
+
       background:var(--bg);
       color:var(--fg);
       font-family:-apple-system,system-ui,Segoe UI,Roboto,sans-serif;
@@ -36,7 +39,7 @@
       text-size-adjust:115%;
     }
 
-    /* CENTRAGGIO ROBUSTO dei blocchi 1,2,3,4 */
+    /* wrapper centrale */
     [data-sso] .wrap{
       width:100%;
       padding:8px 0 24px;
@@ -48,29 +51,36 @@
       align-items:center;
     }
 
+    /* card sezione (edge-to-edge su mobile, centrata su viewport grandi) */
     [data-sso] .section{
-  width: 100vw;                 /* leggermente più larga, allineata alla tabbar */
-  margin: 14px;
-  border-radius: 26px;
-  padding: 14px 16px;
-  background: #fff;
-  color: #111;
-  border: 1px solid rgba(0,0,0,.08);
-  box-shadow: 0 10px 24px rgba(0,0,0,.15);
-  transition: background .25s ease, box-shadow .25s ease, border-color .25s ease;
-  overflow: hidden;
-}
-      @media (max-width: 430px){
-  [data-sso] .section{
-    width: 96vw;             /* più edge-to-edge su iPhone */
-    border-radius: 22px;
-  }
-}
+      width:100%;
+      max-width:var(--pane-max);
+      margin:14px auto;
+      border-radius:26px;
+      padding:14px 16px;
+      background:#fff;
+      color:#111;
+      border:1px solid rgba(0,0,0,.08);
+      box-shadow:0 10px 24px rgba(0,0,0,.15);
+      transition:background .25s ease, box-shadow .25s ease, border-color .25s ease;
+      overflow:hidden;
+    }
+    @media (max-width: 430px){
+      [data-sso] .section{
+        width:96vw; /* più edge-to-edge su iPhone */
+        border-radius:22px;
+      }
     }
     [data-sso] .section.active{
       background:linear-gradient(180deg, #ffffff, #fbfbfb);
       box-shadow:0 14px 32px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.6);
       border-color:rgba(0,0,0,.12);
+    }
+
+    /* evidenziazione extra quando la tab attiva è "scanner" */
+    .scanner-focus{
+      outline: 2px solid rgba(10,132,255,.35);
+      box-shadow: 0 16px 36px rgba(10,132,255,.20), 0 10px 24px rgba(0,0,0,.15);
     }
 
     /* Pillola versione */
@@ -90,7 +100,7 @@
     [data-sso] .step-badge.pulse{ animation:pulse-badge 1.2s ease-in-out infinite; background:linear-gradient(180deg, #0a84ff, #0569c9); color:#fff; border-color:#0569c9; }
 
     .seg-row{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-bottom:12px; }
-    .seg-label{ font-size:13px; color:#333; opacity:.85; min-width:72px; }
+    .seg-label{ font-size:13px; color:#333; opacity:.85; min-width:120px; }
     .seg{ display:flex; background:#121214; border:1px solid var(--border); border-radius:999px; overflow:auto; -webkit-overflow-scrolling:touch; }
     .seg .opt{ padding:8px 12px; font-size:14px; border:0; background:transparent; color:#fff; cursor:pointer; white-space:nowrap; }
     .seg .opt.active{ background:linear-gradient(180deg, #b8ffd4, #a4f5c4); color:#003b1f; font-weight:900; border-radius:999px; box-shadow:0 6px 18px rgba(120,255,180,.35), inset 0 1px 0 rgba(255,255,255,.35); }
@@ -198,15 +208,16 @@
         <div class="step-title"><span class="step-badge" id="badge1">1</span> Seleziona la zona che stai per scansionare</div>
 
         <div class="seg-row">
-          <div class="seg-label">NEGOZIO</div>
+          <div class="seg-label">CELLA NEGOZIO</div>
           <div class="seg" id="segNegozio">
+            <!-- i data-zone restano invariati per preservare la logica -->
             <button class="opt" data-zone="NEGOZIO - SOPRA">SOPRA</button>
             <button class="opt" data-zone="NEGOZIO - SOTTO">SOTTO</button>
           </div>
         </div>
 
         <div class="seg-row">
-          <div class="seg-label">CAMION</div>
+          <div class="seg-label">CELLA CAMION</div>
           <div class="seg" id="segCamion">
             <button class="opt" data-zone="CAMION - SOPRA">SOPRA</button>
             <button class="opt" data-zone="CAMION - SOTTO">SOTTO</button>
@@ -338,11 +349,11 @@
     const placeholder = root.querySelector('#placeholder');
     const dupMsg = document.getElementById('dupMsg');
     const qrGuide = document.getElementById('qrGuide');
-    const qrHint = document.getElementById('qrHint');
+    const qrHint  = document.getElementById('qrHint');
     const btnScan = root.querySelector('#btnScan');
-    const btnClear = root.querySelector('#btnClear');
+    const btnClear= root.querySelector('#btnClear');
     const btnCopy = root.querySelector('#btnCopy');
-    const btnTorch = document.getElementById('btnTorch');
+    const btnTorch= document.getElementById('btnTorch');
     const torchState = document.getElementById('torchState');
     const step4 = document.getElementById('section4');
     const step4Box = document.getElementById('step4Box');
@@ -374,9 +385,11 @@
       ENTRY_ORDERS: "entry.1223265482"
     };
 
+    /* nascondo le guide QR all'inizio */
     if (qrGuide) qrGuide.style.display = 'none';
     if (qrHint)  qrHint.style.display  = 'none';
 
+    /* Audio feedback minimo */
     const AC = window.AudioContext || window.webkitAudioContext;
     let audioCtx = null;
     function ensureAC(){ if (!audioCtx) audioCtx = new AC(); return audioCtx; }
@@ -586,8 +599,8 @@
         videoTrack = stream.getVideoTracks()[0];
 
         firstScanDone = false;
-        qrGuide.style.display = 'block';
-        qrHint.style.display  = 'block';
+        if (qrGuide) qrGuide.style.display = 'block';
+        if (qrHint)  qrHint.style.display  = 'block';
 
         if (window.startQR) {
           window.startQR(video, (text) => {
@@ -633,12 +646,12 @@
       videoWrap.classList.remove('paused');
 
       if (stream){ for (const t of stream.getTracks()) t.stop(); stream = null; }
-      try{ video.pause(); }catch(_){ } 
+      try{ video.pause(); }catch(_){ }
       video.srcObject = null;
       videoTrack = null;
 
-      qrGuide.style.display = 'none';
-      qrHint.style.display  = 'none';
+      if (qrGuide) qrGuide.style.display = 'none';
+      if (qrHint)  qrHint.style.display  = 'none';
 
       setScanButton_start();
     }
@@ -900,6 +913,38 @@
     });
 
     lockZoneSelectors(false);
+
+    /* ---------- Evidenziazione dinamica del blocco 1 quando tab = scanner ---------- */
+    const section1 = document.getElementById('section1');
+
+    function applyTabHighlight(tab){
+      if (!section1) return;
+      if (tab === 'scanner') {
+        section1.classList.add('scanner-focus');
+      } else {
+        section1.classList.remove('scanner-focus');
+      }
+    }
+
+    // 1) default: se nel title c'è "Scanner" illumina
+    if (document.title.toLowerCase().includes('scanner')) {
+      applyTabHighlight('scanner');
+    }
+
+    // 2) se qualcuno imposta window.SSO_ACTIVE_TAB (prima o dopo il load)
+    if (window.SSO_ACTIVE_TAB) applyTabHighlight(window.SSO_ACTIVE_TAB);
+    Object.defineProperty(window, 'SSO_ACTIVE_TAB', {
+      set(v){ applyTabHighlight(v); },
+      get(){ return undefined; }
+    });
+
+    // 3) listener per evento custom dall’esterno
+    document.addEventListener('sso:tabchange', (e)=>{
+      const tab = e?.detail?.tab;
+      if (tab) applyTabHighlight(tab);
+    });
+
+    /* ----------------------------------------------------------------------------- */
 
     window.addEventListener('pagehide', async ()=>{ await stopCamera(); }, { once:true });
     window.addEventListener('beforeunload', async ()=>{ await stopCamera(); }, { once:true });
