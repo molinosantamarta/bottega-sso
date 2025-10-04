@@ -220,7 +220,6 @@
       mix-blend-mode:screen;
       pointer-events:none;
       animation: torch-breathe 1.6s ease-in-out infinite;
-      z-index: 0;
     }
     .icon-btn.torch-on::after{
       content:""; position:absolute; left:50%; bottom:44px; transform:translateX(-50%);
@@ -236,8 +235,6 @@
       filter: blur(12px) saturate(125%);
       mix-blend-mode: screen;
       pointer-events:none;
-      animation: torch-breathe 1.8s ease-in-out infinite;
-      z-index: 0;
     }
     .icon-btn:active{ transform:scale(.97); }
     .icon-btn svg{ width:22px; height:22px; display:block; }
@@ -399,36 +396,44 @@
 
   <script>
   (function(){
-    const root = document.querySelector('[data-sso]');
-    const loc = root.querySelector('#loc');
-    const zoneLine = root.querySelector('#zoneLine');
-    const list = root.querySelector('#list');
-    const badge1 = root.querySelector('#badge1');
-    const badge2 = root.querySelector('#badge2');
-    const badge3 = root.querySelector('#badge3');
-    const badge4 = document.getElementById('badge4');
-    const selectedZoneBox = root.querySelector('#selectedZone');
-    const videoWrap = document.getElementById('videoWrap');
-    const video = root.querySelector('#video');
-    const placeholder = root.querySelector('#placeholder');
-    const dupMsg = document.getElementById('dupMsg');
-    const qrGuide = document.getElementById('qrGuide');
-    const qrHint  = document.getElementById('qrHint');
-    const btnScan = root.querySelector('#btnScan');
-    const btnClear= root.querySelector('#btnClear');
-    const btnCopy = root.querySelector('#btnCopy');
-    const btnTorch= document.getElementById('btnTorch');
-    const torchState = document.getElementById('torchState');
-    const step4 = document.getElementById('section4');
-    const step4Box = document.getElementById('step4Box');
-    const pDoneOuter = document.getElementById('pDoneOuter');
-    const btnNewExternal = document.getElementById('btnNew');
-    const btnNewOuter = document.getElementById('btnNewOuter');
+    /* === SCOPING: limita tutto al container che include questo script === */
+    const SECTION = (document.currentScript && document.currentScript.closest('[data-view]')) || document;
+    const root = SECTION.querySelector('[data-sso]');
+    if (!root) { console.warn('Scanner: [data-sso] non trovato nel suo container'); return; }
+
+    const $  = (sel) => root.querySelector(sel);
+    const $$ = (sel) => Array.from(root.querySelectorAll(sel));
+    const S  = (sel) => SECTION.querySelector(sel); // per elementi fuori da [data-sso] ma dentro la stessa view
+
+    const loc = $('#loc');
+    const zoneLine = $('#zoneLine');
+    const list = $('#list');
+    const badge1 = $('#badge1');
+    const badge2 = $('#badge2');
+    const badge3 = $('#badge3');
+    const badge4 = S('#badge4');
+    const selectedZoneBox = $('#selectedZone');
+    const videoWrap = S('#videoWrap');
+    const video = $('#video');
+    const placeholder = $('#placeholder');
+    const dupMsg = S('#dupMsg');
+    const qrGuide = S('#qrGuide');
+    const qrHint  = S('#qrHint');
+    const btnScan = $('#btnScan');
+    const btnClear= $('#btnClear');
+    const btnCopy = $('#btnCopy');
+    const btnTorch= S('#btnTorch');
+    const torchState = S('#torchState');
+    const step4 = S('#section4');
+    const step4Box = S('#step4Box');
+    const pDoneOuter = S('#pDoneOuter');
+    const btnNewExternal = S('#btnNew');
+    const btnNewOuter = S('#btnNewOuter');
 
     // Manual keypad
-    const toggleKeypadBtn = document.getElementById('toggleKeypad');
-    const keypad = document.getElementById('keypad');
-    const keyDisplay = document.getElementById('keyDisplay');
+    const toggleKeypadBtn = S('#toggleKeypad');
+    const keypad = S('#keypad');
+    const keyDisplay = S('#keyDisplay');
 
     let currentZone = null;
     const data = {};           // { zone: [numbers] }
@@ -454,13 +459,13 @@
     if (qrHint)  qrHint.style.display  = 'none';
 
     /* Sblocco difensivo click & type */
-    document.querySelectorAll('#segNegozio .opt, #segCamion .opt, .chip, #useCustom').forEach(el=>{
+    $$('#segNegozio .opt, #segCamion .opt, .chip, #useCustom').forEach(el=>{
       if (el.tagName === 'BUTTON' && !el.hasAttribute('type')) el.setAttribute('type','button');
       el.removeAttribute('disabled');
       el.style.pointerEvents = 'auto';
     });
     // assicuro priorità del blocco 1
-    const s1 = document.getElementById('section1'); if (s1) s1.style.zIndex = '10';
+    const s1 = S('#section1'); if (s1) s1.style.zIndex = '10';
 
     /* Audio feedback */
     const AC = window.AudioContext || window.webkitAudioContext;
@@ -484,16 +489,16 @@
     badge1.classList.add('pulse');
 
     function markActive(sectionId){
-      document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
-      const sec = document.getElementById(sectionId);
+      $$('.section').forEach(s=>s.classList.remove('active'));
+      const sec = S('#'+sectionId);
       if (sec) sec.classList.add('active');
     }
 
     function clearZoneSelectionsUI(){
-      root.querySelectorAll('.opt,.chip').forEach(b=>b.classList.remove('active'));
+      $$('.opt,.chip').forEach(b=>b.classList.remove('active'));
       selectedZoneBox.classList.remove('active');
-      loc.textContent = 'Nessuna zona selezionata';
-      zoneLine.textContent = '—';
+      if (loc) loc.textContent = 'Nessuna zona selezionata';
+      if (zoneLine) zoneLine.textContent = '—';
     }
 
     function select(z){
@@ -502,25 +507,25 @@
         return;
       }
       currentZone = z;
-      loc.textContent = z;
-      zoneLine.textContent = z;
+      if (loc) loc.textContent = z;
+      if (zoneLine) zoneLine.textContent = z;
       renderList();
 
-      root.querySelectorAll('.seg-label').forEach(l=>l.classList.remove('active'));
-      root.querySelectorAll('.seg').forEach(s=>s.classList.remove('active'));
-      root.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
+      $$('.seg-label').forEach(l=>l.classList.remove('active'));
+      $$('.seg').forEach(s=>s.classList.remove('active'));
+      $$('.chip').forEach(c=>c.classList.remove('active'));
       selectedZoneBox.classList.remove('active');
 
       if(z.startsWith('NEGOZIO')){
-        root.querySelector('#segNegozio').previousElementSibling.classList.add('active');
-        root.querySelector('#segNegozio').classList.add('active');
+        $('#segNegozio').previousElementSibling.classList.add('active');
+        $('#segNegozio').classList.add('active');
       }
       if(z.startsWith('CAMION')){
-        root.querySelector('#segCamion').previousElementSibling.classList.add('active');
-        root.querySelector('#segCamion').classList.add('active');
+        $('#segCamion').previousElementSibling.classList.add('active');
+        $('#segCamion').classList.add('active');
       }
       if(z.startsWith('CARNE') || z.startsWith('SCALE')){
-        const chip = [...root.querySelectorAll('.chip')].find(c => c.dataset.zone===z);
+        const chip = [...$$('.chip')].find(c => c.dataset.zone===z);
         if(chip) chip.classList.add('active');
       }
 
@@ -528,7 +533,7 @@
       badge1.classList.add('done');
       badge2.classList.add('pulse');
 
-      document.getElementById('section1').classList.add('active');
+      S('#section1').classList.add('active');
       selectedZoneBox.classList.add('active');
 
       soundZoneChange();
@@ -544,7 +549,7 @@
     function updateSummaryFor(zone){
       const arr = (data[zone]||[]);
       const unique = new Set(arr).size;
-      const summary = root.querySelector('#summary');
+      const summary = $('#summary');
       if (summary) {
         const label = unique === 1 ? 'ordine' : 'ordini';
         summary.textContent = `${unique} ${label} in memoria`;
@@ -565,6 +570,7 @@
     }
 
     function showDuplicateOverlay(){
+      if (!dupMsg) return;
       dupMsg.classList.add('show');
       clearTimeout(dupTimer);
       dupTimer = setTimeout(()=>dupMsg.classList.remove('show'), 1200);
@@ -602,55 +608,61 @@
 
     // --- Inserimento manuale ---
     let manualBuffer = "";
-    function refreshManualDisplay(){ keyDisplay.textContent = manualBuffer.length ? manualBuffer : '—'; }
+    function refreshManualDisplay(){ if (keyDisplay) keyDisplay.textContent = manualBuffer.length ? manualBuffer : '—'; }
 
-    toggleKeypadBtn.addEventListener('click', ()=>{
-      if (!currentZone){
-        alert('Seleziona prima una zona per poter inserire manualmente.');
-        return;
-      }
-      keypad.classList.toggle('show');
-      if (!keypad.classList.contains('show')) {
-        manualBuffer = "";
-        refreshManualDisplay();
-      }
-    });
+    if (toggleKeypadBtn) {
+      toggleKeypadBtn.addEventListener('click', ()=>{
+        if (!currentZone){
+          alert('Seleziona prima una zona per poter inserire manualmente.');
+          return;
+        }
+        keypad.classList.toggle('show');
+        if (!keypad.classList.contains('show')) {
+          manualBuffer = "";
+          refreshManualDisplay();
+        }
+      });
+    }
 
-    /* PATCH: evento click senza opzioni passive (per Safari vecchi) */
-    keypad.addEventListener('click', (e)=>{
-      const k = e.target.closest('.key'); if (!k) return;
-      const act = k.dataset.act;
-      if (act === 'back'){ manualBuffer = manualBuffer.slice(0,-1); refreshManualDisplay(); return; }
-      if (act === 'ok'){
-        if (!manualBuffer) return;
-        const n = parseInt(manualBuffer, 10);
-        if (Number.isFinite(n) && n >= 1 && n <= 999) { addScanned(n); }
-        else { alert('Inserisci un valore da 1 a 999.'); }
-        manualBuffer = ""; refreshManualDisplay(); return;
-      }
-      const digit = k.textContent.trim();
-      if (/^\d$/.test(digit)){
-        const next = (manualBuffer + digit).replace(/^0+(\d)/,'$1');
-        if (next.length <= 3) { manualBuffer = next; refreshManualDisplay(); }
-      }
-    });
+    if (keypad){
+      keypad.addEventListener('click', (e)=>{
+        const k = e.target.closest('.key'); if (!k) return;
+        const act = k.dataset.act;
+        if (act === 'back'){ manualBuffer = manualBuffer.slice(0,-1); refreshManualDisplay(); return; }
+        if (act === 'ok'){
+          if (!manualBuffer) return;
+          const n = parseInt(manualBuffer, 10);
+          if (Number.isFinite(n) && n >= 1 && n <= 999) { addScanned(n); }
+          else { alert('Inserisci un valore da 1 a 999.'); }
+          manualBuffer = ""; refreshManualDisplay(); return;
+        }
+        const digit = k.textContent.trim();
+        if (/^\d$/.test(digit)){
+          const next = (manualBuffer + digit).replace(/^0+(\d)/,'$1');
+          if (next.length <= 3) { manualBuffer = next; refreshManualDisplay(); }
+        }
+      });
+    }
 
     // Selettori zona
-    root.querySelectorAll('#segNegozio .opt, #segCamion .opt, .chip').forEach(btn=>{
+    $$('#segNegozio .opt, #segCamion .opt, .chip').forEach(btn=>{
       btn.addEventListener('click', ()=>{
         if (scanningLocked){ alert('Non puoi cambiare zona dopo aver avviato la scansione.'); return; }
-        root.querySelectorAll('.opt, .chip').forEach(b=>b.classList.remove('active'));
+        $$('.opt, .chip').forEach(b=>b.classList.remove('active'));
         btn.classList.add('active');
         select(btn.dataset.zone);
-      }); /* PATCH: rimosso {passive:true} */
+      });
       btn.style.pointerEvents = 'auto';
     });
-    root.querySelector('#useCustom').addEventListener('click', ()=>{
-      if (scanningLocked){ alert('Non puoi cambiare zona dopo aver avviato la scansione.'); return; }
-      const v = (root.querySelector('#customZone').value||'').trim(); if (!v) return;
-      root.querySelectorAll('.opt,.chip').forEach(b=>b.classList.remove('active'));
-      select(v);
-    });
+    const useCustom = $('#useCustom');
+    if (useCustom){
+      useCustom.addEventListener('click', ()=>{
+        if (scanningLocked){ alert('Non puoi cambiare zona dopo aver avviato la scansione.'); return; }
+        const v = ($('#customZone').value||'').trim(); if (!v) return;
+        $$('.opt,.chip').forEach(b=>b.classList.remove('active'));
+        select(v);
+      });
+    }
 
     // === Camera / QR ===
     async function openCamera(){
@@ -690,7 +702,7 @@
 
         markActive('section2');
         video.style.display='block';
-        placeholder.style.display='none';
+        if (placeholder) placeholder.style.display='none';
 
         badge2.classList.remove('pulse'); badge2.classList.add('done'); badge3.classList.add('pulse');
 
@@ -708,18 +720,18 @@
     }
 
     function lockZoneSelectors(lock){
-      root.querySelectorAll('#segNegozio .opt, #segCamion .opt, .chip, #useCustom').forEach(el=>{
+      $$('#segNegozio .opt, #segCamion .opt, .chip, #useCustom').forEach(el=>{
         if (lock) el.setAttribute('disabled','disabled');
         else el.removeAttribute('disabled');
       });
-      const customInput = root.querySelector('#customZone');
+      const customInput = $('#customZone');
       if (customInput) customInput.disabled = !!lock;
     }
 
     async function stopCamera(){
       if (window.stopQR) window.stopQR();
       qrRunning = false; qrPaused = false;
-      videoWrap.classList.remove('paused');
+      if (videoWrap) videoWrap.classList.remove('paused');
 
       if (stream){ for (const t of stream.getTracks()) t.stop(); stream = null; }
       try{ video.pause(); }catch(_){ }
@@ -754,7 +766,7 @@
         qrPaused = true;
         if (window.stopQR) window.stopQR();
         qrRunning = false;
-        videoWrap.classList.add('paused');
+        if (videoWrap) videoWrap.classList.add('paused');
         setScanButton_paused();
         setActionButtonsEnabled(true);
       } else {
@@ -768,28 +780,30 @@
           qrRunning = true;
         }
         qrPaused = false;
-        videoWrap.classList.remove('paused');
+        if (videoWrap) videoWrap.classList.remove('paused');
         setScanButton_active();
         setActionButtonsEnabled(true);
       }
     });
 
-    btnTorch.addEventListener('click', async ()=>{
-      try {
-        if (!videoTrack) {
-          await openCamera();
-          if (!videoTrack) return;
-        }
-        const caps = videoTrack.getCapabilities && videoTrack.getCapabilities();
-        if (!caps || !caps.torch) { alert('Torcia non supportata su questo dispositivo'); return; }
-        const settings = videoTrack.getSettings && videoTrack.getSettings();
-        const current = settings && settings.torch ? true : false;
-        await videoTrack.applyConstraints({ advanced: [{ torch: !current }] });
-        const on = !current;
-        btnTorch.classList.toggle('torch-on', on);
-        torchState.textContent = on ? 'ON' : 'OFF';
-      } catch (e) { console.error(e); }
-    });
+    if (btnTorch){
+      btnTorch.addEventListener('click', async ()=>{
+        try {
+          if (!videoTrack) {
+            await openCamera();
+            if (!videoTrack) return;
+          }
+          const caps = videoTrack.getCapabilities && videoTrack.getCapabilities();
+          if (!caps || !caps.torch) { alert('Torcia non supportata su questo dispositivo'); return; }
+          const settings = videoTrack.getSettings && videoTrack.getSettings();
+          const current = settings && settings.torch ? true : false;
+          await videoTrack.applyConstraints({ advanced: [{ torch: !current }] });
+          const on = !current;
+          btnTorch.classList.toggle('torch-on', on);
+          if (torchState) torchState.textContent = on ? 'ON' : 'OFF';
+        } catch (e) { console.error(e); }
+      });
+    }
 
     async function copyCurrentPayloadToClipboard(){
       const zone = currentZone || '';
@@ -807,13 +821,13 @@
       const zoneVal   = (zona || "-").trim();
       const ordersVal = (Array.isArray(ordini) && ordini.length) ? ordini.join(",") : "-";
 
-      let iframe = document.getElementById("hidden_iframe_gform");
+      let iframe = S("#hidden_iframe_gform");
       if (!iframe) {
         iframe = document.createElement("iframe");
         iframe.name = "hidden_iframe_gform";
         iframe.id   = "hidden_iframe_gform";
         iframe.style.display = "none";
-        document.body.appendChild(iframe);
+        SECTION.appendChild(iframe);
       }
 
       const form = document.createElement("form");
@@ -833,7 +847,7 @@
       inOrders.value = ordersVal;
       form.appendChild(inOrders);
 
-      document.body.appendChild(form);
+      SECTION.appendChild(form);
       try { form.submit(); } finally { form.remove(); }
       return true;
     }
@@ -843,7 +857,7 @@
 
       for (const k in data) delete data[k];
       list.innerHTML = '<em style="opacity:.7">Nessun numero</em>';
-      const summary = root.querySelector('#summary'); if (summary) summary.textContent = '0 ordini in memoria';
+      const summary = $('#summary'); if (summary) summary.textContent = '0 ordini in memoria';
 
       if (clearClipboard){
         try { await navigator.clipboard.writeText(''); } catch(_){}
@@ -852,16 +866,16 @@
       [badge1,badge2,badge3,badge4].forEach(b=>{ if(b) b.classList.remove('done','pulse'); });
       badge1.classList.add('pulse');
 
-      document.getElementById('section1').classList.add('active');
+      S('#section1').classList.add('active');
       ['section2','section3'].forEach(id=>{
-        const el = document.getElementById(id);
+        const el = S('#'+id);
         if (el && id!=='section1') el.classList.remove('active');
       });
 
       video.style.display='none';
-      placeholder.style.display='block';
-      videoWrap.classList.remove('paused');
-      dupMsg.classList.remove('show');
+      if (placeholder) placeholder.style.display='block';
+      if (videoWrap) videoWrap.classList.remove('paused');
+      if (dupMsg) dupMsg.classList.remove('show');
 
       currentZone = null;
       clearZoneSelectionsUI();
@@ -872,11 +886,11 @@
       setActionButtonsEnabled(false);
       setScanButton_start();
 
-      btnTorch.classList.remove('torch-on');
-      torchState.textContent = 'OFF';
+      if (btnTorch) btnTorch.classList.remove('torch-on');
+      if (torchState) torchState.textContent = 'OFF';
 
-      keypad.classList.remove('show');
-      manualBuffer = ""; keyDisplay.textContent = '—';
+      if (keypad) keypad.classList.remove('show');
+      manualBuffer = ""; if (keyDisplay) keyDisplay.textContent = '—';
 
       firstScanDone = false;
       if (qrGuide) qrGuide.style.display = 'none';
@@ -917,8 +931,8 @@
         </div>
       `;
 
-      const pInner = document.getElementById('pInner');
-      const pMsg = document.getElementById('pMsg');
+      const pInner = S('#pInner');
+      const pMsg = S('#pMsg');
 
       let pct = 0;
 
@@ -969,10 +983,10 @@
       btnCopy.classList.remove('success'); btnCopy.classList.add('ghost');
       btnClear.classList.remove('danger'); btnClear.classList.add('ghost');
 
-      keypad.classList.remove('show'); manualBuffer = ""; keyDisplay.textContent = '—';
+      if (keypad) keypad.classList.remove('show'); manualBuffer = ""; if (keyDisplay) keyDisplay.textContent = '—';
       if (currentZone && data[currentZone]) delete data[currentZone];
       list.innerHTML = '<em style="opacity:.7">Nessun numero</em>';
-      document.getElementById('summary').textContent = '0 ordini in memoria';
+      const sum = $('#summary'); if (sum) sum.textContent = '0 ordini in memoria';
 
       clearZoneSelectionsUI();
       currentZone = null;
@@ -993,7 +1007,7 @@
     lockZoneSelectors(false);
 
     /* Evidenziazione dinamica del blocco 1 quando tab = scanner */
-    const section1 = document.getElementById('section1');
+    const section1 = S('#section1');
     function applyTabHighlight(tab){
       if (!section1) return;
       if (tab === 'scanner') {
