@@ -7,481 +7,184 @@
   <style>
     /* ===== Base ===== */
     html, body { height:100%; background:#000; margin:0; }
-    [data-sso] { color-scheme: dark; font-family:-apple-system,system-ui,Segoe UI,Roboto,sans-serif; background:var(--bg); color:var(--fg); -webkit-text-size-adjust:115%; text-size-adjust:115%; }
-    [data-sso] :where(*) { box-sizing:border-box; }
-    [data-sso]{ --bg:#000; --fg:#fff; --accent:#0a84ff; --border:#2c2c2e; --highlight:#ffd60a; --pane-max:min(760px,100vw); --radius:22px; --elev:0 10px 24px rgba(0,0,0,.15); }
+    [data-sso] { color-scheme: dark; font-family:-apple-system,system-ui,Segoe UI,Roboto,sans-serif; background:var(--bg); color:var(--fg); }
+    [data-sso]{ --bg:#000; --fg:#fff; --accent:#0a84ff; --border:#2c2c2e; --highlight:#ffd60a; --radius:22px; --elev:0 10px 24px rgba(0,0,0,.15); }
 
-    .wrap{ width:100%; max-width:var(--pane-max); margin:0 auto; padding:calc(8px + env(safe-area-inset-top)) 0 calc(24px + env(safe-area-inset-bottom)); display:flex; flex-direction:column; gap:14px; align-items:center; }
+    .wrap{ width:100%; max-width:min(760px,100vw); margin:0 auto; padding:calc(8px + env(safe-area-inset-top)) 0 calc(24px + env(safe-area-inset-bottom)); display:flex; flex-direction:column; gap:14px; align-items:center; }
+    .section{ width:calc(100% - 32px); border-radius:var(--radius); padding:14px 16px; background:#fff; color:#111; border:1px solid rgba(0,0,0,.08); box-shadow:var(--elev); }
 
-    /* ===== Card ===== */
-    .section{ width:calc(100% - 32px); max-width:var(--pane-max); margin:0; border-radius:var(--radius); padding:14px 16px; background:#fff; color:#111; border:1px solid rgba(0,0,0,.08); box-shadow:var(--elev); transition:transform .2s ease, box-shadow .25s ease, border-color .25s ease; overflow:hidden; }
-    .section:active{ transform:translateY(.5px); }
-    @media (max-width:430px){ .section{ width:calc(100% - 24px); padding:12px; border-radius:18px; } }
+    .title{ display:flex; align-items:center; gap:8px; font-weight:800; font-size:18px; margin-bottom:8px; color:#111; }
+    .text{ font-size:15px; color:#222; }
 
-    .title{ display:flex; align-items:center; gap:8px; font-size:clamp(15px,3.8vw,18px); font-weight:800; color:#111; margin:2px 0 8px; letter-spacing:.2px; }
-    .text{ font-size:clamp(13px,3.5vw,15px); line-height:1.45; color:#222; opacity:.95; }
+    .blink{ width:8px; height:8px; border-radius:999px; background:var(--highlight); animation:blink 1.2s ease-in-out infinite; }
+    @keyframes blink{ 0%,100%{opacity:1;}50%{opacity:.5;} }
 
-    /* ===== Blink indicator ===== */
-    .blink{ width:8px; height:8px; border-radius:999px; background:var(--highlight); box-shadow:0 0 0 3px rgba(255,214,10,.25); animation:blink 1.2s ease-in-out infinite; }
-    @keyframes blink{ 0%,100%{ opacity:1; box-shadow:0 0 0 3px rgba(255,214,10,.25), 0 0 0 rgba(255,214,10,0);} 50%{ opacity:.65; box-shadow:0 0 0 3px rgba(255,214,10,.25), 0 0 20px rgba(255,214,10,.55);} }
-
-    /* ===== Divider ===== */
-    .divider{ width:100%; max-width:var(--pane-max); position:relative; height:0; }
-    .divider::before{ content:""; position:absolute; left:-24px; right:-24px; top:-1px; height:2px; background:var(--highlight); box-shadow:0 0 0 1px rgba(255,214,10,.65), 0 0 18px rgba(255,214,10,.25); }
+    .divider{ width:100%; height:2px; background:var(--highlight); box-shadow:0 0 8px rgba(255,214,10,.3); margin:10px 0; }
 
     /* ===== Search ===== */
     .search{ display:flex; flex-direction:column; gap:10px; margin-top:10px; }
-    .input{ flex:1; width:100%; padding:16px; border-radius:16px; border:1px solid var(--border); background:#fff; color:#111; font-size:16px; line-height:1.1; outline:none; transition:border .2s ease, box-shadow .2s ease; }
-    .input:focus{ border-color:var(--accent); box-shadow:0 0 0 3px rgba(10,132,255,.25); }
-    .input::placeholder{ color:#777; }
-    .btn{ width:100%; height:48px; border:none; border-radius:16px; background:#0a84ff; color:#fff; font-weight:700; font-size:15px; letter-spacing:.2px; cursor:pointer; box-shadow:0 4px 14px rgba(10,132,255,.35); transition:background .2s ease; }
-    .btn:hover{ background:#0068e6; }
-    .btn:active{ transform:translateY(.5px); }
-    @media (min-width:520px){ .search{ flex-direction:row; align-items:center; } .btn{ width:auto; height:auto; padding:12px 20px; } }
+    .input{ flex:1; padding:14px; border-radius:16px; border:1px solid var(--border); font-size:16px; background:#fff; color:#111; }
+    .btn{ border:none; border-radius:16px; padding:14px 20px; background:#0a84ff; color:#fff; font-weight:700; cursor:pointer; box-shadow:0 4px 14px rgba(10,132,255,.35); }
+    @media(min-width:520px){.search{flex-direction:row;}.btn{width:auto;}}
 
-    /* ===== Orders (shared UI) ===== */
+    /* ===== Orders ===== */
     .orders{ display:flex; flex-direction:column; gap:10px; }
-    #out.orders{ margin-top:18px; }
+    #out.orders{ margin-top:16px; }               /* spazio extra sotto la barra di ricerca */
+    #ritiri-list.orders{ margin-top:16px; }       /* spazio extra sotto i bottoni Oggi/Domani/Data */
+
     .order-card{ display:flex; align-items:center; gap:12px; padding:12px; border-radius:14px; background:#fff; border:1px solid rgba(0,0,0,.08); box-shadow:var(--elev); cursor:pointer; }
     .order-badge{ min-width:46px; height:32px; display:inline-flex; align-items:center; justify-content:center; border-radius:999px; background:#ffd60a; color:#000; font-weight:900; }
     .order-main{ flex:1; min-width:0; }
     .order-name{ font-weight:800; color:#0b0b0b; font-size:15px; }
-    .order-sub{ color:#555; font-size:12px; margin-top:3px; display:flex; gap:10px; flex-wrap:wrap; }
-    .order-zone{ background:#111; color:#fff; border-radius:999px; padding:4px 8px; font-weight:700; font-size:11px; }
-    .order-zone.missing{ background:#f6f6f7; color:#111; border:1px dashed #bbb; }
-    .order-time{ background:#f2f2f3; color:#111; border-radius:999px; padding:4px 8px; font-weight:700; font-size:11px; }
+    .order-sub{ display:flex; flex-wrap:wrap; gap:6px; margin-top:4px; }
+    .order-pill{ padding:4px 8px; border-radius:999px; font-weight:700; font-size:11px; }
+    .order-time{ background:#f2f2f3; color:#111; }
+    .order-date{ background:#e9e9eb; color:#111; }
+    .order-zone{ background:#111; color:#fff; }
 
-    /* ===== Tabs / selectors ===== */
-    .tabs{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin:6px 0 10px; }
-    .tab{ appearance:none; border:none; padding:10px 14px; border-radius:999px; background:#f2f2f3; color:#111; font-weight:800; font-size:13px; letter-spacing:.2px; cursor:pointer; border:1px solid rgba(0,0,0,.06); }
-    .tab.active{ background:#111; color:#fff; border-color:#111; }
-    .tab:active{ transform:translateY(.5px); }
+    /* ===== Tabs / Date ===== */
+    .tabs{ display:flex; gap:12px; flex-wrap:nowrap; overflow:auto; }
+    .tab{ padding:10px 14px; border-radius:999px; border:1px solid rgba(0,0,0,.06); background:#f2f2f3; font-weight:800; cursor:pointer; white-space:nowrap; color:#111; }
+    .tab.active{ background:#111; color:#fff; }
+    .tab-date{ position:relative; }
+    .date-ghost{ position:absolute; inset:0; opacity:0; cursor:pointer; }
 
-    /* ===== Date picker (mobile-friendly) ===== */
-    .date-picker{ display:none; margin-left:auto; }
-    .tabs.show-date .date-picker{ display:flex; }
-    .date-input{ appearance:none; padding:10px 14px; border-radius:999px; border:1px solid rgba(0,0,0,.08); background:#fff; color:#111; font-weight:800; font-size:13px; letter-spacing:.2px; box-shadow:var(--elev); }
-    .date-input::-webkit-calendar-picker-indicator{ cursor:pointer; }
-
-    /* ===== Fullscreen order sheet ===== */
-    .sheet{ position:fixed; inset:0; z-index:50; display:none; }
-    .sheet[open]{ display:block; }
-    .sheet-backdrop{ position:absolute; inset:0; background:rgba(0,0,0,.55); backdrop-filter:saturate(120%) blur(2px); }
-    .sheet-panel{ position:absolute; inset:env(safe-area-inset-top) 0 env(safe-area-inset-bottom) 0; margin:0 auto; max-width:var(--pane-max); height:calc(100% - env(safe-area-inset-top) - env(safe-area-inset-bottom)); background:#fff; color:#111; border:1px solid rgba(0,0,0,.08); border-radius:0; box-shadow:0 20px 40px rgba(0,0,0,.35); display:flex; flex-direction:column; }
-    .sheet-head{ padding:12px 14px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid rgba(0,0,0,.08); }
-    .sheet-title{ font-weight:900; font-size:18px; }
-    .sheet-sub{ font-size:12px; color:#444; }
-    .sheet-close{ appearance:none; border:none; background:#111; color:#fff; border-radius:999px; padding:8px 12px; font-weight:800; cursor:pointer; }
-    .sheet-body{ padding:12px 16px 24px; overflow:auto; }
-    .sheet-tags{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin:8px 0 12px; }
-    .tag{ display:inline-flex; align-items:center; justify-content:center; padding:6px 10px; border-radius:999px; font-weight:800; font-size:11px; border:1px solid rgba(0,0,0,.08); }
-    .tag.dark{ background:#111; color:#fff; border-color:#111; }
-    .tag.light{ background:#f3f3f4; color:#111; }
-    .brand-oval{ display:inline-flex; align-items:center; justify-content:center; padding:6px 16px; border-radius:999px; border:1px solid #111; font-weight:800; font-size:12px; }
-    .sheet-list{ margin:14px auto; max-width:520px; }
-    .sheet-list ul{ list-style:none; padding:0; margin:0; text-align:center; }
-    .sheet-list li{ padding:6px 0; border-bottom:1px dashed rgba(0,0,0,.08); }
-    .sheet-meta{ display:flex; justify-content:space-between; align-items:center; font-size:12px; color:#555; margin-top:6px; }
-
-    /* Date accent for titles */
     .date-accent{ color:#22c55e; font-weight:900; }
-
-    /* ===== Empty states ===== */
     .empty{ padding:12px; border-radius:14px; border:1px dashed rgba(0,0,0,.15); background:#fff; color:#333; font-size:14px; text-align:center; }
   </style>
 </head>
 <body>
   <div data-sso>
     <div class="wrap">
-
-      <!-- Blocco: Pagina in sviluppo -->
-      <section class="section" aria-labelledby="dev-title">
-        <h2 id="dev-title" class="title"><span class="blink" aria-hidden="true"></span> Pagina in sviluppo</h2>
+      <section class="section">
+        <h2 class="title"><span class="blink"></span> Pagina in sviluppo</h2>
         <p class="text">Questa pagina è in fase di sviluppo e verrà rilasciata con la versione <strong>SSO 10</strong>.</p>
       </section>
 
-      <!-- Divisione netta -->
-      <div class="divider" role="separator" aria-label="Inizio area operativa"></div>
+      <div class="divider"></div>
 
       <!-- Blocco: Ricerca rapida -->
-      <section class="section" aria-labelledby="search-title">
-        <h2 id="search-title" class="title">Ricerca rapida</h2>
+      <section class="section">
+        <h2 class="title">Ricerca rapida</h2>
         <p class="text">Inserisci il <strong>nome cliente</strong> per risalire al numero d'ordine e alla posizione di stoccaggio.</p>
-        <div class="search" role="search">
-          <input id="q" class="input" type="search" inputmode="search" autocomplete="off" placeholder="Cerca nome cliente…" aria-label="Cerca per nome" />
-          <button id="go" class="btn" type="button" aria-label="Cerca">Cerca</button>
+        <div class="search">
+          <input id="q" class="input" type="search" placeholder="Cerca nome cliente…" />
+          <button id="go" class="btn">Cerca</button>
         </div>
-        <div id="out" class="orders" role="list" aria-live="polite"></div>
+        <div id="out" class="orders"></div>
       </section>
 
       <!-- Blocco: Elenco ritiri -->
-      <section class="section" aria-labelledby="ritiri-title">
-        <h2 id="ritiri-title" class="title">Ritiri di <span id="ritiri-title-date" class="date-accent">—</span></h2>
-        <div id="ritiri-tabs" class="tabs" role="tablist">
-          <button class="tab active" role="tab" aria-selected="true" id="tab-oggi">Oggi</button>
-          <button class="tab" role="tab" aria-selected="false" id="tab-domani">Domani</button>
-          <button class="tab" role="tab" aria-selected="false" id="tab-data">Data</button>
-          <div class="date-picker">
-            <input id="ritiri-date" class="date-input" type="date" aria-label="Seleziona data" />
-          </div>
+      <section class="section">
+        <h2 class="title">Ritiri di <span id="ritiri-title-date" class="date-accent">—</span></h2>
+        <div class="tabs">
+          <button class="tab active" id="tab-oggi">Oggi</button>
+          <button class="tab" id="tab-domani">Domani</button>
+          <button class="tab tab-date" id="tab-data"><span id="tab-date-label">Data</span><input id="ritiri-date" class="date-ghost" type="date" /></button>
         </div>
-        <div id="ritiri-list" class="orders" role="list" aria-live="polite"></div>
+        <div id="ritiri-list" class="orders"></div>
       </section>
-
-    </div>
-  </div>
-
-  <!-- Fullscreen order sheet (modal) -->
-  <div id="order-sheet" class="sheet" role="dialog" aria-modal="true" aria-hidden="true">
-    <div class="sheet-backdrop" data-close></div>
-    <div class="sheet-panel">
-      <div class="sheet-head">
-        <div>
-          <div id="sheet-title" class="sheet-title">—</div>
-          <div id="sheet-sub" class="sheet-sub">—</div>
-        </div>
-        <button class="sheet-close" type="button" data-close>Chiudi</button>
-      </div>
-      <div class="sheet-body">
-        <div class="sheet-tags">
-          <span id="sheet-interno" class="tag light">ORDINE INTERNO</span>
-          <span id="sheet-pren" class="tag dark">SI</span>
-          <span id="sheet-order" class="tag light">#000</span>
-          <span class="brand-oval">La Bottega</span>
-        </div>
-        <div id="sheet-reparti" class="tag dark" style="margin-bottom:8px;">FRUTTA E VERDURA</div>
-        <div class="sheet-list">
-          <ul id="sheet-items"><li>—</li></ul>
-        </div>
-        <div class="sheet-meta">
-          <div id="sheet-zone">Zona: —</div>
-          <div id="sheet-note">Note: —</div>
-        </div>
-      </div>
     </div>
   </div>
 
   <script>
-    // ===== Config: Demo mode (disconnesso dal foglio) =====
-    const DEMO_MODE = true;
-
-    // ===== Utilities =====
+    // ===== Helpers =====
     const $ = s => document.querySelector(s);
-    const escapeHTML = s => s?.replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c])) ?? '';
+    const ymd = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    const ddmmyyyy = d => `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
+    const fmtIT = d => new Intl.DateTimeFormat('it-IT',{weekday:'long',day:'2-digit',month:'long'}).format(d);
 
-    // Date helpers
-    const addDays = (d,n) => { const x=new Date(d); x.setDate(x.getDate()+n); return x; };
-    const ymd = d => new Date(d).toISOString().slice(0,10);
-    function fullItalianDate(d){
-      try{
-        const s=new Intl.DateTimeFormat('it-IT',{weekday:'long',day:'2-digit',month:'long'}).format(d);
-        return s.charAt(0).toUpperCase()+s.slice(1);
-      }catch{
-        const g=['Domenica','Lunedì','Martedì','Mercoledì','Giovedì','Venerdì','Sabato'];
-        const m=['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno','Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'];
-        return `${g[d.getDay()]}, ${String(d.getDate()).padStart(2,'0')} ${m[d.getMonth()]}`;
-      }
-    }
-    function renderTitleDate(dateLike){
-      const d = (typeof dateLike==='string')? new Date(dateLike): new Date(dateLike);
-      const el=$('#ritiri-title-date');
-      const ok=d instanceof Date && !Number.isNaN(d.getTime());
-      el.textContent = ok? fullItalianDate(d) : '—';
-    }
-
-    // ===== CSV loader =====
-    function parseCSV(text){
-      const rows = [];
-      let cur = [], val = '', inQuotes = false;
-      for(let i=0;i<text.length;i++){
-        const ch = text[i], next = text[i+1];
-        if(inQuotes){
-          if(ch==='"' && next==='"'){ val+='"'; i++; }
-          else if(ch==='"'){ inQuotes=false; }
-          else { val+=ch; }
-        }else{
-          if(ch==='"'){ inQuotes=true; }
-          else if(ch===','){ cur.push(val); val=''; }
-          else if(ch==='\n'){ cur.push(val); rows.push(cur); cur=[]; val=''; }
-          else if(ch==='\r'){ /* skip */ }
-          else { val+=ch; }
-        }
-      }
-      if(val!=='' || cur.length) { cur.push(val); rows.push(cur); }
-      return rows;
-    }
-    const norm = s => s.toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu,'').replace(/[^a-z0-9]+/g,'_').replace(/^_|_$/g,'');
-
-    function parseAnyDate(s){
-      if(!s) return null;
-      if(/\d{4}-\d{2}-\d{2}/.test(s)) return new Date(s);
-      const m = String(s).match(/(\d{1,2})\/(\d{1,2})\/(\d{2,4})/);
-      if(m){ const dd=Number(m[1]), mm=Number(m[2])-1, yy=Number(m[3]); return new Date(yy<100?2000+yy:yy, mm, dd); }
-      const d = new Date(s); return Number.isNaN(d.getTime())? null : d;
-    }
-
-    function parseSheetCSV(text){
-      const rows = parseCSV(text).filter(r=>r.some(c=>c && String(c).trim()!==''));
-      if(!rows.length) return [];
-      const header = rows.shift().map(h=>norm(String(h||'')));
-      const idx = (name, alts=[])=>{ const keys=[name,...alts].map(norm); return header.findIndex(h=>keys.includes(h)); };
-      const colDate = idx('data',['giorno','date']);
-      const colName = idx('nome',['cliente','intestazione']);
-      const colOrder= idx('ordine',['ord','numero_ordine','n_ordine','ordine_id']);
-      const colZone = idx('zona',['stoccaggio','posizione','ubicazione']);
-      const colTime = idx('ora',['orario','time']);
-      const colItems= idx('items',['prodotti','righe','dettaglio']);
-      const colNote = idx('note',['annotazioni','osservazioni']);
-      const colRepa = idx('reparti',['reparto']);
-
-      const out = [];
-      for(const r of rows){
-        const rawDate = r[colDate]||'';
-        const rawName = r[colName]||'';
-        if(!rawName) continue;
-        const rawOrd  = r[colOrder]||'';
-        const ord = String(rawOrd||'').replace(/\D+/g,'');
-        const d = parseAnyDate(rawDate);
-        out.push({
-          dateKey: d? ymd(d): null,
-          name: rawName.trim(),
-          ord: ord? Number(ord): null,
-          zone: r[colZone]||null,
-          time: (r[colTime]||'').trim()||null,
-          items: (r[colItems]||'').split(/\s*;\s*|\n+/).filter(Boolean),
-          note: r[colNote]||'',
-          reparti: r[colRepa]||''
-        });
-      }
-      return out;
-    }
-
-    // ===== App state =====
-    let SHEET_ROWS = [];
-
-    // Dati demo sintetici per oggi e domani
-    function generateDemoRows(){
+    // ===== Demo data only =====
+    let DATA_ROWS = [];
+    function genDemo(){
       const zones = ['NEGOZIO - SOPRA','NEGOZIO - SOTTO','CELLA SOPRA','CAMION SOPRA','CAMION SOTTO','SCALE','CARNE'];
       const names = ['Abbiati','Negri','Tiziani','Monza','Invernizzi','Pontevecchio','Fontana','Rho','Pellegrino','Faspar','Pagani','Bernardi','Colombo','Brambilla'];
-      const today = new Date();
-      const tomorrow = addDays(today, 1);
-      const mk = (d, i) => ({
+      const today = new Date(); today.setHours(12,0,0,0);
+      const tomorrow = new Date(today); tomorrow.setDate(today.getDate()+1);
+      const mk=(d,i)=>({
         dateKey: ymd(d),
-        name: names[i % names.length],
+        dateText: ddmmyyyy(d),
+        name: names[i%names.length],
         ord: 100 + ((d.getDate()*37 + i*19) % 900),
-        zone: (i%3===0? null : zones[(i + d.getDay()) % zones.length]),
+        zone: (i%3===0? null : zones[(i+d.getDay())%zones.length]),
         time: `${String(8 + ((i*2 + d.getDay()) % 9)).padStart(2,'0')}:${String((i*15)%60).padStart(2,'0')}`,
-        items: ['Mele 1kg','Salame nostrano','Pane rustico'].slice(0, 1 + (i%3)),
-        note: (i%5===0? 'Consegna rapida' : ''),
-        reparti: 'FRUTTA E VERDURA' + (i%2? ', CARNE' : '')
       });
-      const arr = [];
-      for(let i=0;i<8;i++) arr.push(mk(today, i));
-      for(let i=0;i<6;i++) arr.push(mk(tomorrow, i));
+      const arr=[]; for(let i=0;i<8;i++) arr.push(mk(today,i)); for(let i=0;i<6;i++) arr.push(mk(tomorrow,i));
       return arr;
     }
 
-    async function loadSheet(){
-      const outBox = document.querySelector('#out');
-      const listEl = document.querySelector('#ritiri-list');
-      // In demo: nessun fetch, generiamo localmente
-      SHEET_ROWS = generateDemoRows();
-      if(!SHEET_ROWS.length){
-        if(outBox) outBox.innerHTML = `<div class="empty">Demo: nessun dato generato.</div>`;
-        if(listEl) listEl.innerHTML = `<div class="empty">Demo: nessun ritiro.</div>`;
-      }
-    }
-    }
-
-    // ===== Shared card renderer =====
-    function orderCard({ ord, name, zone, time }){
-      const safeName = escapeHTML(name||'—');
-      const safeZone = zone ? escapeHTML(zone) : null;
+    // ===== Card renderer con opzioni =====
+    function orderCard(o, opts={}){
+      const { hideDate=false, showDateFirst=false } = opts;
+      const datePill = hideDate ? '' : `<span class='order-pill order-date'>${o.dateText||''}</span>`;
+      const timePill = `<span class='order-pill order-time'>${o.time||''}</span>`;
+      const pills = showDateFirst ? `${datePill}${timePill}` : `${timePill}${datePill}`;
       return `
-        <div class="order-card" role="listitem" data-ord="${ord??''}" data-name="${safeName}" data-zone="${safeZone||''}" data-time="${time||''}">
-          <span class="order-badge">${ord??'—'}</span>
-          <div class="order-main">
-            <div class="order-name">${safeName}</div>
-            <div class="order-sub">
-              ${time ? `<span class="order-time">${time}</span>` : ''}
-              <span class="order-zone ${safeZone ? '' : 'missing'}">${safeZone || '?'}</span>
+        <div class='order-card'>
+          <span class='order-badge'>${o.ord??'—'}</span>
+          <div class='order-main'>
+            <div class='order-name'>${o.name}</div>
+            <div class='order-sub'>
+              ${pills}
+              <span class='order-pill order-zone'>${o.zone||'?'}</span>
             </div>
           </div>
         </div>`;
     }
 
-    // ===== Ricerca rapida (solo dati reali) =====
-    const q = $('#q');
-    const go = $('#go');
-    const out = $('#out');
-
-    function findRowsByName(part){
-      if(!SHEET_ROWS.length) return [];
-      const needle = part.trim().toLowerCase();
-      if(!needle) return [];
-      // match flessibile: esatto > inizio > include
-      const exact = SHEET_ROWS.filter(r=>r.name?.toLowerCase()===needle);
-      if(exact.length) return exact;
-      const starts = SHEET_ROWS.filter(r=>r.name?.toLowerCase().startsWith(needle));
-      if(starts.length) return starts;
-      return SHEET_ROWS.filter(r=>r.name?.toLowerCase().includes(needle));
+    function rowsForDate(d){ return DATA_ROWS.filter(r=>r.dateKey===ymd(d)); }
+    function renderList(d){
+      const rows = rowsForDate(d);
+      // NEL BLOCCO RITIRI: niente pillola data nelle card (già nel titolo verde)
+      const html = rows.length ? rows.map(o=>orderCard(o,{hideDate:true})).join('') : `<div class='empty'>Nessun ritiro</div>`;
+      $('#ritiri-list').innerHTML = html;
+      $('#ritiri-title-date').textContent=fmtIT(d);
     }
 
-    function renderSearch(name){
-      const rows = findRowsByName(name);
-      if(rows.length){
-        out.innerHTML = rows.map(r => orderCard({ ord:r.ord??'—', name:r.name, zone:r.zone??null, time:r.time })).join('');
-      } else {
-        out.innerHTML = `<div class="empty">Nessun risultato per "${escapeHTML(name)}".</div>`;
-      }
-    }
-
+    // ===== Ricerca: data PRIMA dell'ora nelle card =====
+    function findByName(q){ const n=q.trim().toLowerCase(); if(!n) return []; const exact=DATA_ROWS.filter(r=>r.name.toLowerCase()===n); if(exact.length) return exact; const starts=DATA_ROWS.filter(r=>r.name.toLowerCase().startsWith(n)); if(starts.length) return starts; return DATA_ROWS.filter(r=>r.name.toLowerCase().includes(n)); }
+    function demoOrdersForSearch(){ const sample = rowsForDate(new Date()); return sample.length? sample.slice(0,3): []; }
     function submit(){
-      const n = q.value.trim();
-      if(!n){ out.innerHTML = ''; return; }
-      renderSearch(n);
-      requestAnimationFrame(()=>out.scrollIntoView({behavior:'smooth', block:'start'}));
+      const qv = ($('#q').value||'').trim();
+      let rows = qv ? findByName(qv) : rowsForDate(new Date());
+      if(!rows.length) rows = demoOrdersForSearch();
+      // NEL BLOCCO RICERCA: mostra la data PRIMA dell'ora
+      $('#out').innerHTML = rows.map(o=>orderCard(o,{showDateFirst:true})).join('');
+      if(rows.length) $('#out').scrollIntoView({behavior:'smooth',block:'start'});
     }
 
-    // ===== Ritiri (solo righe presenti) =====
-    const tabs = { oggi: $('#tab-oggi'), domani: $('#tab-domani'), data: $('#tab-data') };
-    const tabsWrap = $('#ritiri-tabs');
-    const listEl = $('#ritiri-list');
-    const dateEl = $('#ritiri-date');
-
-    function rowsForDate(d){
-      if(!SHEET_ROWS.length) return [];
-      const key = ymd(d);
-      return SHEET_ROWS.filter(r=>r.dateKey===key);
-    }
-
-    function renderRitiri(date){
-      const data = rowsForDate(date);
-      if(data.length){
-        listEl.innerHTML = data.map(o => orderCard({ ord:o.ord??'—', name:o.name, zone:o.zone??null, time:o.time })).join('');
-      } else {
-        listEl.innerHTML = `<div class="empty">Nessun ritiro per questa data.</div>`;
-      }
-    }
+    // ===== Tabs & Date inline =====
+    const tabs={oggi:$('#tab-oggi'),domani:$('#tab-domani'),data:$('#tab-data')};
+    const dateInput=$('#ritiri-date'); const dateLabel=$('#tab-date-label');
+    const setDateTabLabel = d => { dateLabel.textContent = ddmmyyyy(d); };
 
     function activate(which){
-      // toggle tab styles
-      Object.values(tabs).forEach(btn=>{ btn.classList.remove('active'); btn.setAttribute('aria-selected','false'); });
+      Object.values(tabs).forEach(t=>{ t.classList.remove('active'); t.setAttribute('aria-selected','false'); });
       tabs[which].classList.add('active'); tabs[which].setAttribute('aria-selected','true');
-
-      // helper: costruisce una data robusta locale (Europe/Rome) a mezzogiorno
-      const atNoon = (d)=> new Date(`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}T12:00:00`);
-
       if(which==='data'){
-        tabsWrap.classList.add('show-date');
-        if(!dateEl.value){
-          const now = new Date();
-          dateEl.value = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
-        }
-        const picked = new Date(`${dateEl.value}T12:00:00`);
-        renderTitleDate(picked);
-        renderRitiri(picked);
+        if(!dateInput.value) dateInput.value = ymd(new Date());
+        const d = new Date(`${dateInput.value}T12:00:00`);
+        setDateTabLabel(d); renderList(d);
+        if(dateInput.showPicker){ try{ dateInput.showPicker(); }catch{} }
       } else {
-        tabsWrap.classList.remove('show-date');
-        const base = new Date();
-        const targetRaw = (which==='oggi' ? base : addDays(base,1));
-        const target = atNoon(targetRaw);
-        renderTitleDate(target);
-        renderRitiri(target);
-      }
-    } else {
-        tabsWrap.classList.remove('show-date');
-        const base = new Date();
-        const target = (which==='oggi' ? base : addDays(base,1));
-        renderTitleDate(target);
-        renderRitiri(target);
+        dateLabel.textContent='Data';
+        const base=new Date(); if(which==='domani') base.setDate(base.getDate()+1); renderList(base);
       }
     }
 
-    tabs.oggi.addEventListener('click', ()=>activate('oggi'));
-    tabs.domani.addEventListener('click', ()=>activate('domani'));
-    tabs.data.addEventListener('click', ()=>activate('data'));
-
-    dateEl.addEventListener('change', ()=>{
-      if(tabs.data.classList.contains('active')){
-        renderTitleDate(dateEl.value);
-        renderRitiri(dateEl.value);
-      }
-    });
-
-    // ===== Fullscreen order sheet logic =====
-    const sheet = $('#order-sheet');
-    const sheetTitle = $('#sheet-title');
-    const sheetSub = $('#sheet-sub');
-    const sheetReparti = $('#sheet-reparti');
-    const sheetItems = $('#sheet-items');
-    const sheetZone = $('#sheet-zone');
-    const sheetNote = $('#sheet-note');
-
-    const shortFmt = (dateStr)=>{ const d=new Date(dateStr||Date.now()); const g=['dom','lun','mar','mer','gio','ven','sab']; const m=['gen','feb','mar','apr','mag','giu','lug','ago','set','ott','nov','dic']; return `${g[d.getDay()]} ${d.getDate()} ${m[d.getMonth()]}`; };
-
-    function openSheet({ ord, name, zone, time }){
-      const row = (name? SHEET_ROWS.find(r=>r.name===name) : null) || null;
-      sheetTitle.textContent = name || '—';
-      sheetSub.textContent = time ? time : shortFmt(dateEl.value || new Date());
-      $('#sheet-order').textContent = `#${ord??'—'}`;
-      $('#sheet-pren').textContent = 'SI';
-      sheetReparti.textContent = row?.reparti || '—';
-      const items = row?.items?.length ? row.items : [];
-      sheetItems.innerHTML = items.length ? items.map(it => `<li>${escapeHTML(it)}</li>`).join('') : '<li>—</li>';
-      sheetZone.textContent = `Zona: ${zone || row?.zone || '—'}`;
-      sheetNote.textContent = `Note: ${row?.note || '—'}`;
-      sheet.setAttribute('open','');
-      sheet.removeAttribute('aria-hidden');
-    }
-
-    function closeSheet(){ sheet.removeAttribute('open'); sheet.setAttribute('aria-hidden','true'); }
-
-    document.addEventListener('click', (e)=>{
+    // click su card → apri pagina bianca "test"
+    document.addEventListener('click', e=>{
       const card = e.target.closest('.order-card');
-      if(card){
-        openSheet({
-          ord: card.getAttribute('data-ord')||null,
-          name: card.getAttribute('data-name')||'—',
-          zone: card.getAttribute('data-zone')||null,
-          time: card.getAttribute('data-time')||null,
-        });
-      }
-      if(e.target.matches('[data-close]')) closeSheet();
+      if(card){ const w = window.open('', '_blank'); if(w){ w.document.open(); w.document.write('<!doctype html><title>test</title><style>html,body{height:100%;margin:0}body{display:flex;align-items:center;justify-content:center;font:700 24px system-ui;background:#fff;color:#000}</style><body>test</body>'); w.document.close(); } }
     });
-
-    document.addEventListener('keydown', (e)=>{ if(e.key==='Escape') closeSheet(); });
-
-    // ===== Date title helpers (robusto e timezone-aware) =====
-    function formatDateIT(dateLike){
-      const d = (typeof dateLike==='string' && dateLike) ? new Date(dateLike) : (dateLike instanceof Date ? dateLike : new Date());
-      if (Number.isNaN(d.getTime())) return null;
-      try{
-        const s = new Intl.DateTimeFormat('it-IT', { timeZone:'Europe/Rome', weekday:'long', day:'2-digit', month:'long' }).format(d);
-        return s.charAt(0).toUpperCase() + s.slice(1);
-      }catch{
-        const g=['Domenica','Lunedì','Martedì','Mercoledì','Giovedì','Venerdì','Sabato'];
-        const m=['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno','Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'];
-        return `${g[d.getDay()]}, ${String(d.getDate()).padStart(2,'0')} ${m[d.getMonth()]}`;
-      }
-    }
-    function renderTitleDate(dateLike){
-      const el = document.querySelector('#ritiri-title-date');
-      const s = formatDateIT(dateLike) || formatDateIT(new Date());
-      if (el) el.textContent = s || '—';
-    }
 
     // ===== Boot =====
-    (async function init(){
-      // bind search
-      go.addEventListener('click', submit);
-      q.addEventListener('keydown', e => { if(e.key==='Enter'){ e.preventDefault(); submit(); } });
-
-      // carica dati (demo o reali) e inizializza
-      await loadSheet();
+    (function init(){
+      DATA_ROWS = genDemo();
+      $('#go').onclick=submit; $('#q').onkeydown=e=>{ if(e.key==='Enter') submit(); };
+      tabs.oggi.onclick=()=>activate('oggi'); tabs.domani.onclick=()=>activate('domani'); tabs.data.onclick=()=>activate('data');
+      dateInput.onchange=()=>activate('data');
       activate('oggi');
-      // forza titolo subito (ridondante ma innocuo)
-      renderTitleDate(new Date());
     })();
   </script>
 </body>
