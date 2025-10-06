@@ -11,7 +11,8 @@
     [data-sso] {
       color-scheme: dark;
       font-family:-apple-system,system-ui,Segoe UI,Roboto,sans-serif;
-      background:var(--bg); color:var(--fg);
+      background:var(--bg);
+      color:var(--fg);
     }
     [data-sso]{
       --bg:#000; --fg:#fff; --accent:#0a84ff; --border:#2c2c2e;
@@ -20,7 +21,9 @@
     }
 
     .wrap {
-      width:100%; max-width:min(760px,100%); margin:0 auto;
+      width:100%;
+      max-width:min(760px,100%);
+      margin:0 auto;
       padding:calc(8px + env(safe-area-inset-top)) var(--pane-pad)
               calc(24px + env(safe-area-inset-bottom));
       display:flex; flex-direction:column; gap:14px; align-items:center;
@@ -29,22 +32,39 @@
 
     /* Sezioni */
     .section {
-      width:100%; border-radius:var(--radius);
-      padding:20px 16px 14px; background:#fff; color:#111;
-      border:1px solid rgba(0,0,0,.08); box-shadow:var(--elev); box-sizing:border-box;
+      width:100%;
+      border-radius:var(--radius);
+      padding:20px 16px 14px;
+      background:#fff; color:#111;
+      border:1px solid rgba(0,0,0,.08);
+      box-shadow:var(--elev);
+      box-sizing:border-box;
     }
 
-    .title { display:flex; align-items:center; gap:10px;
-      font-weight:800; font-size:18px; margin:0 0 15px; color:#111; justify-content:center; }
+    .title {
+      display:flex; align-items:center; gap:10px;
+      font-weight:800; font-size:18px; margin:0 0 15px; color:#111;
+    }
     .text { font-size:15px; color:#222; }
 
     /* Lente animata */
-    .lens{ position:relative; width:16px; height:16px; border-radius:999px;
-      border:3px solid var(--highlight); animation:lens-pulse 1.2s ease-in-out infinite;
-      flex:0 0 auto; filter:drop-shadow(0 0 6px rgba(255,214,10,.35));}
-    .lens::after{ content:""; position:absolute; right:-6px; bottom:-6px;
-      width:10px; height:3px; border-radius:3px; background:var(--highlight);
-      transform:rotate(45deg); transform-origin:right center; animation:lens-scan 1.2s ease-in-out infinite;}
+    .lens {
+      position:relative;
+      width:16px; height:16px; border-radius:999px;
+      border:3px solid var(--highlight);
+      animation:lens-pulse 1.2s ease-in-out infinite;
+      flex:0 0 auto;
+      filter:drop-shadow(0 0 6px rgba(255,214,10,.35));
+    }
+    .lens::after{
+      content:"";
+      position:absolute; right:-6px; bottom:-6px;
+      width:10px; height:3px; border-radius:3px;
+      background:var(--highlight);
+      transform:rotate(45deg);
+      transform-origin:right center;
+      animation:lens-scan 1.2s ease-in-out infinite;
+    }
     @keyframes lens-pulse { 0%,100%{transform:scale(1);}50%{transform:scale(1.08);} }
     @keyframes lens-scan  { 0%,100%{opacity:1;}50%{opacity:.6;} }
 
@@ -62,12 +82,11 @@
       background:var(--accent); color:#fff; font-weight:700; cursor:pointer;
       box-shadow:0 4px 14px rgba(10,132,255,.35);
       transition:transform .06s ease, opacity .2s ease;
-      font-size:16px; line-height:1; -webkit-touch-callout:none; -webkit-tap-highlight-color:transparent;
+      font-size:16px; line-height:1;
+      -webkit-touch-callout:none; -webkit-tap-highlight-color:transparent;
     }
     .btn:active{ transform:scale(.995); }
     .btn[disabled]{ opacity:.6; cursor:default; box-shadow:none; }
-    .btn.secondary{ background:#111; color:#fff; box-shadow:none; }
-    .btn.primary-yellow{ background:var(--highlight); color:#000; box-shadow:0 4px 14px rgba(255,214,10,.35); }
 
     @media(min-width:520px){ .search{flex-direction:row;} .btn{width:auto;} }
 
@@ -77,24 +96,26 @@
     #sso-ritiri-list.orders{ margin-top:16px; }
 
     .order-card{
-      display:flex; align-items:center; gap:12px; padding:12px; border-radius:14px;
+      display:flex; align-items:center; gap:12px;
+      padding:12px; border-radius:14px;
       background:#fff; border:1px solid rgba(0,0,0,.08);
       box-shadow:var(--elev); cursor:pointer; box-sizing:border-box;
       transition:opacity .2s ease, filter .2s ease;
     }
     .order-card:active{ transform:scale(.995); }
 
-    /* Passati: scuri + barrati */
+    /* Ordini passati: scuri + nome barrato */
     .order-card.past{ opacity:.25; filter: grayscale(.6) brightness(.65) contrast(.9); }
     .order-card.past .order-name{
       text-decoration: line-through; text-decoration-thickness: 2px;
       text-decoration-color: #1c1c1c; color:#1c1c1c;
     }
-    .order-card.past .order-badge,.order-card.past .order-pill{ opacity:.9; }
+    .order-card.past .order-badge, .order-card.past .order-pill{ opacity:.9; }
 
     .order-badge{
-      min-width:46px; height:32px; display:inline-flex; align-items:center; justify-content:center;
-      border-radius:999px; background:var(--highlight); color:#000; font-weight:900;
+      min-width:46px; height:32px; display:inline-flex;
+      align-items:center; justify-content:center;
+      border-radius:999px; background:#ffd60a; color:#000; font-weight:900;
     }
 
     .order-main{ flex:1; min-width:0; }
@@ -109,73 +130,63 @@
     .order-depts-inline{ font-size:14px; line-height:1; display:inline-flex; gap:6px; align-items:center; }
     .order-depts-inline .sep{ opacity:.6; }
 
-    .empty{ padding:12px; border-radius:14px; border:1px dashed rgba(0,0,0,.15); background:#fff; color:#333; font-size:14px; text-align:center; }
+    .empty{
+      padding:12px; border-radius:14px; border:1px dashed rgba(0,0,0,.15);
+      background:#fff; color:#333; font-size:14px; text-align:center;
+    }
     .status{ margin-top:8px; font-size:12px; color:#555; }
 
-    /* ===== Header ordini centrato ===== */
-    .orders-header{ display:flex; flex-direction:column; align-items:center; gap:10px; }
-    .orders-title{ font-size:16px; white-space:nowrap; text-align:center; }
-
-    /* ===== “Bolle” (chipbar) per tabs e filtro ===== */
-    .toolbar{ display:flex; justify-content:center; gap:12px; flex-wrap:wrap; }
-    .chipbar{
-      display:flex; align-items:center; gap:8px; padding:6px;
-      border:1px solid rgba(0,0,0,.06); background:#f7f7f8; border-radius:999px;
-      box-sizing:border-box; /* si allarga con il contenuto */
-    }
-
-    /* Bottoni tab dentro la chipbar */
+    /* Tabs riga 1 */
+    .tabs{ display:flex; gap:12px; flex-wrap:nowrap; overflow:auto; align-items:center; }
     .tab{
       padding:10px 14px; border-radius:999px; border:1px solid rgba(0,0,0,.06);
-      background:#f2f2f3; font-weight:800; cursor:pointer; white-space:nowrap; color:#111;
+      background:#f2f2f3; font-weight:800; cursor:pointer;
+      white-space:nowrap; color:#111; position:relative;
     }
-    .tab.active{ background:var(--highlight); color:#000; border-color:rgba(0,0,0,.08); }
+    .tab.active{ background:#111; color:#fff; }
     .tab-date{ position:relative; }
     .date-ghost{ position:absolute; inset:0; opacity:0; cursor:pointer; z-index:2; }
+    .date-accent{ color:#22c55e; font-weight:900; }
+    .orders-title{ font-size:16px; white-space:nowrap; }
 
-    /* Filtro chip (bottone + badge) */
+    /* Riga 2: filtro sotto le tab */
+    .filters-row{ display:flex; gap:12px; margin-top:10px; align-items:center; flex-wrap:wrap; }
     .tab.icon{ display:inline-flex; align-items:center; gap:8px; font-weight:800; background:#f2f2f3; color:#111; }
-    .tab.icon svg{ width:18px; height:18px; flex:0 0 auto; color:var(--highlight); } /* icona imbuto gialla */
+    .tab.icon svg{ width:18px; height:18px; flex:0 0 auto; }
+
+    /* Bollino dinamico con icone (niente numero) */
     .count-badge{
       display:none; align-items:center; justify-content:center;
       padding:0 8px; height:22px; border-radius:999px; margin-left:4px;
-      background:var(--highlight); color:#000; font-size:13px; font-weight:900; line-height:1; gap:6px;
+      background:#111; color:#fff; font-size:13px; font-weight:900;
+      line-height:1; gap:6px;
     }
     .count-badge .sep{ opacity:.7; }
-
-    /* iOS: selettore nativo multiplo */
-    .filter-native{
-      display:none; border:1px solid rgba(0,0,0,.08);
-      border-radius:12px; padding:8px; font-size:15px; background:#fff; color:#111; min-width:260px;
-    }
-    body.ios .filter-native{ display:block; }
-    body.ios #sso-filter-chip{ display:none; } /* su iOS nascondo il bottone filtro */
+    .tab.icon.active{ background:#111; color:#fff; }
 
     /* Modali */
     .modal{ position:fixed; inset:0; display:none; z-index:2147483647; }
     .modal.open{ display:block; }
     .modal .backdrop{ position:absolute; inset:0; background:rgba(0,0,0,.55); backdrop-filter:saturate(1.2) blur(6px); }
     .modal .sheet{ position:absolute; inset:0; background:#fff; color:#111; display:flex; flex-direction:column; }
-
-    /* Dettaglio ordine */
-    .modal header{ display:flex; align-items:center; justify-content:space-between; gap:12px;
-      padding:14px 16px 12px; border-bottom:1px solid #ececec; position:sticky; top:0; background:#fff; z-index:1; }
-    .modal header .h{ font-weight:900; font-size:24px; text-align:left; margin:0; }
-    .modal header .text{ font-size:16px; text-align:left; margin-top:6px; color:#555; }
+    .modal header{ display:flex; align-items:center; justify-content:space-between; gap:12px; padding:14px 16px; border-bottom:1px solid #ececec; position:sticky; top:0; background:#fff; z-index:1; }
+    .modal header .h{ font-weight:900; font-size:24px; text-align:left; }
+    .modal header .text{ font-size:16px; text-align:left; }
     .modal .close{ border:1px solid #ddd; background:#fff; border-radius:999px; padding:8px 12px; font-weight:800; cursor:pointer; }
     .modal .content{ padding:12px 16px 28px; overflow:auto; font-size:17px; }
+
     .kv{ width:100%; border-collapse:collapse; }
     .kv th, .kv td{ text-align:left; padding:12px 10px; border-bottom:1px solid #f1f1f1; font-size:17px; }
     .kv th{ width:36%; color:#444; font-weight:700; }
     .kv tr:last-child th, .kv tr:last-child td{ border-bottom:none; }
     .kv tr.hl{ background:rgba(255,214,10,.22); }
 
-    /* Modale filtri */
-    #sso-filter-modal .content .text{ margin-bottom:14px; }
-    .filter-options{ display:flex; flex-direction:column; gap:10px; padding-top:4px; }
+    /* Modale filtro reparti */
+    .filter-options{ display:flex; flex-direction:column; gap:10px; padding-top:6px; }
     .filter-row{ display:flex; align-items:center; gap:10px; }
     .filter-row input{ width:18px; height:18px; }
-    .filter-actions{ display:flex; gap:10px; margin-top:16px; }
+    .filter-actions{ display:flex; gap:10px; margin-top:14px; }
+    .btn.secondary{ background:#111; color:#fff; box-shadow:none; }
   </style>
 </head>
 <body>
@@ -198,34 +209,25 @@
 
       <!-- BLOCCO: Ordini -->
       <section class="section">
-        <div class="orders-header">
-          <h2 class="title orders-title">Ordini di <span id="sso-ritiri-title-date" class="date-accent">—</span></h2>
+        <h2 class="title orders-title">Ordini di <span id="sso-ritiri-title-date" class="date-accent">—</span></h2>
 
-          <!-- Striscia centrata con due bolle: (1) tabs data (2) filtro -->
-          <div class="toolbar">
-            <!-- Bolla tabs -->
-            <div class="chipbar" id="chipbar-date">
-              <button class="tab active" id="sso-tab-oggi">Oggi</button>
-              <button class="tab" id="sso-tab-domani">Domani</button>
-              <button class="tab tab-date" id="sso-tab-data" aria-label="Seleziona data">
-                <span id="sso-tab-date-label">Data</span>
-                <input id="sso-ritiri-date" class="date-ghost" type="date" />
-              </button>
-            </div>
+        <!-- Riga 1: tabs data -->
+        <div class="tabs">
+          <button class="tab active" id="sso-tab-oggi">Oggi</button>
+          <button class="tab" id="sso-tab-domani">Domani</button>
+          <button class="tab tab-date" id="sso-tab-data">
+            <span id="sso-tab-date-label">Data</span>
+            <input id="sso-ritiri-date" class="date-ghost" type="date" />
+          </button>
+        </div>
 
-            <!-- Bolla filtro -->
-            <div class="chipbar" id="chipbar-filter">
-              <!-- Bottone filtro (non-iOS) -->
-              <button class="tab icon" id="sso-filter-chip" title="Filtra reparti" aria-haspopup="dialog" aria-expanded="false">
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5h18l-7 8v5l-4 2v-7L3 5z" fill="currentColor"/></svg>
-                <span id="sso-filter-label">Filtra reparti</span>
-                <span id="sso-filter-badge" class="count-badge"></span>
-              </button>
-
-              <!-- iOS: selettore nativo multiplo -->
-              <select id="sso-filter-native" class="filter-native" multiple aria-label="Filtra reparti (iOS)"></select>
-            </div>
-          </div>
+        <!-- Riga 2: filtro reparti (apre modale checklist) -->
+        <div class="filters-row">
+          <button class="tab icon" id="sso-tab-filter" title="Filtra per reparti" aria-haspopup="dialog" aria-expanded="false">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5h18l-7 8v5l-4 2v-7L3 5z" fill="currentColor"/></svg>
+            <span id="sso-filter-label">Filtro</span>
+            <span id="sso-filter-badge" class="count-badge"></span>
+          </button>
         </div>
 
         <div id="sso-ritiri-list" class="orders"></div>
@@ -240,7 +242,7 @@
       <header>
         <div style="min-width:0;">
           <div id="sso-modal-title" class="h" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">Dettaglio ordine</div>
-          <div id="sso-modal-sub" class="text" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></div>
+          <div id="sso-modal-sub" class="text" style="margin-top:4px;color:#555;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></div>
         </div>
         <button id="sso-modal-close" class="close" aria-label="Chiudi">Chiudi</button>
       </header>
@@ -250,20 +252,20 @@
     </div>
   </div>
 
-  <!-- Modale Filtri Reparti (non-iOS) -->
+  <!-- Modale Filtri Reparti -->
   <div id="sso-filter-modal" class="modal" aria-hidden="true" role="dialog">
     <div class="backdrop"></div>
     <div class="sheet">
       <header>
-        <div class="h">Filtra reparti</div>
+        <div class="h">Filtra per reparti</div>
         <button id="sso-filter-close" class="close" aria-label="Chiudi">Chiudi</button>
       </header>
       <div class="content">
-        <div class="text">Seleziona <strong>almeno un reparto</strong>: gli ordini del giorno scelto verranno mostrati se contengono <em>almeno uno</em> dei reparti selezionati.</div>
+        <div class="text">Mostra gli ordini del giorno selezionato che contengono almeno uno dei reparti scelti.</div>
         <div class="filter-options" id="sso-filter-options"></div>
         <div class="filter-actions">
           <button id="sso-filter-reset" class="btn secondary">Seleziona tutti</button>
-          <button id="sso-filter-apply" class="btn primary-yellow">Applica</button>
+          <button id="sso-filter-apply" class="btn">Applica</button>
         </div>
       </div>
     </div>
@@ -271,11 +273,7 @@
 
   <script>
   (function(){
-    const API_URL = 'https://script.google.com/macros/s/AKfycbzp_2RNQO9ROQkpcGebBpZ9_PMyZEmxkqLh5G-ODe4Yo2x9E0aRbEQIbmofaxhod9VGFA/exec'.replace('_P','_P'); // safe
-
-    // iOS detection
-    const isiOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform==='MacIntel' && navigator.maxTouchPoints>1);
-    if(isiOS){ document.body.classList.add('ios'); }
+    const API_URL = 'https://script.google.com/macros/s/AKfycbzp_2RNQO9ROQkpcGebBpZ9P_MyZEmxkqLh5G-ODe4Yo2x9E0aRbEQIbmofaxhod9VGFA/exec';
 
     // Helpers
     const ymd = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
@@ -283,8 +281,14 @@
     const fmtIT = d => new Intl.DateTimeFormat('it-IT',{weekday:'long',day:'2-digit',month:'long'}).format(d);
     const norm = s => (s||'').toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu,'').replace(/\s+/g,' ').trim();
     const esc = s => String(s==null? '': s).replace(/[&<>"]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
-    const hasValue = v => { const t = String(v??'').trim(); return t!=='' && t!=='0' && t!=='-' && t.toLowerCase()!=='n/d'; };
-    const isYes = v => { const t = norm(String(v??'')); return t==='si'||t==='sì'||t==='y'||t==='yes'||t==='true'||t==='1'; };
+    const hasValue = v => {
+      const t = String(v??'').trim();
+      return t !== '' && t !== '0' && t !== '-' && t.toLowerCase() !== 'n/d';
+    };
+    const isYes = v => {
+      const t = norm(String(v??''));
+      return t === 'si' || t === 'sì' || t === 'y' || t === 'yes' || t === 'true' || t === '1';
+    };
 
     function parseAnyDate(s){
       if(!s) return null;
@@ -300,7 +304,7 @@
     let DATA_ROWS = [];
     let UPDATED_AT = null;
 
-    // Reparti (Carne gestisce Avicolo => 🐔)
+    // Reparti (con icone; Carne gestisce Avicolo)
     const DEPARTMENTS = [
       {id:'pane',   label:'1) PANE E PRODOTTI DA FORNO', keyExact: norm('1) PANE E PRODOTTI DA FORNO'), icon:'🥖'},
       {id:'banco',  label:'2) BANCO GASTRONOMIA',        keyExact: norm('2) BANCO GASTRONOMIA'),        icon:'🧀'},
@@ -316,7 +320,6 @@
       ACTIVE_DEPTS = new Set(allDeptIds);
       localStorage.setItem('sso_active_depts', JSON.stringify([...ACTIVE_DEPTS]));
     }
-    let LAST_VALID_DEPTS = new Set(ACTIVE_DEPTS);
 
     // Mappatura colonne base
     function mapRowsFromAPI(rows){
@@ -339,7 +342,7 @@
 
         const d = dateKeyRaw ? parseAnyDate(r[dateKeyRaw]) : null;
         const time = timeKey ? String(r[timeKey]||'').trim() : '';
-        const zone = zoneKey ? String(r[zoneKey]||'').trim() : '';
+        thezone = zoneKey ? String(r[zoneKey]||'').trim() : '';
         const ordRaw = ordKey ? r[ordKey] : r.ord;
         const ord = ordRaw != null ? Number(ordRaw) : null;
 
@@ -349,7 +352,7 @@
           dateKey: d? ymd(d) : null,
           dateText: d? ddmmyyyy(d) : '',
           time,
-          zone: zone || '?',
+          zone: thezone || '?',
           src: r,
           __normKeys: Object.fromEntries(Object.keys(r).map(k=>[k, norm(k)]))
         });
@@ -364,7 +367,7 @@
       return out;
     }
 
-    // Stato + icona reparto (Carne→Avicolo 🐔 se header vuoto)
+    /* Stato + icona reparto (include eccezione AVICOLO per CARNE) */
     function getDeptStatus(row, deptId){
       const dep = DEPARTMENTS.find(d=>d.id===deptId);
       if(!dep) return {present:false, icon:null};
@@ -382,20 +385,21 @@
           if(nk === 'avicolo' || nk.includes('avicol')){ avicoloYes = isYes(v); break; }
         }
         if(headerHasContent) return {present:true, icon:'🥩'};
-        if(avicoloYes)      return {present:true, icon:'🐔'};
+        if(avicoloYes)      return {present:true, icon:'🍗'};
         return {present:false, icon:null};
       }
+
       return {present:headerHasContent, icon: headerHasContent ? dep.icon : null};
     }
     const rowHasDept = (row, id)=> getDeptStatus(row,id).present;
 
     function rowMatchesActiveDepts(row){
-      if(ACTIVE_DEPTS.size===0) return false; // sicurezza
+      if(ACTIVE_DEPTS.size===0) return false;
       for(const id of ACTIVE_DEPTS){ if(rowHasDept(row, id)) return true; }
       return false;
     }
 
-    // Icone reparti inline per card
+    /* Icone reparti inline per card */
     function deptInline(row){
       const parts=[];
       for(const dep of DEPARTMENTS){
@@ -405,7 +409,7 @@
       return parts.length ? parts.join(' <span class="sep">+</span> ') : '';
     }
 
-    // Card
+    /* Card */
     const isPast = row => row.dateKey ? (row.dateKey < ymd(new Date())) : false;
     function orderCard(o){
       const datePill = o.dateText ? `<span class='order-pill order-date'>${esc(o.dateText)}</span>` : '';
@@ -429,7 +433,7 @@
         </div>`;
     }
 
-    // Liste per giorno (data + reparti)
+    /* Liste per giorno (data + reparti) */
     const rowsForDate = d => {
       const k = ymd(new Date(d));
       return DATA_ROWS
@@ -448,7 +452,7 @@
       document.getElementById('sso-ritiri-title-date').textContent = fmtIT(d);
     }
 
-    // Ricerca rapida (non filtrata per reparti)
+    /* Ricerca rapida (non filtrata per reparti) */
     function findByName(q){
       const n = norm(q.trim()); if(!n) return [];
       const exact = DATA_ROWS.filter(r=>norm(r.name)===n); if(exact.length) return exact;
@@ -456,7 +460,7 @@
       return DATA_ROWS.filter(r=>norm(r.name).includes(n));
     }
 
-    // Fetch
+    /* Fetch */
     async function refreshData(){
       const res = await fetch(API_URL + '?&_ts=' + Date.now(), { cache:'no-store' });
       if(!res.ok) throw new Error('HTTP ' + res.status);
@@ -465,8 +469,8 @@
       DATA_ROWS = mapRowsFromAPI(data.rows || []);
       document.getElementById('sso-status').textContent =
         UPDATED_AT ? `Dati aggiornati: ${new Date(UPDATED_AT).toLocaleString('it-IT')}` : '';
-      renderFilterControls();   // popola controlli filtro (iOS + modale)
-      updateFilterBadge();      // aggiorna bollino (non-iOS)
+      renderFilterOptions();       // ri-disegna checklist
+      updateFilterBadge();         // aggiorna bollino icone
     }
 
     /* Loader ricerca */
@@ -475,11 +479,17 @@
     const input = document.getElementById('sso-q');
 
     function showLoading(){
-      outEl.innerHTML = `<div class="loading-area" role="status" aria-live="polite"><div class="spinner" aria-label="Caricamento"></div></div>`;
-      outEl.setAttribute('aria-busy','true'); btn.disabled = true; btn.textContent = 'Cerco…';
+      outEl.innerHTML = `<div class="loading-area" role="status" aria-live="polite">
+        <div class="spinner" aria-label="Caricamento"></div>
+      </div>`;
+      outEl.setAttribute('aria-busy','true');
+      btn.disabled = true;
+      btn.textContent = 'Cerco…';
     }
     function hideLoading(){
-      outEl.removeAttribute('aria-busy'); btn.disabled = false; btn.textContent = 'Cerca';
+      outEl.removeAttribute('aria-busy');
+      btn.disabled = false;
+      btn.textContent = 'Cerca';
     }
 
     async function submit(){
@@ -488,29 +498,31 @@
       try {
         await refreshData();
         const rows = qv ? findByName(qv) : rowsForDate(new Date());
-        outEl.innerHTML = rows.map(orderCard).join('') || `<div class='empty'>Nessun risultato</div>`;
+        outEl.innerHTML =
+          rows.map(orderCard).join('') || `<div class='empty'>Nessun risultato</div>`;
         if(rows.length) outEl.scrollIntoView({behavior:'smooth',block:'start'});
       } catch(err){
         console.warn('Errore ricerca:', err);
         outEl.innerHTML = `<div class='empty'>Errore nel caricamento dei dati</div>`;
-      } finally { hideLoading(); }
+      } finally {
+        hideLoading();
+      }
     }
 
-    // Tabs & Date
+    /* Tabs & Date */
     const tabs={
       oggi:document.getElementById('sso-tab-oggi'),
       domani:document.getElementById('sso-tab-domani'),
       data:document.getElementById('sso-tab-data'),
-      filterChip:document.getElementById('sso-filter-chip'),
-      filterBadge:document.getElementById('sso-filter-badge'),
-      filterNative:document.getElementById('sso-filter-native')
+      filterBtn:document.getElementById('sso-tab-filter'),
+      filterBadge:document.getElementById('sso-filter-badge')
     };
     const dateInput=document.getElementById('sso-ritiri-date');
     const dateLabel=document.getElementById('sso-tab-date-label');
     const setDateTabLabel = d => { dateLabel.textContent = ddmmyyyy(d); };
 
     function activate(which){
-      [tabs.oggi,tabs.domani,tabs.data].forEach(t=>{ t.classList.remove('active'); t.setAttribute('aria-selected','false'); });
+      Object.values({oggi:tabs.oggi,domani:tabs.domani,data:tabs.data}).forEach(t=>{ t.classList.remove('active'); t.setAttribute('aria-selected','false'); });
       if(which!=='filter'){ tabs[which].classList.add('active'); tabs[which].setAttribute('aria-selected','true'); }
       if(which==='data'){
         if(!dateInput.value) dateInput.value = ymd(new Date());
@@ -518,115 +530,12 @@
         setDateTabLabel(d); renderList(d);
         if(dateInput.showPicker){ try{ dateInput.showPicker(); }catch(_){} }
       } else if(which==='oggi' || which==='domani') {
+        dateLabel.textContent='Data';
         const base=new Date(); if(which==='domani') base.setDate(base.getDate()+1); renderList(base);
       }
     }
 
-    /* ====== FILTRO: UI ====== */
-    const filterModal     = document.getElementById('sso-filter-modal');
-    const filterOptions   = document.getElementById('sso-filter-options');
-    const filterApply     = document.getElementById('sso-filter-apply');
-    const filterReset     = document.getElementById('sso-filter-reset');
-    const filterCloseBtn  = document.getElementById('sso-filter-close');
-
-    function renderFilterControls(){
-      // Modale checklist
-      filterOptions.innerHTML = DEPARTMENTS.map(dep=>{
-        const checked = ACTIVE_DEPTS.has(dep.id) ? 'checked' : '';
-        return `<label class="filter-row">
-                  <input type="checkbox" data-dep="${dep.id}" ${checked} />
-                  <span>${esc(dep.label)}</span>
-                </label>`;
-      }).join('');
-      // iOS: nativo
-      const sel = tabs.filterNative;
-      sel.innerHTML = '';
-      for(const dep of DEPARTMENTS){
-        const opt = document.createElement('option');
-        opt.value = dep.id;
-        opt.textContent = dep.label;
-        opt.selected = ACTIVE_DEPTS.has(dep.id);
-        sel.appendChild(opt);
-      }
-    }
-
-    // Bottone filtro (apre modale) – solo non-iOS
-    if(!isiOS){
-      tabs.filterChip.addEventListener('click', openFilter);
-      function openFilter(){ renderFilterControls(); filterModal.classList.add('open'); filterModal.setAttribute('aria-hidden','false'); lockScroll(); }
-      function closeFilter(){ filterModal.classList.remove('open'); filterModal.setAttribute('aria-hidden','true'); unlockScroll(); }
-      filterCloseBtn.addEventListener('click', closeFilter);
-      filterModal.addEventListener('click', (e)=>{ if(e.target.classList.contains('backdrop')) closeFilter(); });
-
-      filterReset.addEventListener('click', ()=>{
-        ACTIVE_DEPTS = new Set(allDeptIds);
-        localStorage.setItem('sso_active_depts', JSON.stringify([...ACTIVE_DEPTS]));
-        renderFilterControls(); updateFilterBadge();
-      });
-
-      filterApply.addEventListener('click', ()=>{
-        const inputs = filterOptions.querySelectorAll('input[type="checkbox"][data-dep]');
-        const next = new Set();
-        inputs.forEach(i=>{ if(i.checked) next.add(i.dataset.dep); });
-        if(next.size===0){ alert('Seleziona almeno un reparto.'); return; }
-        ACTIVE_DEPTS = next; LAST_VALID_DEPTS = new Set(ACTIVE_DEPTS);
-        localStorage.setItem('sso_active_depts', JSON.stringify([...ACTIVE_DEPTS]));
-        updateFilterBadge();
-        rerenderLists(); closeFilter();
-      });
-    }
-
-    // iOS: selettore nativo – applica immediatamente, enforce almeno 1
-    if(isiOS){
-      tabs.filterNative.addEventListener('change', ()=>{
-        const sel = tabs.filterNative;
-        const next = new Set();
-        [...sel.options].forEach(o=>{ if(o.selected) next.add(o.value); });
-        if(next.size===0){
-          // ripristina ultima valida
-          [...sel.options].forEach(o=>{ o.selected = LAST_VALID_DEPTS.has(o.value); });
-          alert('Seleziona almeno un reparto.');
-          return;
-        }
-        ACTIVE_DEPTS = next; LAST_VALID_DEPTS = new Set(ACTIVE_DEPTS);
-        localStorage.setItem('sso_active_depts', JSON.stringify([...ACTIVE_DEPTS]));
-        rerenderLists();
-      });
-    }
-
-    function updateFilterBadge(){
-      if(isiOS) return; // su iOS il bottone è nascosto
-      const selected = ACTIVE_DEPTS.size;
-      const total = DEPARTMENTS.length;
-
-      if(selected === total){
-        document.getElementById('sso-filter-badge').style.display='none';
-        document.getElementById('sso-filter-badge').innerHTML='';
-        return;
-      }
-      if(selected === 0){
-        document.getElementById('sso-filter-badge').style.display='inline-flex';
-        document.getElementById('sso-filter-badge').innerHTML='0';
-        return;
-      }
-      const parts=[];
-      for(const dep of DEPARTMENTS){ if(ACTIVE_DEPTS.has(dep.id)){ parts.push(dep.id==='carne' ? '🥩' : dep.icon); } }
-      const badge = document.getElementById('sso-filter-badge');
-      badge.style.display='inline-flex';
-      badge.innerHTML = parts.join(' <span class="sep">+</span> ');
-    }
-
-    function rerenderLists(){
-      const isDomani = document.getElementById('sso-tab-domani').classList.contains('active');
-      const isData   = document.getElementById('sso-tab-data').classList.contains('active');
-      if(isData){
-        const d = new Date(`${document.getElementById('sso-ritiri-date').value||ymd(new Date())}T12:00:00`); renderList(d);
-      }else{
-        const base = new Date(); if (isDomani) base.setDate(base.getDate()+1); renderList(base);
-      }
-    }
-
-    /* --- Dettaglio: modale --- */
+    /* --- Modale DETTAGLIO --- */
     const modal = document.getElementById('sso-modal');
     const modalClose = document.getElementById('sso-modal-close');
     const modalTable = document.getElementById('sso-modal-table');
@@ -643,9 +552,13 @@
     }
     function unlockScroll(){
       const y = +(document.body.dataset.scrollY||0);
-      document.body.style.position = ''; document.body.style.top = '';
-      document.body.style.left = ''; document.body.style.right = '';
-      document.body.style.width = ''; window.scrollTo(0, y); delete document.body.dataset.scrollY;
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.left = '';
+      document.body.style.right = '';
+      document.body.style.width = '';
+      window.scrollTo(0, y);
+      delete document.body.dataset.scrollY;
     }
 
     function openModal(row){
@@ -656,7 +569,9 @@
       const entries = Object.entries(row.src || {});
       const skipKeys = new Set([
         'ord','numero ordine (parsed)','ora (parsed)','zona (parsed)',
-        'nome','nome cliente','cliente','data','giorno','data ordine','ora','orario'
+        'nome','nome cliente','cliente',
+        'data','giorno','data ordine',
+        'ora','orario'
       ].map(k=>norm(k)));
 
       let seenItemsStart = false;
@@ -667,21 +582,123 @@
           const valStr = (v==null)? '' : String(v).trim();
           if (/^\s*1\)\s*/i.test(keyStr)) seenItemsStart = true;
           const shouldHL = seenItemsStart && valStr !== '' && valStr !== '0';
-          return `<tr class="${shouldHL?'hl':''}"><th>${esc(keyStr)}</th><td>${esc(valStr)}</td></tr>`;
-        }).join('');
+          return `<tr class="${shouldHL?'hl':''}">
+                    <th>${esc(keyStr)}</th>
+                    <td>${esc(valStr)}</td>
+                  </tr>`;
+        })
+        .join('');
 
       modalTable.innerHTML = rowsHtml || `<tr><td>Nessun dettaglio</td></tr>`;
-      modal.classList.add('open'); modal.setAttribute('aria-hidden','false'); lockScroll();
+      modal.classList.add('open');
+      modal.setAttribute('aria-hidden','false');
+      lockScroll();
     }
     function closeModal(){ modal.classList.remove('open'); modal.setAttribute('aria-hidden','true'); unlockScroll(); }
     modalClose.addEventListener('click', closeModal);
     modal.addEventListener('click', (e)=>{ if(e.target.classList.contains('backdrop')) closeModal(); });
     document.addEventListener('keydown', (e)=>{ if(e.key==='Escape' && modal.classList.contains('open')) closeModal(); });
 
+    /* --- Modale FILTRO --- */
+    const filterModal     = document.getElementById('sso-filter-modal');
+    const filterOptions   = document.getElementById('sso-filter-options');
+    const filterApply     = document.getElementById('sso-filter-apply');
+    const filterReset     = document.getElementById('sso-filter-reset');
+    const filterCloseBtn  = document.getElementById('sso-filter-close');
+
+    function renderFilterOptions(){
+      filterOptions.innerHTML = DEPARTMENTS.map(dep=>{
+        const checked = ACTIVE_DEPTS.has(dep.id) ? 'checked' : '';
+        return `<label class="filter-row">
+                  <input type="checkbox" data-dep="${dep.id}" ${checked} />
+                  <span>${esc(dep.label)}</span>
+                </label>`;
+      }).join('');
+    }
+    function openFilter(){
+      renderFilterOptions();
+      filterModal.classList.add('open');
+      filterModal.setAttribute('aria-hidden','false');
+      tabs.filterBtn.classList.add('active');
+      lockScroll();
+    }
+    function closeFilter(){
+      filterModal.classList.remove('open');
+      filterModal.setAttribute('aria-hidden','true');
+      tabs.filterBtn.classList.remove('active');
+      unlockScroll();
+    }
+
+    function applyFilter(){
+      const inputs = filterOptions.querySelectorAll('input[type="checkbox"][data-dep]');
+      const next = new Set();
+      inputs.forEach(i=>{ if(i.checked) next.add(i.dataset.dep); });
+      ACTIVE_DEPTS = next;
+      localStorage.setItem('sso_active_depts', JSON.stringify([...ACTIVE_DEPTS]));
+      updateFilterBadge();
+
+      // Rerender lista corrente
+      const isDomani = tabs.domani.classList.contains('active');
+      const isData = tabs.data.classList.contains('active');
+      if(isData){
+        const d = new Date(`${dateInput.value||ymd(new Date())}T12:00:00`);
+        renderList(d);
+      }else{
+        const base = new Date(); if (isDomani) base.setDate(base.getDate()+1);
+        renderList(base);
+      }
+      closeFilter();
+    }
+    function selectAllFilter(){
+      ACTIVE_DEPTS = new Set(allDeptIds);
+      localStorage.setItem('sso_active_depts', JSON.stringify([...ACTIVE_DEPTS]));
+      renderFilterOptions();
+      updateFilterBadge();
+    }
+    function updateFilterBadge(){
+      const selected = ACTIVE_DEPTS.size;
+      const total = DEPARTMENTS.length;
+
+      if(selected === total){
+        tabs.filterBadge.style.display='none';
+        tabs.filterBadge.innerHTML='';
+        tabs.filterBtn.setAttribute('aria-label','Filtro reparti: tutti selezionati');
+        return;
+      }
+      if(selected === 0){
+        tabs.filterBadge.style.display='inline-flex';
+        tabs.filterBadge.innerHTML='0';
+        tabs.filterBtn.setAttribute('aria-label','Filtro reparti: nessuno selezionato');
+        return;
+      }
+      // Mostra le icone dei reparti selezionati (per la badge usiamo icone "di selezione")
+      const parts=[];
+      for(const dep of DEPARTMENTS){
+        if(ACTIVE_DEPTS.has(dep.id)){
+          parts.push(dep.id==='carne' ? '🥩' : dep.icon);
+        }
+      }
+      tabs.filterBadge.style.display='inline-flex';
+      tabs.filterBadge.innerHTML = parts.join(' <span class="sep">+</span> ');
+      tabs.filterBtn.setAttribute('aria-label',`Filtro reparti selezionati`);
+    }
+
     /* === Boot === */
     (async function init(){
-      try{ await refreshData(); }
-      catch(err){ console.warn('Errore API:', err); DATA_ROWS = []; document.getElementById('sso-status').textContent = 'Errore nel caricamento dei dati'; }
+      // Bind filtro (modale)
+      document.getElementById('sso-tab-filter').addEventListener('click', openFilter);
+      filterApply.addEventListener('click', applyFilter);
+      filterReset.addEventListener('click', selectAllFilter);
+      filterCloseBtn.addEventListener('click', closeFilter);
+      filterModal.addEventListener('click', (e)=>{ if(e.target.classList.contains('backdrop')) closeFilter(); });
+
+      try{
+        await refreshData();
+      }catch(err){
+        console.warn('Errore API:', err);
+        DATA_ROWS = [];
+        document.getElementById('sso-status').textContent = 'Errore nel caricamento dei dati';
+      }
 
       // Bind UI
       document.getElementById('sso-go').onclick = submit;
@@ -706,7 +723,15 @@
       setInterval(async ()=>{
         try{
           await refreshData();
-          rerenderLists();
+          const isDomani = document.getElementById('sso-tab-domani').classList.contains('active');
+          const isData   = document.getElementById('sso-tab-data').classList.contains('active');
+          if (isData) {
+            const d = new Date(`${document.getElementById('sso-ritiri-date').value||ymd(new Date())}T12:00:00`);
+            renderList(d);
+          } else {
+            const base = new Date(); if (isDomani) base.setDate(base.getDate()+1);
+            renderList(base);
+          }
           const qv = (document.getElementById('sso-q').value||'').trim();
           if (qv) {
             const rows = findByName(qv);
