@@ -17,7 +17,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Stòc">
 
-  <!-- Font: Titolo Playfair Display + Sottotitolo Barcode -->
+  <!-- Font -->
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Libre+Barcode+128+Text&display=swap" rel="stylesheet">
 
   <style>
@@ -39,13 +39,12 @@
     header h1{margin:10px 0 0;font-size:26px;font-weight:400;color:#fff;opacity:1;
       font-family:'Libre Barcode 128 Text', cursive;text-transform:uppercase;letter-spacing:.02em}
 
-    /* === Pill trasparente con bordo e testo dorato dinamico === */
+    /* === Pill trasparente + testo gradient (fix iOS incluso) === */
     .beta-row{
       display:flex;
       justify-content:center;
-      margin-top:20px; /* distanziamento dal sottotitolo */
+      margin-top:20px;
       position:relative;
-      top:0;
       pointer-events:none; /* non cliccabile */
     }
 
@@ -58,7 +57,7 @@
       background:transparent;
       border:1px solid #e6c408; /* bordo dorato */
       box-shadow:0 1px 0 rgba(255,255,255,.25) inset,0 4px 12px rgba(0,0,0,.25);
-      pointer-events:none;
+      pointer-events:none; /* non cliccabile */
     }
 
     .beta-pill .txt{
@@ -72,19 +71,31 @@
       font-weight:800;
       font-size:11px;
       letter-spacing:.3px;
+      display:inline-block; /* aiuta WebKit */
     }
 
-    .beta-pill::after{display:none;}
+    /* FIX Safari iOS: evita riempimento giallo su alcune versioni */
+    @supports (-webkit-touch-callout: none) {
+      .beta-pill .txt{
+        background-image:
+          -webkit-linear-gradient(135deg,#ffd60a 0%,#ffcc00 30%,#ffb700 60%,#ff9500 100%),
+          -webkit-linear-gradient(135deg,#ffd60a 0%,#ffcc00 30%,#ffb700 60%,#ff9500 100%);
+        -webkit-background-clip:text;
+        background-clip:text;
+        -webkit-text-fill-color:transparent !important;
+        will-change:background-position;
+      }
+    }
 
-    /* === Immagini e tabbar === */
+    /* Immagini e tabbar */
     .hero-img-wrap{display:flex;align-items:center;justify-content:center;margin-top:6px;position:relative;z-index:1}
     .hero-img-wrap img{width:92px;max-width:106px;height:auto;border-radius:12px;position:relative}
     .hero-img-wrap img:first-child{left:10px;z-index:1}
     .hero-img-wrap img:last-child{right:0;margin-left:-10px;z-index:2;top:5px}
 
     .x-tabbar{margin-top:8px;display:flex;justify-content:center;position:relative;top:-16px;z-index:1}
-    .x-tabbar-inner{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;width:92%;max-width:480px;padding:8px;border-radius:38px;background:#f7f7f7;border:0px solid rgba(0,0,0,.1);box-shadow:0 12px 28px rgba(0,0,0,.15)}
-    .x-tab{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:10px 12px;border-radius:28px;text-decoration:none;cursor:pointer;-webkit-tap-highlight-color:transparent;color:#6b6b70;border:0px solid transparent;transition:background .15s,color .15s,border-color .15s,box-shadow .15s}
+    .x-tabbar-inner{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;width:92%;max-width:480px;padding:8px;border-radius:38px;background:#f7f7f7;box-shadow:0 12px 28px rgba(0,0,0,.15)}
+    .x-tab{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:10px 12px;border-radius:28px;text-decoration:none;cursor:pointer;-webkit-tap-highlight-color:transparent;color:#6b6b70;transition:background .15s,color .15s,border-color .15s,box-shadow .15s}
     .x-tab[aria-selected="true"]{background:#ffd60a;color:#000;font-weight:700;border-color:#e6c408;box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 6px 16px rgba(0,0,0,.35)}
     .ico-bubble{display:flex;align-items:center;justify-content:center;background:transparent;border:none;box-shadow:none;width:auto;height:auto;border-radius:0}
     .x-tabbar .x-tab[aria-selected="false"] span{color:#222}
@@ -92,14 +103,11 @@
     [data-view]{display:none; position:relative;}
     [data-view].active{display:block; z-index:5;}
 
-    [data-view] [data-sso]{--pane-max:760px;--pane-gutter:0px}
-    [data-view] [data-sso] .wrap{max-width:var(--pane-max);padding-left:0!important;padding-right:0!important;margin-left:auto;margin-right:auto}
-    [data-view] [data-sso] .section,[data-view] [data-sso] .btn-new-outer{width:100%;max-width:var(--pane-max);margin-left:auto;margin-right:auto}
-
     .card{margin:14px auto 0;border-radius:16px;padding:22px;background:#0b0b0c;border:1px solid rgba(255,255,255,.08);min-height:110px;width:92%;max-width:760px}
 
     footer{margin-top:40px;text-align:center;font-size:12px;color:#8e8e8e;opacity:.6;letter-spacing:.3px}
 
+    /* Fallback note/card (usati dal loader JS quando offline o 404) */
     .fallback-note{margin:12px auto 0;max-width:760px;font-size:12px;opacity:.7;color:#c8c8c8;text-align:center}
     .fallback-card{margin:14px auto 0;border-radius:16px;padding:22px;background:#0b0b0c;border:1px dashed rgba(255,255,255,.18);min-height:110px;width:92%;max-width:760px}
   </style>
@@ -110,7 +118,7 @@
       <h2>Stòc</h2>
       <h1>Scanner & Stoccaggio Ordini</h1>
       <div class="beta-row">
-        <span class="beta-pill"><span class="txt">Dove la tradizione incontra l'innovazione.</span></span>
+        <span class="beta-pill"><span class="txt">Dove la storia incontra il futuro.</span></span>
       </div>
     </header>
 
@@ -143,39 +151,38 @@
     <footer>© Tutti i diritti riservati – La Bottega di Casterno</footer>
   </div>
 
+  <!-- Lottie -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
   <script>
+    // Avvio Lottie con tolleranza errori
     try{
       lottie.loadAnimation({container:document.getElementById('lottie-scanner'),renderer:'svg',loop:true,autoplay:true,path:'./scanner.lotties.json'});
       lottie.loadAnimation({container:document.getElementById('lottie-stoccaggio'),renderer:'svg',loop:true,autoplay:true,path:'./shopping-cart.lotties.json'});
     }catch(e){ console.warn('Lottie non disponibile:', e); }
 
+    // Utilità
     const VIEWS=['a','b'];
     const $=s=>document.querySelector(s);
     const $$=s=>Array.from(document.querySelectorAll(s));
 
+    // Fallback inline per ambienti offline o quando i file esterni non sono raggiungibili
     const EMBEDDED_PAGES={
       './stoccaggio.html': `
         <div class="fallback-note">(Fallback inline) Stoccaggio</div>
         <div class="fallback-card">
           <h3 style="margin:0 0 8px;font:600 16px/1.2 system-ui">Stoccaggio</h3>
-          <p style="margin:0;color:#cfcfcf">Questa è una versione di anteprima. La pagina esterna <code>stoccaggio.html</code> non è stata caricata.</p>
+          <p style="margin:0;color:#cfcfcf">La pagina esterna <code>stoccaggio.html</code> non è stata caricata (offline o percorso non trovato).</p>
         </div>`,
       './scanner.html': `
         <div class="fallback-note">(Fallback inline) Scanner</div>
         <div class="fallback-card">
           <h3 style="margin:0 0 8px;font:600 16px/1.2 system-ui">Scanner</h3>
-          <p style="margin:0;color:#cfcfcf">Questa è una versione di anteprima. La pagina esterna <code>scanner.html</code> non è stata caricata.</p>
+          <p style="margin:0;color:#cfcfcf">La pagina esterna <code>scanner.html</code> non è stata caricata (offline o percorso non trovato).</p>
         </div>`
     };
 
-    const loadedStyles=new Set();
-
-    function isHttpContext(){ return location.protocol==='http:' || location.protocol==='https:'; }
-
-    async function fetchTextSafe(url, opts){
-      if(!isHttpContext()) throw new Error('Contesto non-HTTP');
-      const res=await fetch(url, opts);
+    async function fetchTextSafe(url){
+      const res=await fetch(url, {credentials:'same-origin'});
       if(!res.ok) throw new Error('HTTP '+res.status);
       return res.text();
     }
@@ -183,22 +190,12 @@
     async function loadExternalInto(section){
       const url=section.getAttribute('data-src');
       if(!url||section.dataset.loaded==='true') return;
-
       try{
-        const html=await fetchTextSafe(url,{credentials:'same-origin'});
+        const html=await fetchTextSafe(url);
         const doc=new DOMParser().parseFromString(html,'text/html');
-
-        doc.querySelectorAll('style').forEach(styleEl=>{
-          const s=document.createElement('style'); s.textContent=styleEl.textContent; document.head.appendChild(s);
-        });
-        doc.querySelectorAll('link[rel="stylesheet"]').forEach(link=>{
-          const href=link.getAttribute('href'); if(!href) return;
-          const abs=new URL(href, url).href;
-          if(loadedStyles.has(abs)) return;
-          const l=document.createElement('link'); l.rel='stylesheet'; l.href=abs; document.head.appendChild(l);
-          loadedStyles.add(abs);
-        });
+        // Inietta solo il body della sotto-pagina
         section.innerHTML=doc.body?doc.body.innerHTML:html;
+        // E re-esegui eventuali script inline/esterni
         doc.querySelectorAll('script').forEach(oldS=>{
           const s=document.createElement('script');
           if(oldS.type) s.type=oldS.type;
@@ -210,22 +207,11 @@
           section.appendChild(s);
         });
         section.dataset.loaded='true';
-        section.dataset.source='external';
-        syncPaneVarsFor(section);
       }catch(err){
         console.warn('Impossibile caricare', url, '-', err.message);
-        const fb = EMBEDDED_PAGES[url];
-        if(fb){
-          section.innerHTML = fb;
-          section.dataset.loaded='true';
-          section.dataset.source='fallback';
-          syncPaneVarsFor(section);
-        }else{
-          const msg=document.createElement('div');
-          msg.className='fallback-card';
-          msg.innerHTML = `<strong>Non riesco a caricare <code>${url}</code></strong><br><span style="opacity:.8">Verifica che il file esista e sia servito dalla stessa origine.</span>`;
-          section.innerHTML=''; section.appendChild(msg);
-        }
+        const fb=EMBEDDED_PAGES[url];
+        section.innerHTML=fb || `<div class="fallback-card">Non riesco a caricare <code>${url}</code></div>`;
+        section.dataset.loaded='true';
       }
     }
 
@@ -236,12 +222,10 @@
       $('#view-a').classList.toggle('active',view==='a');
       $('#view-b').classList.toggle('active',view==='b');
       $$('.x-tab').forEach(t=>t.setAttribute('aria-selected',t.dataset.tab===view?'true':'false'));
-      $('#view-a').style.zIndex=(view==='a')?5:0;
-      $('#view-b').style.zIndex=(view==='b')?5:0;
-      syncPaneVarsFor(section);
       if(view==='b') document.dispatchEvent(new CustomEvent('sso:tabchange',{detail:{tab:'scanner'}}));
     }
 
+    // Avvio + prefetch
     loadExternalInto($('#view-a')).then(()=>activate('a'));
     loadExternalInto($('#view-b'));
 
@@ -249,34 +233,12 @@
       const a=e.target.closest('.x-tab'); if(!a) return; e.preventDefault(); activate(a.dataset.tab);
     });
 
-    const EXTERNAL_GUTTER_PX=0;
-    const wrapEl=document.querySelector('.x-wrap');
-
-    function readWrapDims(){
-      if(!wrapEl) return {w:760,g:0};
-      const w=wrapEl.getBoundingClientRect().width; return {w,g:0};
-    }
-    function applyPaneVarsToRoots(pixels,gutter){
-      const g=(typeof EXTERNAL_GUTTER_PX==='number')?EXTERNAL_GUTTER_PX:gutter;
-      document.querySelectorAll('[data-view].active [data-sso]').forEach(root=>{
-        root.style.setProperty('--pane-max',Math.round(pixels)+'px');
-        root.style.setProperty('--pane-gutter',Math.round(g)+'px');
-      });
-    }
-    function syncPaneVarsFor(section){ if(!section) return; const {w,g}=readWrapDims(); applyPaneVarsToRoots(w,g); }
-    const ro=new ResizeObserver(entries=>{ for(const e of entries){ const w=e.contentRect.width; applyPaneVarsToRoots(w,0); } }); if(wrapEl) ro.observe(wrapEl);
-    const mo=new MutationObserver(()=>syncPaneVarsFor(document.querySelector('[data-view].active'))); mo.observe(document.body,{childList:true,subtree:true});
-
-    (function runSelfTests(){
+    // Self-test minimo
+    (function(){
       console.group('%cStòc self-tests','color:#ffd60a');
       const a=$('#view-a'), b=$('#view-b');
-      console.assert(a, 'view-a presente');
-      console.assert(b, 'view-b presente');
-      setTimeout(()=>{
-        console.assert(a.dataset.loaded==='true', 'view-a caricata');
-        console.assert(b.dataset.loaded==='true', 'view-b prefetched');
-        console.groupEnd();
-      }, 300);
+      console.assert(!!a && !!b,'Sezioni presenti');
+      setTimeout(()=>{console.assert(a.dataset.loaded==='true','Stoccaggio caricato (o fallback)');console.assert(b.dataset.loaded==='true','Scanner prefetched (o fallback)');console.groupEnd();},300);
     })();
   </script>
 </body>
