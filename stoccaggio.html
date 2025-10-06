@@ -158,9 +158,7 @@
     .date-ghost,
     .filter-ghost{
       position:absolute; inset:0; opacity:0; cursor:pointer;
-      z-index:2;                           /* sopra al contenuto del bottone */
-      pointer-events:auto;                 /* assicurati che clicchi sul select */
-      background:transparent;              /* no overlay visivo */
+      z-index:2; pointer-events:auto; background:transparent;
     }
     .date-accent{ color:#22c55e; font-weight:900; }
     .orders-title{ font-size:16px; white-space:nowrap; }
@@ -268,6 +266,10 @@
       const t = String(v??'').trim();
       return t !== '' && t !== '0' && t !== '-' && t.toLowerCase() !== 'n/d';
     };
+    const isYes = v => {
+      const t = norm(String(v??''));
+      return t === 'si' || t === 'sì' || t === 'y' || t === 'yes' || t === 'true' || t === '1';
+    };
 
     function parseAnyDate(s){
       if(!s) return null;
@@ -283,7 +285,7 @@
     let DATA_ROWS = [];
     let UPDATED_AT = null;
 
-    // Reparti
+    // Reparti (nota carne/avicolo)
     const DEPARTMENTS = [
       {id:'pane',   label:'1) PANE E PRODOTTI DA FORNO', keyExact: norm('1) PANE E PRODOTTI DA FORNO'), icon:'🥖'},
       {id:'banco',  label:'2) BANCO GASTRONOMIA',        keyExact: norm('2) BANCO GASTRONOMIA'),        icon:'🧀'},
@@ -347,30 +349,59 @@
       return out;
     }
 
-    // Verifica reparto
-    function rowHasDept(row, deptId){
+    /* -------- Reparto: stato + icona (gestisce eccezione AVICOLO per CARNE) -------- */
+    function getDeptStatus(row, deptId){
       const dep = DEPARTMENTS.find(d=>d.id===deptId);
-      if(!dep) return false;
-      const entries = Object.entries(row.src||{});
-      for(const [k,v] of entries){
+      if(!dep) return {present:false, icon:null};
+
+      // 1) Presenza contenuto per intestazione esatta del reparto (es. "4) CARNE")
+      let headerHasContent = false;
+      for(const [k,v] of Object.entries(row.src||{})){
         const nk = row.__normKeys[k] || norm(k);
         if(nk === dep.keyExact){
-          return hasValue(v);
+          headerHasContent = hasValue(v);
+          break;
         }
       }
-      return false;
+
+      // 2) Eccezione per CARNE: se header vuoto ma AVICOLO = "si" → presente con icona pollo
+      if(deptId === 'carne'){
+        let avicoloYes = false;
+        for(const [k,v] of Object.entries(row.src||{})){
+          const nk = row.__normKeys[k] || norm(k);
+          if(nk === 'avicolo' || nk.includes('avicol')){
+            avicoloYes = isYes(v);
+            break;
+          }
+        }
+        if(headerHasContent){ return {present:true, icon:'🥩'}; }
+        if(avicoloYes){ return {present:true, icon:'🍗'}; }
+        return {present:false, icon:null};
+      }
+
+      return {present:headerHasContent, icon: headerHasContent ? dep.icon : null};
     }
+
+    function rowHasDept(row, deptId){
+      return getDeptStatus(row, deptId).present;
+    }
+
     function rowMatchesActiveDepts(row){
-      if(ACTIVE_DEPTS.size===0) return false;
+      if(ACTIVE_DEPTS.size===0) return false; // niente selezione → niente risultati
       for(const id of ACTIVE_DEPTS){ if(rowHasDept(row, id)) return true; }
       return false;
     }
 
-    // Icone reparti inline: "🥖 + 🥦"
+    // Icone reparti inline: "🥖 <+> 🥦" con priorità pollo per CARNE/AVICOLO
     function deptInline(row){
-      const icons=[];
-      for(const dep of DEPARTMENTS){ if(rowHasDept(row, dep.id)) icons.push(dep.icon); }
-      return icons.join(' ') ? icons.join(' <span class="sep">+</span> ') : '';
+      const parts=[];
+      for(const dep of DEPARTMENTS){
+        const st = getDeptStatus(row, dep.id);
+        if(st.present){
+          parts.push(st.icon || dep.icon);
+        }
+      }
+      return parts.length ? parts.join(' <span class="sep">+</span> ') : '';
     }
 
     // Card
@@ -621,18 +652,16 @@
 
     // === Boot ===
     (async function init(){
-      // Inizializza SUBITO il selettore filtro (prima ancora dei dati) per garantire clic apribile
+      // Inizializza SUBITO il selettore filtro
       populateFilterSelect();
       updateFilterBadge();
 
-      // Fallback: clic sul bottone → focus sul select (apre il picker dove supportato)
+      // Click sul bottone → focus/select (apre il picker dove supportato)
       tabs.filterBtn.addEventListener('click', ()=>{
         tabs.filterSelect.focus();
-        // su alcuni browser, un click sintetico aiuta ad aprire il menu
         const evt = new MouseEvent('mousedown', {bubbles:true, cancelable:true, view:window});
         tabs.filterSelect.dispatchEvent(evt);
       });
-      // Applica quando cambia selezione
       tabs.filterSelect.addEventListener('change', applyFilterFromSelect);
 
       try{
@@ -650,7 +679,7 @@
       document.getElementById('sso-tab-oggi').onclick=()=>activate('oggi');
       document.getElementById('sso-tab-domani').onclick=()=>activate('domani');
       document.getElementById('sso-tab-data').onclick=()=>activate('data');
-      dateInput.onchange=()=>activate('data');
+      document.getElementById('sso-ritiri-date').onchange=()=>activate('data');
 
       // Click su card → modale
       document.addEventListener('click', e=>{
@@ -669,7 +698,7 @@
           const isDomani = document.getElementById('sso-tab-domani').classList.contains('active');
           const isData   = document.getElementById('sso-tab-data').classList.contains('active');
           if (isData) {
-            const d = new Date(`${dateInput.value||ymd(new Date())}T12:00:00`);
+            const d = new Date(`${document.getElementById('sso-ritiri-date').value||ymd(new Date())}T12:00:00`);
             renderList(d);
           } else {
             const base = new Date(); if (isDomani) base.setDate(base.getDate()+1);
