@@ -39,18 +39,44 @@
     header h1{margin:10px 0 0;font-size:26px;font-weight:400;color:#fff;opacity:1;
       font-family:'Libre Barcode 128 Text', cursive;text-transform:uppercase;letter-spacing:.02em}
 
-    .beta-row{display:flex;justify-content:center;margin-top:14px;position:relative;top:0}
-    .beta-pill{display:inline-flex;align-items:center;justify-content:center;padding:5px 12px;border-radius:999px;
-      background:#ffd60a;color:#000;font-weight:800;font-size:11px;border:1px solid #e6c408;
-      box-shadow:0 1px 0 rgba(255,255,255,.25) inset,0 4px 12px rgba(0,0,0,.25);
-      position:relative;overflow:hidden}
-    /* Effetto luce non invasivo: overlay separato, non tocca il colore del testo */
-    .beta-pill::after{content:"";position:absolute;inset:-30% -40%;
-      background:linear-gradient(90deg,transparent 0,rgba(255,255,255,.55) 45%,rgba(255,255,255,.9) 50%,rgba(255,255,255,.55) 55%,transparent 100%);
-      transform:translateX(-120%);animation:pillShine 6s linear infinite;mix-blend-mode:soft-light;pointer-events:none}
-    @keyframes pillShine{to{transform:translateX(120%)}}
-    @keyframes shine{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+    /* === Pill trasparente con bordo e testo dorato dinamico === */
+    .beta-row{
+      display:flex;
+      justify-content:center;
+      margin-top:20px; /* distanziamento dal sottotitolo */
+      position:relative;
+      top:0;
+      pointer-events:none; /* non cliccabile */
+    }
 
+    .beta-pill{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      padding:6px 14px;
+      border-radius:999px;
+      background:transparent;
+      border:1px solid #e6c408; /* bordo dorato */
+      box-shadow:0 1px 0 rgba(255,255,255,.25) inset,0 4px 12px rgba(0,0,0,.25);
+      pointer-events:none;
+    }
+
+    .beta-pill .txt{
+      background:linear-gradient(135deg,#ffd60a 0%,#ffcc00 30%,#ffb700 60%,#ff9500 100%);
+      background-size:400% 400%;
+      -webkit-background-clip:text;
+      background-clip:text;
+      -webkit-text-fill-color:transparent;
+      color:transparent;
+      animation:goldFlow 14s ease-in-out infinite;
+      font-weight:800;
+      font-size:11px;
+      letter-spacing:.3px;
+    }
+
+    .beta-pill::after{display:none;}
+
+    /* === Immagini e tabbar === */
     .hero-img-wrap{display:flex;align-items:center;justify-content:center;margin-top:6px;position:relative;z-index:1}
     .hero-img-wrap img{width:92px;max-width:106px;height:auto;border-radius:12px;position:relative}
     .hero-img-wrap img:first-child{left:10px;z-index:1}
@@ -74,7 +100,6 @@
 
     footer{margin-top:40px;text-align:center;font-size:12px;color:#8e8e8e;opacity:.6;letter-spacing:.3px}
 
-    /* Fallback banner (solo in dev/offline) */
     .fallback-note{margin:12px auto 0;max-width:760px;font-size:12px;opacity:.7;color:#c8c8c8;text-align:center}
     .fallback-card{margin:14px auto 0;border-radius:16px;padding:22px;background:#0b0b0c;border:1px dashed rgba(255,255,255,.18);min-height:110px;width:92%;max-width:760px}
   </style>
@@ -84,7 +109,9 @@
     <header>
       <h2>Stòc</h2>
       <h1>Scanner & Stoccaggio Ordini</h1>
-      <div class="beta-row"><span class="beta-pill"><span class="txt">Dove la storia incontra il futuro.</span></span></div>
+      <div class="beta-row">
+        <span class="beta-pill"><span class="txt">Dove la tradizione incontra l'innovazione.</span></span>
+      </div>
     </header>
 
     <div class="hero-img-wrap">
@@ -118,40 +145,36 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
   <script>
-    // --- LOTTIE (tollerante a errori di rete) ---------------------------------
     try{
       lottie.loadAnimation({container:document.getElementById('lottie-scanner'),renderer:'svg',loop:true,autoplay:true,path:'./scanner.lotties.json'});
       lottie.loadAnimation({container:document.getElementById('lottie-stoccaggio'),renderer:'svg',loop:true,autoplay:true,path:'./shopping-cart.lotties.json'});
     }catch(e){ console.warn('Lottie non disponibile:', e); }
 
-    // --- Utility --------------------------------------------------------------
     const VIEWS=['a','b'];
     const $=s=>document.querySelector(s);
     const $$=s=>Array.from(document.querySelectorAll(s));
 
-    // Fallback inline per ambienti senza rete / file://
     const EMBEDDED_PAGES={
       './stoccaggio.html': `
         <div class="fallback-note">(Fallback inline) Stoccaggio</div>
         <div class="fallback-card">
           <h3 style="margin:0 0 8px;font:600 16px/1.2 system-ui">Stoccaggio</h3>
-          <p style="margin:0;color:#cfcfcf">Questa è una versione di anteprima. La pagina esterna <code>stoccaggio.html</code> non è stata caricata (offline o percorso non trovato).</p>
+          <p style="margin:0;color:#cfcfcf">Questa è una versione di anteprima. La pagina esterna <code>stoccaggio.html</code> non è stata caricata.</p>
         </div>`,
       './scanner.html': `
         <div class="fallback-note">(Fallback inline) Scanner</div>
         <div class="fallback-card">
           <h3 style="margin:0 0 8px;font:600 16px/1.2 system-ui">Scanner</h3>
-          <p style="margin:0;color:#cfcfcf">Questa è una versione di anteprima. La pagina esterna <code>scanner.html</code> non è stata caricata (offline o percorso non trovato).</p>
+          <p style="margin:0;color:#cfcfcf">Questa è una versione di anteprima. La pagina esterna <code>scanner.html</code> non è stata caricata.</p>
         </div>`
     };
 
-    // Caricamento pagine esterne con fallback robusto
     const loadedStyles=new Set();
 
     function isHttpContext(){ return location.protocol==='http:' || location.protocol==='https:'; }
 
     async function fetchTextSafe(url, opts){
-      if(!isHttpContext()) throw new Error('Contesto non-HTTP (es. file://).');
+      if(!isHttpContext()) throw new Error('Contesto non-HTTP');
       const res=await fetch(url, opts);
       if(!res.ok) throw new Error('HTTP '+res.status);
       return res.text();
@@ -165,11 +188,9 @@
         const html=await fetchTextSafe(url,{credentials:'same-origin'});
         const doc=new DOMParser().parseFromString(html,'text/html');
 
-        // Inietto <style> PRIMA del contenuto per evitare flash
         doc.querySelectorAll('style').forEach(styleEl=>{
           const s=document.createElement('style'); s.textContent=styleEl.textContent; document.head.appendChild(s);
         });
-        // Eventuali CSS esterni
         doc.querySelectorAll('link[rel="stylesheet"]').forEach(link=>{
           const href=link.getAttribute('href'); if(!href) return;
           const abs=new URL(href, url).href;
@@ -177,9 +198,7 @@
           const l=document.createElement('link'); l.rel='stylesheet'; l.href=abs; document.head.appendChild(l);
           loadedStyles.add(abs);
         });
-        // Contenuto body
         section.innerHTML=doc.body?doc.body.innerHTML:html;
-        // Script della sotto-pagina (inline + esterni)
         doc.querySelectorAll('script').forEach(oldS=>{
           const s=document.createElement('script');
           if(oldS.type) s.type=oldS.type;
@@ -195,7 +214,6 @@
         syncPaneVarsFor(section);
       }catch(err){
         console.warn('Impossibile caricare', url, '-', err.message);
-        // Fallback elegante
         const fb = EMBEDDED_PAGES[url];
         if(fb){
           section.innerHTML = fb;
@@ -224,15 +242,13 @@
       if(view==='b') document.dispatchEvent(new CustomEvent('sso:tabchange',{detail:{tab:'scanner'}}));
     }
 
-    // Avvio: carica e attiva la PRIMA pagina (Stoccaggio) e prefetch della seconda
     loadExternalInto($('#view-a')).then(()=>activate('a'));
-    loadExternalInto($('#view-b')); // prefetch per evitare flash al primo click
+    loadExternalInto($('#view-b'));
 
     document.querySelector('.x-tabbar-inner').addEventListener('click',e=>{
       const a=e.target.closest('.x-tab'); if(!a) return; e.preventDefault(); activate(a.dataset.tab);
     });
 
-    // Sync width + gutter (gutter fisso = 0 per edge-to-edge)
     const EXTERNAL_GUTTER_PX=0;
     const wrapEl=document.querySelector('.x-wrap');
 
@@ -251,15 +267,14 @@
     const ro=new ResizeObserver(entries=>{ for(const e of entries){ const w=e.contentRect.width; applyPaneVarsToRoots(w,0); } }); if(wrapEl) ro.observe(wrapEl);
     const mo=new MutationObserver(()=>syncPaneVarsFor(document.querySelector('[data-view].active'))); mo.observe(document.body,{childList:true,subtree:true});
 
-    // --- Self tests (semplici) -----------------------------------------------
     (function runSelfTests(){
       console.group('%cStòc self-tests','color:#ffd60a');
       const a=$('#view-a'), b=$('#view-b');
       console.assert(a, 'view-a presente');
       console.assert(b, 'view-b presente');
       setTimeout(()=>{
-        console.assert(a.dataset.loaded==='true', 'view-a caricata (esterno o fallback)');
-        console.assert(b.dataset.loaded==='true', 'view-b prefetched (esterno o fallback)');
+        console.assert(a.dataset.loaded==='true', 'view-a caricata');
+        console.assert(b.dataset.loaded==='true', 'view-b prefetched');
         console.groupEnd();
       }, 300);
     })();
