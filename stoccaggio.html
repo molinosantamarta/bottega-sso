@@ -35,7 +35,7 @@
     }
 
     .title { display:flex; align-items:center; gap:10px;
-      font-weight:800; font-size:18px; margin:0 0 15px; color:#111; }
+      font-weight:800; font-size:18px; margin:0 0 15px; color:#111; justify-content:center; }
     .text { font-size:15px; color:#222; }
 
     /* Lente animata */
@@ -67,6 +67,7 @@
     .btn:active{ transform:scale(.995); }
     .btn[disabled]{ opacity:.6; cursor:default; box-shadow:none; }
     .btn.secondary{ background:#111; color:#fff; box-shadow:none; }
+    .btn.primary-yellow{ background:var(--highlight); color:#000; box-shadow:0 4px 14px rgba(255,214,10,.35); }
 
     @media(min-width:520px){ .search{flex-direction:row;} .btn{width:auto;} }
 
@@ -93,7 +94,7 @@
 
     .order-badge{
       min-width:46px; height:32px; display:inline-flex; align-items:center; justify-content:center;
-      border-radius:999px; background:#ffd60a; color:#000; font-weight:900;
+      border-radius:999px; background:var(--highlight); color:#000; font-weight:900;
     }
 
     .order-main{ flex:1; min-width:0; }
@@ -111,30 +112,44 @@
     .empty{ padding:12px; border-radius:14px; border:1px dashed rgba(0,0,0,.15); background:#fff; color:#333; font-size:14px; text-align:center; }
     .status{ margin-top:8px; font-size:12px; color:#555; }
 
-    /* Tabs (riga 1) */
-    .tabs{ display:flex; gap:12px; flex-wrap:nowrap; overflow:auto; align-items:center; }
+    /* ===== Header ordini centrato ===== */
+    .orders-header{ display:flex; flex-direction:column; align-items:center; gap:10px; }
+    .orders-title{ font-size:16px; white-space:nowrap; text-align:center; }
+
+    /* ===== “Bolle” (chipbar) per tabs e filtro ===== */
+    .toolbar{ display:flex; justify-content:center; gap:12px; flex-wrap:wrap; }
+    .chipbar{
+      display:flex; align-items:center; gap:8px; padding:6px;
+      border:1px solid rgba(0,0,0,.06); background:#f7f7f8; border-radius:999px;
+      box-sizing:border-box; /* si allarga con il contenuto */
+    }
+
+    /* Bottoni tab dentro la chipbar */
     .tab{
       padding:10px 14px; border-radius:999px; border:1px solid rgba(0,0,0,.06);
-      background:#f2f2f3; font-weight:800; cursor:pointer;
-      white-space:nowrap; color:#111; position:relative;
+      background:#f2f2f3; font-weight:800; cursor:pointer; white-space:nowrap; color:#111;
     }
-    .tab.active{ background:#111; color:#fff; }
+    .tab.active{ background:var(--highlight); color:#000; border-color:rgba(0,0,0,.08); }
     .tab-date{ position:relative; }
     .date-ghost{ position:absolute; inset:0; opacity:0; cursor:pointer; z-index:2; }
-    .date-accent{ color:#22c55e; font-weight:900; }
-    .orders-title{ font-size:16px; white-space:nowrap; }
 
-    /* Riga 2: filtro sotto le tab */
-    .filters-row{ display:flex; gap:12px; margin-top:10px; align-items:center; flex-wrap:wrap; }
+    /* Filtro chip (bottone + badge) */
     .tab.icon{ display:inline-flex; align-items:center; gap:8px; font-weight:800; background:#f2f2f3; color:#111; }
-    .tab.icon svg{ width:18px; height:18px; flex:0 0 auto; }
+    .tab.icon svg{ width:18px; height:18px; flex:0 0 auto; color:var(--highlight); } /* icona imbuto gialla */
     .count-badge{
       display:none; align-items:center; justify-content:center;
       padding:0 8px; height:22px; border-radius:999px; margin-left:4px;
-      background:#111; color:#fff; font-size:13px; font-weight:900; line-height:1; gap:6px;
+      background:var(--highlight); color:#000; font-size:13px; font-weight:900; line-height:1; gap:6px;
     }
     .count-badge .sep{ opacity:.7; }
-    .tab.icon.active{ background:#111; color:#fff; }
+
+    /* iOS: selettore nativo multiplo */
+    .filter-native{
+      display:none; border:1px solid rgba(0,0,0,.08);
+      border-radius:12px; padding:8px; font-size:15px; background:#fff; color:#111; min-width:260px;
+    }
+    body.ios .filter-native{ display:block; }
+    body.ios #sso-filter-chip{ display:none; } /* su iOS nascondo il bottone filtro */
 
     /* Modali */
     .modal{ position:fixed; inset:0; display:none; z-index:2147483647; }
@@ -142,35 +157,25 @@
     .modal .backdrop{ position:absolute; inset:0; background:rgba(0,0,0,.55); backdrop-filter:saturate(1.2) blur(6px); }
     .modal .sheet{ position:absolute; inset:0; background:#fff; color:#111; display:flex; flex-direction:column; }
 
-    /* Dettaglio ordine: più aria fra titolo/sottotitolo */
+    /* Dettaglio ordine */
     .modal header{ display:flex; align-items:center; justify-content:space-between; gap:12px;
       padding:14px 16px 12px; border-bottom:1px solid #ececec; position:sticky; top:0; background:#fff; z-index:1; }
     .modal header .h{ font-weight:900; font-size:24px; text-align:left; margin:0; }
     .modal header .text{ font-size:16px; text-align:left; margin-top:6px; color:#555; }
     .modal .close{ border:1px solid #ddd; background:#fff; border-radius:999px; padding:8px 12px; font-weight:800; cursor:pointer; }
     .modal .content{ padding:12px 16px 28px; overflow:auto; font-size:17px; }
-
     .kv{ width:100%; border-collapse:collapse; }
     .kv th, .kv td{ text-align:left; padding:12px 10px; border-bottom:1px solid #f1f1f1; font-size:17px; }
     .kv th{ width:36%; color:#444; font-weight:700; }
     .kv tr:last-child th, .kv tr:last-child td{ border-bottom:none; }
     .kv tr.hl{ background:rgba(255,214,10,.22); }
 
-    /* Modale filtro reparti: più spazio */
+    /* Modale filtri */
     #sso-filter-modal .content .text{ margin-bottom:14px; }
     .filter-options{ display:flex; flex-direction:column; gap:10px; padding-top:4px; }
     .filter-row{ display:flex; align-items:center; gap:10px; }
     .filter-row input{ width:18px; height:18px; }
     .filter-actions{ display:flex; gap:10px; margin-top:16px; }
-    /* iOS: selettore nativo visibile */
-    .filter-native{
-      display:none; /* attivo solo su iOS */
-      border:1px solid rgba(0,0,0,.08);
-      border-radius:12px; padding:8px; font-size:15px; background:#fff; color:#111;
-      min-width:260px;
-    }
-    body.ios .filter-native{ display:block; }
-    body.ios #sso-tab-filter{ display:none; } /* su iOS nascondo il bottone filtro */
   </style>
 </head>
 <body>
@@ -193,29 +198,34 @@
 
       <!-- BLOCCO: Ordini -->
       <section class="section">
-        <h2 class="title orders-title">Ordini di <span id="sso-ritiri-title-date" class="date-accent">—</span></h2>
+        <div class="orders-header">
+          <h2 class="title orders-title">Ordini di <span id="sso-ritiri-title-date" class="date-accent">—</span></h2>
 
-        <!-- Riga 1: tabs data -->
-        <div class="tabs">
-          <button class="tab active" id="sso-tab-oggi">Oggi</button>
-          <button class="tab" id="sso-tab-domani">Domani</button>
-          <button class="tab tab-date" id="sso-tab-data">
-            <span id="sso-tab-date-label">Data</span>
-            <input id="sso-ritiri-date" class="date-ghost" type="date" />
-          </button>
-        </div>
+          <!-- Striscia centrata con due bolle: (1) tabs data (2) filtro -->
+          <div class="toolbar">
+            <!-- Bolla tabs -->
+            <div class="chipbar" id="chipbar-date">
+              <button class="tab active" id="sso-tab-oggi">Oggi</button>
+              <button class="tab" id="sso-tab-domani">Domani</button>
+              <button class="tab tab-date" id="sso-tab-data" aria-label="Seleziona data">
+                <span id="sso-tab-date-label">Data</span>
+                <input id="sso-ritiri-date" class="date-ghost" type="date" />
+              </button>
+            </div>
 
-        <!-- Riga 2: filtro reparti -->
-        <div class="filters-row">
-          <!-- Bottone filtro (web/Android/desktop) -->
-          <button class="tab icon" id="sso-tab-filter" title="Filtro Reparti" aria-haspopup="dialog" aria-expanded="false">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5h18l-7 8v5l-4 2v-7L3 5z" fill="currentColor"/></svg>
-            <span id="sso-filter-label">Filtro Reparti</span>
-            <span id="sso-filter-badge" class="count-badge"></span>
-          </button>
+            <!-- Bolla filtro -->
+            <div class="chipbar" id="chipbar-filter">
+              <!-- Bottone filtro (non-iOS) -->
+              <button class="tab icon" id="sso-filter-chip" title="Filtra reparti" aria-haspopup="dialog" aria-expanded="false">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5h18l-7 8v5l-4 2v-7L3 5z" fill="currentColor"/></svg>
+                <span id="sso-filter-label">Filtra reparti</span>
+                <span id="sso-filter-badge" class="count-badge"></span>
+              </button>
 
-          <!-- iOS: selettore nativo multiplo -->
-          <select id="sso-filter-native" class="filter-native" multiple aria-label="Filtro Reparti (iOS)"></select>
+              <!-- iOS: selettore nativo multiplo -->
+              <select id="sso-filter-native" class="filter-native" multiple aria-label="Filtra reparti (iOS)"></select>
+            </div>
+          </div>
         </div>
 
         <div id="sso-ritiri-list" class="orders"></div>
@@ -240,20 +250,20 @@
     </div>
   </div>
 
-  <!-- Modale Filtri Reparti (per non-iOS) -->
+  <!-- Modale Filtri Reparti (non-iOS) -->
   <div id="sso-filter-modal" class="modal" aria-hidden="true" role="dialog">
     <div class="backdrop"></div>
     <div class="sheet">
       <header>
-        <div class="h">Filtro Reparti</div>
+        <div class="h">Filtra reparti</div>
         <button id="sso-filter-close" class="close" aria-label="Chiudi">Chiudi</button>
       </header>
       <div class="content">
-        <div class="text">Seleziona almeno un reparto: gli ordini del giorno scelto verranno mostrati se contengono <em>almeno uno</em> dei reparti selezionati.</div>
+        <div class="text">Seleziona <strong>almeno un reparto</strong>: gli ordini del giorno scelto verranno mostrati se contengono <em>almeno uno</em> dei reparti selezionati.</div>
         <div class="filter-options" id="sso-filter-options"></div>
         <div class="filter-actions">
           <button id="sso-filter-reset" class="btn secondary">Seleziona tutti</button>
-          <button id="sso-filter-apply" class="btn">Applica</button>
+          <button id="sso-filter-apply" class="btn primary-yellow">Applica</button>
         </div>
       </div>
     </div>
@@ -261,7 +271,7 @@
 
   <script>
   (function(){
-    const API_URL = 'https://script.google.com/macros/s/AKfycbzp_2RNQO9ROQkpcGebBpZ9P_MyZEmxkqLh5G-ODe4Yo2x9E0aRbEQIbmofaxhod9VGFA/exec';
+    const API_URL = 'https://script.google.com/macros/s/AKfycbzp_2RNQO9ROQkpcGebBpZ9_PMyZEmxkqLh5G-ODe4Yo2x9E0aRbEQIbmofaxhod9VGFA/exec'.replace('_P','_P'); // safe
 
     // iOS detection
     const isiOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform==='MacIntel' && navigator.maxTouchPoints>1);
@@ -491,7 +501,7 @@
       oggi:document.getElementById('sso-tab-oggi'),
       domani:document.getElementById('sso-tab-domani'),
       data:document.getElementById('sso-tab-data'),
-      filterBtn:document.getElementById('sso-tab-filter'),
+      filterChip:document.getElementById('sso-filter-chip'),
       filterBadge:document.getElementById('sso-filter-badge'),
       filterNative:document.getElementById('sso-filter-native')
     };
@@ -500,7 +510,7 @@
     const setDateTabLabel = d => { dateLabel.textContent = ddmmyyyy(d); };
 
     function activate(which){
-      Object.values({oggi:tabs.oggi,domani:tabs.domani,data:tabs.data}).forEach(t=>{ t.classList.remove('active'); t.setAttribute('aria-selected','false'); });
+      [tabs.oggi,tabs.domani,tabs.data].forEach(t=>{ t.classList.remove('active'); t.setAttribute('aria-selected','false'); });
       if(which!=='filter'){ tabs[which].classList.add('active'); tabs[which].setAttribute('aria-selected','true'); }
       if(which==='data'){
         if(!dateInput.value) dateInput.value = ymd(new Date());
@@ -508,7 +518,6 @@
         setDateTabLabel(d); renderList(d);
         if(dateInput.showPicker){ try{ dateInput.showPicker(); }catch(_){} }
       } else if(which==='oggi' || which==='domani') {
-        dateLabel.textContent='Data';
         const base=new Date(); if(which==='domani') base.setDate(base.getDate()+1); renderList(base);
       }
     }
@@ -543,16 +552,9 @@
 
     // Bottone filtro (apre modale) – solo non-iOS
     if(!isiOS){
-      document.getElementById('sso-tab-filter').addEventListener('click', openFilter);
-      function openFilter(){
-        renderFilterControls();
-        filterModal.classList.add('open'); filterModal.setAttribute('aria-hidden','false');
-        tabs.filterBtn.classList.add('active'); lockScroll();
-      }
-      function closeFilter(){
-        filterModal.classList.remove('open'); filterModal.setAttribute('aria-hidden','true');
-        tabs.filterBtn.classList.remove('active'); unlockScroll();
-      }
+      tabs.filterChip.addEventListener('click', openFilter);
+      function openFilter(){ renderFilterControls(); filterModal.classList.add('open'); filterModal.setAttribute('aria-hidden','false'); lockScroll(); }
+      function closeFilter(){ filterModal.classList.remove('open'); filterModal.setAttribute('aria-hidden','true'); unlockScroll(); }
       filterCloseBtn.addEventListener('click', closeFilter);
       filterModal.addEventListener('click', (e)=>{ if(e.target.classList.contains('backdrop')) closeFilter(); });
 
@@ -598,29 +600,27 @@
       const total = DEPARTMENTS.length;
 
       if(selected === total){
-        tabs.filterBadge.style.display='none';
-        tabs.filterBadge.innerHTML='';
-        tabs.filterBtn.setAttribute('aria-label','Filtro Reparti: tutti selezionati');
+        document.getElementById('sso-filter-badge').style.display='none';
+        document.getElementById('sso-filter-badge').innerHTML='';
         return;
       }
       if(selected === 0){
-        tabs.filterBadge.style.display='inline-flex';
-        tabs.filterBadge.innerHTML='0';
-        tabs.filterBtn.setAttribute('aria-label','Filtro Reparti: nessuno selezionato');
+        document.getElementById('sso-filter-badge').style.display='inline-flex';
+        document.getElementById('sso-filter-badge').innerHTML='0';
         return;
       }
       const parts=[];
       for(const dep of DEPARTMENTS){ if(ACTIVE_DEPTS.has(dep.id)){ parts.push(dep.id==='carne' ? '🥩' : dep.icon); } }
-      tabs.filterBadge.style.display='inline-flex';
-      tabs.filterBadge.innerHTML = parts.join(' <span class="sep">+</span> ');
-      tabs.filterBtn.setAttribute('aria-label','Filtro Reparti selezionati');
+      const badge = document.getElementById('sso-filter-badge');
+      badge.style.display='inline-flex';
+      badge.innerHTML = parts.join(' <span class="sep">+</span> ');
     }
 
     function rerenderLists(){
       const isDomani = document.getElementById('sso-tab-domani').classList.contains('active');
       const isData   = document.getElementById('sso-tab-data').classList.contains('active');
       if(isData){
-        const d = new Date(`${dateInput.value||ymd(new Date())}T12:00:00`); renderList(d);
+        const d = new Date(`${document.getElementById('sso-ritiri-date').value||ymd(new Date())}T12:00:00`); renderList(d);
       }else{
         const base = new Date(); if (isDomani) base.setDate(base.getDate()+1); renderList(base);
       }
@@ -656,8 +656,7 @@
       const entries = Object.entries(row.src || {});
       const skipKeys = new Set([
         'ord','numero ordine (parsed)','ora (parsed)','zona (parsed)',
-        'nome','nome cliente','cliente',
-        'data','giorno','data ordine','ora','orario'
+        'nome','nome cliente','cliente','data','giorno','data ordine','ora','orario'
       ].map(k=>norm(k)));
 
       let seenItemsStart = false;
