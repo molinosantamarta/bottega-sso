@@ -14,7 +14,6 @@
       --highlight:#ffd60a; --radius:22px; --elev:0 10px 24px rgba(0,0,0,.15);
       --pane-pad:16px;
 
-      /* tipografia coerente */
       font-family:-apple-system,system-ui,Segoe UI,Roboto,sans-serif;
       font-size:16px; line-height:1.3;
       background:var(--bg); color:var(--fg);
@@ -68,6 +67,7 @@
     .btn[disabled]{ opacity:.6; cursor:default; box-shadow:none; }
     .btn.secondary{ background:#111; color:#fff; box-shadow:none; }
     .btn.primary-yellow{ background:var(--highlight); color:#000; box-shadow:0 4px 14px rgba(255,214,10,.35); }
+    .btn.primary-blue{ background:var(--accent); color:#fff; box-shadow:none; } /* Applica blu, senza alone */
 
     @media(min-width:520px){ .search{flex-direction:row;} .btn{width:auto;} }
 
@@ -77,11 +77,11 @@
     #sso-ritiri-list.orders{ margin-top:16px; }
 
     .order-card{
-      display:flex; align-items:center; gap:12px; padding:12px; border-radius:14px;
+      display:flex; align-items:center; gap:12px; padding:12px; border-radius:16px; /* come i bottoni */
       background:#fff; border:1px solid rgba(0,0,0,.08);
       box-shadow:var(--elev); cursor:pointer; box-sizing:border-box;
-      transition:opacity .2s ease, filter .2s ease;
-      min-height:54px; /* target confortevole */
+      transition:opacity .2s ease, filter .2s ease, transform .06s ease;
+      min-height:54px;
     }
     .order-card:active{ transform:scale(.995); }
 
@@ -109,12 +109,13 @@
     .order-depts-inline{ font-size:14px; line-height:1; display:inline-flex; gap:6px; align-items:center; }
     .order-depts-inline .sep{ opacity:.6; }
 
-    .empty{ padding:12px; border-radius:14px; border:1px dashed rgba(0,0,0,.15); background:#fff; color:#333; font-size:14px; text-align:center; }
+    .empty{ padding:12px; border-radius:16px; border:1px dashed rgba(0,0,0,.15); background:#fff; color:#333; font-size:14px; text-align:center; }
     .status{ margin-top:8px; font-size:12px; color:#555; }
 
     /* ===== Header ordini centrato + chipbar ===== */
     .orders-header{ display:flex; flex-direction:column; align-items:center; gap:10px; }
-    .orders-title{ font-size:16px; white-space:nowrap; text-align:center; }
+    .orders-title{ font-size:18px; white-space:nowrap; text-align:center; } /* ingrandito */
+    .orders-title .date-accent{ color:#22c55e; text-transform:capitalize; } /* verde + Maiuscola iniziale */
 
     .toolbar{ display:flex; justify-content:center; gap:12px; flex-wrap:wrap; }
     .chipbar{
@@ -126,14 +127,29 @@
       padding:10px 14px; border-radius:999px; border:1px solid rgba(0,0,0,.06);
       background:#f2f2f3; font-weight:800; cursor:pointer; white-space:nowrap; color:#111;
       min-height:44px; display:inline-flex; align-items:center;
+      transition:background .2s ease, color .2s ease, border-color .2s ease;
     }
     .tab.active{ background:var(--highlight); color:#000; border-color:rgba(0,0,0,.08); }
     .tab-date{ position:relative; }
     .date-ghost{ position:absolute; inset:0; opacity:0; cursor:pointer; z-index:2; }
 
-    /* Filtro chip */
-    .tab.icon{ display:inline-flex; align-items:center; gap:8px; font-weight:800; background:#f2f2f3; color:#111; }
-    .tab.icon svg{ width:18px; height:18px; flex:0 0 auto; color:var(--highlight); }
+    /* Filtro chip: compatto → espanso (va a capo) */
+    #chipbar-filter{
+      transition:max-width .25s ease, flex-basis .25s ease, transform .25s ease;
+      max-width:56px; /* solo icona */
+      overflow:hidden;
+    }
+    #chipbar-filter.compact{ flex-basis:auto; }
+    #chipbar-filter.expanded{ flex-basis:100%; max-width:100%; } /* va a capo */
+    /* Contenuti interni del chip filtro */
+    #sso-filter-chip{ gap:8px; }
+    #sso-filter-label, #sso-filter-badge { transition:opacity .2s ease; }
+    #chipbar-filter.compact #sso-filter-label,
+    #chipbar-filter.compact #sso-filter-badge{ opacity:0; pointer-events:none; }
+    /* Icona imbuto gialla + animazione tipo lente */
+    #sso-filter-chip svg{ width:18px; height:18px; color:var(--highlight); animation:funnel-pulse 1.2s ease-in-out infinite; }
+    @keyframes funnel-pulse{ 0%,100%{ transform:scale(1);} 50%{ transform:scale(1.06);} }
+
     .count-badge{
       display:none; align-items:center; justify-content:center;
       padding:0 8px; height:22px; border-radius:999px; margin-left:4px;
@@ -160,7 +176,7 @@
     .kv tr:last-child th, .kv tr:last-child td{ border-bottom:none; }
     .kv tr.hl{ background:rgba(255,214,10,.22); }
 
-    /* ===== Modale filtri: estetica coerente e compatta ===== */
+    /* ===== Modale filtri: coerente, compatta, arrotondata ===== */
     #sso-filter-modal .sheet{
       position:relative; inset:auto; margin:10vh auto;
       width:min(560px, 92vw); max-height:80vh;
@@ -179,6 +195,8 @@
     .filter-options{ display:flex; flex-direction:column; gap:10px; padding-top:4px; }
     .filter-row{ display:flex; align-items:center; gap:10px; padding:6px 2px; }
     .filter-row input{ width:20px; height:20px; }
+    .filter-row .label{ display:inline-flex; align-items:center; gap:8px; }
+    .filter-row .emoji{ font-size:18px; line-height:1; }
     .filter-actions{ display:flex; gap:10px; margin-top:16px; }
     @media (max-width:480px){
       #sso-filter-modal .sheet{ margin:8vh auto; }
@@ -207,7 +225,8 @@
       <!-- BLOCCO: Ordini -->
       <section class="section">
         <div class="orders-header">
-          <h2 class="title orders-title">Ordini di <span id="sso-ritiri-title-date" class="date-accent">—</span></h2>
+          <!-- niente spazio tra “di” e la data: lo span attacca subito -->
+          <h2 class="title orders-title">Ordini di<span id="sso-ritiri-title-date" class="date-accent">—</span></h2>
 
           <div class="toolbar">
             <!-- Bolla tabs -->
@@ -220,8 +239,8 @@
               </button>
             </div>
 
-            <!-- Bolla filtro -->
-            <div class="chipbar" id="chipbar-filter">
+            <!-- Bolla filtro (bolla nella bolla): compatta → espansa -->
+            <div class="chipbar compact" id="chipbar-filter">
               <button class="tab icon" id="sso-filter-chip" title="Filtra reparti" aria-haspopup="dialog" aria-expanded="false">
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5h18l-7 8v5l-4 2v-7L3 5z" fill="currentColor"/></svg>
                 <span id="sso-filter-label">Filtra reparti</span>
@@ -262,11 +281,11 @@
         <button id="sso-filter-close" class="close" aria-label="Chiudi">Chiudi</button>
       </header>
       <div class="content">
-        <div class="text">Seleziona <strong>almeno un reparto</strong>. Gli ordini del giorno scelto saranno mostrati se contengono <em>almeno uno</em> dei reparti selezionati.</div>
+        <div class="text">Seleziona almeno un reparto. Verranno mostrati solo gli ordini del reparto/i selezionato/i per quel giorno.</div>
         <div class="filter-options" id="sso-filter-options"></div>
         <div class="filter-actions">
           <button id="sso-filter-toggle-all" class="btn secondary">Seleziona tutti</button>
-          <button id="sso-filter-apply" class="btn primary-yellow">Applica</button>
+          <button id="sso-filter-apply" class="btn primary-blue">Applica</button>
         </div>
       </div>
     </div>
@@ -274,7 +293,7 @@
 
   <script>
   (function(){
-    /* URL API corretto */
+    /* URL API */
     const API_URL = 'https://script.google.com/macros/s/AKfycbzp_2RNQO9ROQkpcGebBpZ9P_MyZEmxkqLh5G-ODe4Yo2x9E0aRbEQIbmofaxhod9VGFA/exec';
 
     // Helpers
@@ -445,7 +464,8 @@
       const rows = rowsForDate(d);
       document.getElementById('sso-ritiri-list').innerHTML =
         rows.length ? rows.map(orderCard).join('') : `<div class='empty'>Nessun ordine</div>`;
-      document.getElementById('sso-ritiri-title-date').textContent = fmtIT(d);
+      const s = fmtIT(d); // es: "lunedì 06 ottobre"
+      document.getElementById('sso-ritiri-title-date').textContent = s; // CSS capitalizza prima lettera
     }
 
     // Ricerca rapida (non filtrata per reparti)
@@ -527,19 +547,28 @@
     const filterApply     = document.getElementById('sso-filter-apply');
     const filterToggleAll = document.getElementById('sso-filter-toggle-all');
     const filterCloseBtn  = document.getElementById('sso-filter-close');
+    const chipbarFilter   = document.getElementById('chipbar-filter');
 
     function openFilter(){
       renderFilterOptions();
+      // espandi chip e vai a capo
+      chipbarFilter.classList.remove('compact');
+      chipbarFilter.classList.add('expanded');
+
       filterModal.classList.add('open'); filterModal.setAttribute('aria-hidden','false');
       lockScroll();
       tabs.filterChip.setAttribute('aria-expanded','true');
-      updateToggleAllLabel();   // imposta "Seleziona tutti" / "Deseleziona tutti"
-      updateApplyDisabled();    // disabilita Applica se 0
+      updateToggleAllLabel();
+      updateApplyDisabled();
     }
     function closeFilter(){
       filterModal.classList.remove('open'); filterModal.setAttribute('aria-hidden','true');
       unlockScroll();
       tabs.filterChip.setAttribute('aria-expanded','false');
+
+      // richiudi chip filtro
+      chipbarFilter.classList.remove('expanded');
+      chipbarFilter.classList.add('compact');
     }
     tabs.filterChip.addEventListener('click', openFilter);
     filterCloseBtn.addEventListener('click', closeFilter);
@@ -548,9 +577,10 @@
     function renderFilterOptions(){
       filterOptionsEl.innerHTML = DEPARTMENTS.map(dep=>{
         const checked = ACTIVE_DEPTS.has(dep.id) ? 'checked' : '';
+        const cleanText = dep.label.replace(/^\d+\)\s*/, '');
         return `<label class="filter-row">
                   <input type="checkbox" data-dep="${dep.id}" ${checked} />
-                  <span>${esc(dep.label)}</span>
+                  <span class="label"><span class="emoji">${dep.icon}</span> <span>${esc(cleanText)}</span></span>
                 </label>`;
       }).join('');
       // bind change → aggiorna pulsanti
@@ -580,15 +610,14 @@
     filterToggleAll.addEventListener('click', ()=>{
       const total = DEPARTMENTS.length;
       const selected = getModalSelectionCount();
-      // se tutti selezionati ⇒ deseleziona tutti, altrimenti seleziona tutti
-      setAllInModal(!(selected === total) );
+      setAllInModal(!(selected === total));
     });
 
     filterApply.addEventListener('click', ()=>{
       const inputs = filterOptionsEl.querySelectorAll('input[type="checkbox"][data-dep]');
       const next = new Set();
       inputs.forEach(i=>{ if(i.checked) next.add(i.dataset.dep); });
-      if(next.size===0){ /* extra safety */ return; }
+      if(next.size===0){ return; }
       ACTIVE_DEPTS = next; LAST_VALID_DEPTS = new Set(ACTIVE_DEPTS);
       localStorage.setItem('sso_active_depts', JSON.stringify([...ACTIVE_DEPTS]));
       updateFilterBadge();
@@ -713,6 +742,9 @@
       }, 300000);
 
       activate('oggi');
+
+      // chip filtro parte compatto
+      document.getElementById('chipbar-filter').classList.add('compact');
     })();
   })();
   </script>
