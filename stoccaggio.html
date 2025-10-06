@@ -107,18 +107,19 @@
     .order-card:active{ transform:scale(.995); }
 
     /* === Ordini “passati”: più scuri + nome barrato === */
-    .order-card.past{
-      opacity:.35;
-      filter: grayscale(.35) contrast(.85);
-    }
-    .order-card.past .order-name{
-      text-decoration: line-through;
-      text-decoration-thickness: 2px;
-      text-decoration-color: rgba(0,0,0,.55);
-      color:#5a5a5a;
+   .order-card.past{
+  opacity:.35;                        /* più trasparente */
+  filter: grayscale(1) brightness(.75) contrast(1);
+}
+.order-card.past .order-name{
+  text-decoration: line-through;
+  text-decoration-thickness: 2px;
+  text-decoration-color:##1c1c1c;
+  color:##1c1c1c;
+}
     }
     .order-card.past .order-badge,
-    .order-card.past .order-pill{ opacity:.7; }
+    .order-card.past .order-pill{ opacity:.9; }
 
     .order-badge{
       min-width:46px; height:32px; display:inline-flex;
