@@ -6,7 +6,8 @@
   <title>SSO – Stoccaggio Ordini</title>
   <style>
     /* ===== Base ===== */
-    html, body { height:100%; background:#000; margin:0; overflow-x:hidden; }
+    html{height:100%; background:#000; -webkit-text-size-adjust:100%; text-size-adjust:100%;}
+    body { height:100%; background:#000; margin:0; overflow-x:hidden; }
     [data-sso] {
       color-scheme: dark;
       font-family:-apple-system,system-ui,Segoe UI,Roboto,sans-serif;
@@ -16,7 +17,7 @@
     [data-sso]{
       --bg:#000; --fg:#fff; --accent:#0a84ff; --border:#2c2c2e;
       --highlight:#ffd60a; --radius:22px; --elev:0 10px 24px rgba(0,0,0,.15);
-      --pane-pad:16px; /* padding laterale unico, condiviso con tabbar */
+      --pane-pad:16px;
     }
 
     .wrap {
@@ -31,7 +32,7 @@
 
     /* Sezioni */
     .section {
-      width:100%; /* evita overshoot al primo paint */
+      width:100%;
       border-radius:var(--radius);
       padding:20px 16px 14px;
       background:#fff; color:#111;
@@ -46,7 +47,7 @@
     }
     .text { font-size:15px; color:#222; }
 
-    /* --- Lente animata (al posto del pallino) --- */
+    /* Lente animata */
     .lens {
       position:relative;
       width:16px; height:16px; border-radius:999px;
@@ -67,13 +68,9 @@
     @keyframes lens-pulse { 0%,100%{transform:scale(1);}50%{transform:scale(1.08);} }
     @keyframes lens-scan  { 0%,100%{opacity:1;}50%{opacity:.6;} }
 
-    /* Divider */
     .divider {
-      align-self:stretch;
-      height:2px;
-      background:var(--highlight);
-      box-shadow:0 0 8px rgba(255,214,10,.3);
-      margin:10px 0;
+      align-self:stretch; height:2px; background:var(--highlight);
+      box-shadow:0 0 8px rgba(255,214,10,.3); margin:10px 0;
     }
 
     /* Ricerca */
@@ -87,13 +84,15 @@
       background:var(--accent); color:#fff; font-weight:700; cursor:pointer;
       box-shadow:0 4px 14px rgba(10,132,255,.35);
       transition:transform .06s ease, opacity .2s ease;
+      font-size:16px; line-height:1;
+      -webkit-touch-callout:none; -webkit-tap-highlight-color:transparent;
     }
     .btn:active{ transform:scale(.995); }
     .btn[disabled]{ opacity:.6; cursor:default; box-shadow:none; }
 
     @media(min-width:520px){ .search{flex-direction:row;} .btn{width:auto;} }
 
-    /* Risultati e ordini */
+    /* Ordini */
     .orders{ display:flex; flex-direction:column; gap:10px; }
     #sso-out.orders{ margin-top:16px; }
     #sso-ritiri-list.orders{ margin-top:16px; }
@@ -102,10 +101,24 @@
       display:flex; align-items:center; gap:12px;
       padding:12px; border-radius:14px;
       background:#fff; border:1px solid rgba(0,0,0,.08);
-      box-shadow:var(--elev); cursor:pointer;
-      box-sizing:border-box;
+      box-shadow:var(--elev); cursor:pointer; box-sizing:border-box;
+      transition:opacity .2s ease, filter .2s ease;
     }
     .order-card:active{ transform:scale(.995); }
+
+    /* === Ordini “passati”: più scuri + nome barrato === */
+    .order-card.past{
+      opacity:.35;
+      filter: grayscale(.35) contrast(.85);
+    }
+    .order-card.past .order-name{
+      text-decoration: line-through;
+      text-decoration-thickness: 2px;
+      text-decoration-color: rgba(0,0,0,.55);
+      color:#5a5a5a;
+    }
+    .order-card.past .order-badge,
+    .order-card.past .order-pill{ opacity:.7; }
 
     .order-badge{
       min-width:46px; height:32px; display:inline-flex;
@@ -127,8 +140,8 @@
     }
     .status{ margin-top:8px; font-size:12px; color:#555; }
 
-    /* Tabs */
-    .tabs{ display:flex; gap:12px; flex-wrap:nowrap; overflow:auto; }
+    /* Tabs + filtro */
+    .tabs{ display:flex; gap:12px; flex-wrap:nowrap; overflow:auto; align-items:center; }
     .tab{
       padding:10px 14px; border-radius:999px; border:1px solid rgba(0,0,0,.06);
       background:#f2f2f3; font-weight:800; cursor:pointer;
@@ -140,7 +153,19 @@
     .date-accent{ color:#22c55e; font-weight:900; }
     .orders-title{ font-size:16px; white-space:nowrap; }
 
-    /* Modale */
+    .tab.icon{
+      display:inline-flex; align-items:center; gap:8px; font-weight:800;
+      background:#f2f2f3; color:#111;
+    }
+    .tab.icon.active{ background:#111; color:#fff; }
+    .tab .count-badge{
+      display:inline-flex; align-items:center; justify-content:center;
+      min-width:20px; height:20px; padding:0 6px; border-radius:999px;
+      background:#111; color:#fff; font-size:11px; font-weight:900;
+    }
+    .tab.icon svg{ width:18px; height:18px; flex:0 0 auto; }
+
+    /* Modali */
     .modal{ position:fixed; inset:0; display:none; z-index:2147483647; }
     .modal.open{ display:block; }
     .modal .backdrop{ position:absolute; inset:0; background:rgba(0,0,0,.55); backdrop-filter:saturate(1.2) blur(6px); }
@@ -150,22 +175,19 @@
     .modal header .text{ font-size:16px; text-align:left; }
     .modal .close{ border:1px solid #ddd; background:#fff; border-radius:999px; padding:8px 12px; font-weight:800; cursor:pointer; }
     .modal .content{ padding:12px 16px 28px; overflow:auto; font-size:17px; }
+
     .kv{ width:100%; border-collapse:collapse; }
     .kv th, .kv td{ text-align:left; padding:12px 10px; border-bottom:1px solid #f1f1f1; font-size:17px; }
     .kv th{ width:36%; color:#444; font-weight:700; }
     .kv tr:last-child th, .kv tr:last-child td{ border-bottom:none; }
+    .kv tr.hl{ background:rgba(255,214,10,.22); }
 
-    /* Loader */
-    .loading-area{
-      display:flex; align-items:center; justify-content:center;
-      padding:14px; border-radius:14px; border:1px dashed rgba(0,0,0,.15); background:#fff;
-    }
-    .spinner{
-      width:26px; height:26px; border-radius:999px;
-      border:3px solid #e9e9eb; border-top-color:var(--accent);
-      animation:spin 0.8s linear infinite;
-    }
-    @keyframes spin{ to{ transform:rotate(360deg);} }
+    /* Modale filtro reparti */
+    .filter-options{ display:flex; flex-direction:column; gap:10px; padding-top:6px; }
+    .filter-row{ display:flex; align-items:center; gap:10px; }
+    .filter-row input{ width:18px; height:18px; }
+    .filter-actions{ display:flex; gap:10px; margin-top:14px; }
+    .btn.secondary{ background:#111; color:#fff; box-shadow:none; }
   </style>
 </head>
 <body>
@@ -196,13 +218,20 @@
             <span id="sso-tab-date-label">Data</span>
             <input id="sso-ritiri-date" class="date-ghost" type="date" />
           </button>
+
+          <!-- Tasto filtro reparti (fissi) -->
+          <button class="tab icon" id="sso-tab-filter" title="Filtra per reparti" aria-haspopup="dialog">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5h18l-7 8v5l-4 2v-7L3 5z" fill="currentColor"/></svg>
+            <span>Filtro</span>
+            <span id="sso-filter-count" class="count-badge" style="display:none;">0</span>
+          </button>
         </div>
         <div id="sso-ritiri-list" class="orders"></div>
       </section>
     </div>
   </div>
 
-  <!-- Modale -->
+  <!-- Modale Dettaglio -->
   <div id="sso-modal" class="modal" aria-hidden="true" role="dialog">
     <div class="backdrop"></div>
     <div class="sheet">
@@ -219,6 +248,25 @@
     </div>
   </div>
 
+  <!-- Modale Filtri Reparti -->
+  <div id="sso-filter-modal" class="modal" aria-hidden="true" role="dialog">
+    <div class="backdrop"></div>
+    <div class="sheet">
+      <header>
+        <div class="h">Filtra per reparti</div>
+        <button id="sso-filter-close" class="close" aria-label="Chiudi">Chiudi</button>
+      </header>
+      <div class="content">
+        <div class="text">Mostra gli ordini del giorno selezionato che contengono almeno uno dei reparti scelti.</div>
+        <div class="filter-options" id="sso-filter-options"></div>
+        <div class="filter-actions">
+          <button id="sso-filter-reset" class="btn secondary">Azzera</button>
+          <button id="sso-filter-apply" class="btn">Applica</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script>
   (function(){
     const API_URL = 'https://script.google.com/macros/s/AKfycbzp_2RNQO9ROQkpcGebBpZ9P_MyZEmxkqLh5G-ODe4Yo2x9E0aRbEQIbmofaxhod9VGFA/exec';
@@ -227,8 +275,12 @@
     const ymd = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
     const ddmmyyyy = d => `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
     const fmtIT = d => new Intl.DateTimeFormat('it-IT',{weekday:'long',day:'2-digit',month:'long'}).format(d);
-    const norm = s => (s||'').toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu,'');
+    const norm = s => (s||'').toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu,'').replace(/\s+/g,' ').trim();
     const esc = s => String(s==null? '': s).replace(/[&<>"]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
+    const hasValue = v => {
+      const t = String(v??'').trim();
+      return t !== '' && t !== '0' && t !== '-' && t.toLowerCase() !== 'n/d';
+    };
 
     function parseAnyDate(s){
       if(!s) return null;
@@ -244,7 +296,17 @@
     let DATA_ROWS = [];
     let UPDATED_AT = null;
 
-    // Mappatura flessibile colonne
+    // Reparti FISSI (lettura da row.src)
+    const DEPARTMENTS = [
+      {id:'pane',   label:'1) PANE E PRODOTTI DA FORNO', keyPrefix:'1) pane e prodotti da forno'},
+      {id:'banco',  label:'2) BANCO GASTRONOMIA',        keyPrefix:'2) banco gastronomia'},
+      {id:'fruver', label:'3) FRUTTA E VERDURA',         keyPrefix:'3) frutta e verdura'},
+      {id:'carne',  label:'4) CARNE',                    keyPrefix:'4) carne'},
+      {id:'altro',  label:'5) ALTRO',                    keyPrefix:'5) altro'}
+    ];
+    let ACTIVE_DEPTS = new Set(JSON.parse(localStorage.getItem('sso_active_depts')||'[]'));
+
+    // Mappatura colonne base
     function mapRowsFromAPI(rows){
       const pickKey = (obj, cands) => {
         const ks = Object.keys(obj);
@@ -262,6 +324,7 @@
 
         const name = nameKey ? (r[nameKey]||'').trim() : '';
         if(!name) continue;
+
         const d = dateKeyRaw ? parseAnyDate(r[dateKeyRaw]) : null;
         const time = timeKey ? String(r[timeKey]||'').trim() : '';
         const zone = zoneKey ? String(r[zoneKey]||'').trim() : '';
@@ -275,7 +338,8 @@
           dateText: d? ddmmyyyy(d) : '',
           time,
           zone: zone || '?',
-          src: r
+          src: r,
+          __normKeys: Object.fromEntries(Object.keys(r).map(k=>[k, norm(k)]))
         });
       }
       // ordinamento stabile
@@ -289,12 +353,40 @@
       return out;
     }
 
-    // Card ordine
+    // Verifica se una riga ha contenuto per un reparto (guardando le chiavi della modale)
+    function rowHasDept(row, deptId){
+      const dep = DEPARTMENTS.find(d=>d.id===deptId);
+      if(!dep) return false;
+      const keyPrefix = dep.keyPrefix; // già normalizzato
+      const entries = Object.entries(row.src||{});
+      for(const [k,v] of entries){
+        const nk = row.__normKeys[k] || norm(k);
+        // match robusto: inizia con "N) ..." oppure include esattamente l'etichetta
+        if(nk.startsWith(keyPrefix) || nk === keyPrefix){
+          if(hasValue(v)) return true;
+        }
+      }
+      return false;
+    }
+
+    function rowMatchesActiveDepts(row){
+      if(!ACTIVE_DEPTS || ACTIVE_DEPTS.size===0) return true;
+      for(const id of ACTIVE_DEPTS){ if(rowHasDept(row, id)) return true; }
+      return false;
+    }
+
+    // Card
+    function isPast(row){
+      if(!row.dateKey) return false;
+      const today = ymd(new Date());
+      return row.dateKey < today;
+    }
     function orderCard(o){
       const datePill = o.dateText ? `<span class='order-pill order-date'>${esc(o.dateText)}</span>` : '';
       const timePill = o.time ? `<span class='order-pill order-time'>${esc(o.time)}</span>` : '';
+      const pastClass = isPast(o) ? ' past' : '';
       return `
-        <div class='order-card' data-idx='${o.__i}'>
+        <div class='order-card${pastClass}' data-idx='${o.__i}'>
           <span class='order-badge'>${o.ord ?? '—'}</span>
           <div class='order-main'>
             <div class='order-name'>${esc(o.name)}</div>
@@ -309,11 +401,13 @@
     // Filtri per giorno
     const rowsForDate = d => {
       const k = ymd(new Date(d));
-      return DATA_ROWS.filter(r=>r.dateKey===k).sort((a,b)=>{
-        const ta=a.time||'', tb=b.time||'';
-        if(ta&&tb){ const cmp=ta.localeCompare(tb); if(cmp!==0) return cmp; }
-        return a.name.localeCompare(b.name);
-      });
+      return DATA_ROWS
+        .filter(r=>r.dateKey===k && rowMatchesActiveDepts(r))
+        .sort((a,b)=>{
+          const ta=a.time||'', tb=b.time||'';
+          if(ta&&tb){ const cmp=ta.localeCompare(tb); if(cmp!==0) return cmp; }
+          return a.name.localeCompare(b.name);
+        });
     };
 
     function renderList(d){
@@ -333,16 +427,18 @@
 
     // Fetch
     async function refreshData(){
-      const res = await fetch(API_URL + '?_ts=' + Date.now(), { cache:'no-store' });
+      const res = await fetch(API_URL + '?&_ts=' + Date.now(), { cache:'no-store' });
       if(!res.ok) throw new Error('HTTP ' + res.status);
       const data = await res.json();
       UPDATED_AT = data.updatedAt || null;
       DATA_ROWS = mapRowsFromAPI(data.rows || []);
       document.getElementById('sso-status').textContent =
         UPDATED_AT ? `Dati aggiornati: ${new Date(UPDATED_AT).toLocaleString('it-IT')}` : '';
+      renderFilterOptions(); 
+      updateFilterBadge();
     }
 
-    /* --- Loader ricerca --- */
+    /* Loader ricerca */
     const outEl = document.getElementById('sso-out');
     const btn = document.getElementById('sso-go');
     const input = document.getElementById('sso-q');
@@ -382,51 +478,54 @@
     const tabs={
       oggi:document.getElementById('sso-tab-oggi'),
       domani:document.getElementById('sso-tab-domani'),
-      data:document.getElementById('sso-tab-data')
+      data:document.getElementById('sso-tab-data'),
+      filterBtn:document.getElementById('sso-tab-filter')
     };
     const dateInput=document.getElementById('sso-ritiri-date');
     const dateLabel=document.getElementById('sso-tab-date-label');
     const setDateTabLabel = d => { dateLabel.textContent = ddmmyyyy(d); };
 
     function activate(which){
-      Object.values(tabs).forEach(t=>{ t.classList.remove('active'); t.setAttribute('aria-selected','false'); });
-      tabs[which].classList.add('active'); tabs[which].setAttribute('aria-selected','true');
+      Object.values({oggi:tabs.oggi,domani:tabs.domani,data:tabs.data}).forEach(t=>{ t.classList.remove('active'); t.setAttribute('aria-selected','false'); });
+      if(which!=='filter'){ tabs[which].classList.add('active'); tabs[which].setAttribute('aria-selected','true'); }
       if(which==='data'){
         if(!dateInput.value) dateInput.value = ymd(new Date());
         const d = new Date(`${dateInput.value}T12:00:00`);
         setDateTabLabel(d); renderList(d);
         if(dateInput.showPicker){ try{ dateInput.showPicker(); }catch(_){} }
-      } else {
+      } else if(which==='oggi' || which==='domani') {
         dateLabel.textContent='Data';
         const base=new Date(); if(which==='domani') base.setDate(base.getDate()+1); renderList(base);
       }
     }
 
-    // Modale
-    const modal = document.getElementById('sso-modal');
-    const modalClose = document.getElementById('sso-modal-close');
-    const modalTable = document.getElementById('sso-modal-table');
-    const modalTitle = document.getElementById('sso-modal-title');
-    const modalSub = document.getElementById('sso-modal-sub');
-
-    let scrollYBeforeOpen = 0;
+    // Modale helpers
     function lockScroll(){
-      scrollYBeforeOpen = window.scrollY || window.pageYOffset;
+      const y = window.scrollY || window.pageYOffset;
+      document.body.dataset.scrollY = y;
       document.body.style.position = 'fixed';
-      document.body.style.top = `-${scrollYBeforeOpen}px`;
+      document.body.style.top = `-${y}px`;
       document.body.style.left = '0';
       document.body.style.right = '0';
       document.body.style.width = '100%';
     }
     function unlockScroll(){
-      const y = Math.abs(parseInt(document.body.style.top || '0', 10)) || 0;
+      const y = +(document.body.dataset.scrollY||0);
       document.body.style.position = '';
       document.body.style.top = '';
       document.body.style.left = '';
       document.body.style.right = '';
       document.body.style.width = '';
       window.scrollTo(0, y);
+      delete document.body.dataset.scrollY;
     }
+
+    // Modale DETTAGLIO
+    const modal = document.getElementById('sso-modal');
+    const modalClose = document.getElementById('sso-modal-close');
+    const modalTable = document.getElementById('sso-modal-table');
+    const modalTitle = document.getElementById('sso-modal-title');
+    const modalSub = document.getElementById('sso-modal-sub');
 
     function openModal(row){
       modalTitle.textContent = row.name || 'Dettaglio ordine';
@@ -434,10 +533,28 @@
         .filter(Boolean).join(' • ');
 
       const entries = Object.entries(row.src || {});
-      const skip = new Set(['ord','numero ordine (parsed)','ora (parsed)','zona (parsed)']);
+      const skipKeys = new Set([
+        'ord','numero ordine (parsed)','ora (parsed)','zona (parsed)',
+        'nome','nome cliente','cliente',
+        'data','giorno','data ordine',
+        'ora','orario'
+      ].map(k=>norm(k)));
+
+      let seenItemsStart = false;
       const rowsHtml = entries
-        .filter(([k,_]) => !skip.has(norm(String(k))))
-        .map(([k,v]) => `<tr><th>${esc(String(k).trim())}</th><td>${esc(v)}</td></tr>`)
+        .filter(([k,_]) => !skipKeys.has(norm(String(k))))
+        .map(([k,v]) => {
+          const keyStr = String(k).trim();
+          const valStr = (v==null)? '' : String(v).trim();
+
+          if (/^\s*1\)\s*/i.test(keyStr)) seenItemsStart = true;
+          const shouldHL = seenItemsStart && valStr !== '' && valStr !== '0';
+
+          return `<tr class="${shouldHL?'hl':''}">
+                    <th>${esc(keyStr)}</th>
+                    <td>${esc(valStr)}</td>
+                  </tr>`;
+        })
         .join('');
 
       modalTable.innerHTML = rowsHtml || `<tr><td>Nessun dettaglio</td></tr>`;
@@ -464,6 +581,78 @@
       }
     });
 
+    // Modale FILTRI
+    const filterModal = document.getElementById('sso-filter-modal');
+    const filterClose = document.getElementById('sso-filter-close');
+    const filterApply = document.getElementById('sso-filter-apply');
+    const filterReset = document.getElementById('sso-filter-reset');
+    const filterOptions = document.getElementById('sso-filter-options');
+    const filterCount = document.getElementById('sso-filter-count');
+
+    function renderFilterOptions(){
+      filterOptions.innerHTML = DEPARTMENTS.map(dep=>{
+        const checked = ACTIVE_DEPTS.has(dep.id) ? 'checked' : '';
+        return `<label class="filter-row">
+                  <input type="checkbox" data-dep="${dep.id}" ${checked} />
+                  <span>${esc(dep.label)}</span>
+                </label>`;
+      }).join('');
+    }
+    function openFilter(){
+      renderFilterOptions();
+      filterModal.classList.add('open');
+      filterModal.setAttribute('aria-hidden','false');
+      tabs.filterBtn.classList.add('active');
+      lockScroll();
+    }
+    function closeFilter(){
+      filterModal.classList.remove('open');
+      filterModal.setAttribute('aria-hidden','true');
+      tabs.filterBtn.classList.remove('active');
+      unlockScroll();
+    }
+    function updateFilterBadge(){
+      const n = ACTIVE_DEPTS.size;
+      if(n>0){ filterCount.textContent = n; filterCount.style.display='inline-flex'; }
+      else { filterCount.style.display='none'; }
+    }
+
+    filterClose.addEventListener('click', closeFilter);
+    filterReset.addEventListener('click', ()=>{
+      ACTIVE_DEPTS = new Set();
+      localStorage.setItem('sso_active_depts', JSON.stringify([...ACTIVE_DEPTS]));
+      updateFilterBadge();
+      // rerender lista corrente
+      const isDomani = tabs.domani.classList.contains('active');
+      const isData = tabs.data.classList.contains('active');
+      if(isData){
+        const d = new Date(`${dateInput.value||ymd(new Date())}T12:00:00`);
+        renderList(d);
+      }else{
+        const base = new Date(); if (isDomani) base.setDate(base.getDate()+1);
+        renderList(base);
+      }
+    });
+    filterApply.addEventListener('click', ()=>{
+      const inputs = filterOptions.querySelectorAll('input[type="checkbox"][data-dep]');
+      const next = new Set();
+      inputs.forEach(i=>{ if(i.checked) next.add(i.dataset.dep); });
+      ACTIVE_DEPTS = next;
+      localStorage.setItem('sso_active_depts', JSON.stringify([...ACTIVE_DEPTS]));
+      updateFilterBadge();
+      // rerender lista
+      const isDomani = tabs.domani.classList.contains('active');
+      const isData = tabs.data.classList.contains('active');
+      if(isData){
+        const d = new Date(`${dateInput.value||ymd(new Date())}T12:00:00`);
+        renderList(d);
+      }else{
+        const base = new Date(); if (isDomani) base.setDate(base.getDate()+1);
+        renderList(base);
+      }
+      closeFilter();
+    });
+
     // === Boot ===
     (async function init(){
       try{
@@ -480,9 +669,12 @@
       tabs.oggi.onclick=()=>activate('oggi');
       tabs.domani.onclick=()=>activate('domani');
       tabs.data.onclick=()=>activate('data');
+      tabs.filterBtn.onclick=()=>openFilter();
       dateInput.onchange=()=>activate('data');
 
-      // refresh soft ogni 5 minuti (senza loader)
+      updateFilterBadge();
+
+      // refresh soft ogni 5 minuti
       setInterval(async ()=>{
         try{
           await refreshData();
