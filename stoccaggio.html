@@ -37,7 +37,7 @@
       font-weight:800; font-size:18px; margin:0 0 15px; color:#111; justify-content:center; }
     .text { font-size:15px; color:#222; }
 
-    /* Lente animata */
+    /* Lente animata (ricerca) */
     .lens{ position:relative; width:16px; height:16px; border-radius:999px;
       border:3px solid var(--highlight); animation:lens-pulse 1.2s ease-in-out infinite;
       flex:0 0 auto; filter:drop-shadow(0 0 6px rgba(255,214,10,.35));}
@@ -105,7 +105,7 @@
     .order-date{ background:#e9e9eb; color:#111; }
     .order-zone{ background:var(--accent); color:#fff; border:1px solid rgba(0,0,0,.08); }
 
-    /* Icone reparti inline */
+    /* Icone reparti inline (nelle card) */
     .order-depts-inline{ font-size:14px; line-height:1; display:inline-flex; gap:6px; align-items:center; }
     .order-depts-inline .sep{ opacity:.6; }
 
@@ -133,62 +133,37 @@
     .tab-date{ position:relative; }
     .date-ghost{ position:absolute; inset:0; opacity:0; cursor:pointer; z-index:2; }
 
-    /* ===== Chip filtro con slide-down & stati ===== */
-    #chipbar-filter{
-      /* slide-down: altezza animata */
-      max-height:48px; overflow:hidden; transition:max-height .25s ease, flex-basis .25s ease, max-width .25s ease;
-      max-width:56px; overflow-x:hidden;
+    /* ===== Chip filtro (no animazione, allineamenti identici) ===== */
+    #chipbar-filter{ /* stesso stile contenitore del chipbar date */
+      display:flex; align-items:center; gap:8px; padding:6px;
+      border:1px solid rgba(0,0,0,.06); background:#f7f7f8; border-radius:999px;
+      box-sizing:border-box;
     }
-    /* compatto: solo icona, concentricità */
-    #chipbar-filter.compact{ flex-basis:auto; }
-    #chipbar-filter.compact .chip-inner{ display:flex; }
+    /* contenuto interno del filtro (pillola reale quando attivo) */
+    .chip-inner{ display:inline-flex; align-items:center; gap:8px; }
 
-    /* espanso (attivo o temporaneo): va a capo ma il contenitore esterno diventa "trasparente" per non lasciare spazio */
-    #chipbar-filter.active,
-    #chipbar-filter.expanded-temp{
-      flex-basis:100%; max-width:100%;
-      max-height:200px; /* per l'animazione slide-down */
-      background:transparent; border:0; padding:0;
-    }
-
-    /* contenuto interno del filtro (la vera pillola) */
-    .chip-inner{ display:inline-flex; align-items:center; gap:8px; padding:6px; border-radius:999px;
-      border:1px solid rgba(0,0,0,.06); background:#f7f7f8; }
-    /* quando è attivo/espanso: pillola nera, testo bianco */
-    #chipbar-filter.active .chip-inner,
-    #chipbar-filter.expanded-temp .chip-inner{
-      background:#111; color:#fff; border-color:#111;
-    }
-
-    /* bottone interno in forma di tab */
+    /* Bottone filtro (stessa altezza dei tab) */
     #sso-filter-chip{ gap:8px; }
-    /* icona filtro (3 barrette stile Apple) */
-    #sso-filter-chip svg{ width:18px; height:18px; color:#111; }
-    /* compatto: solo icona con alone */
-    #chipbar-filter.compact #sso-filter-chip{
-      position:relative; background:transparent; border:none; padding:8px; margin:0; min-width:auto; min-height:auto;
-    }
-    #chipbar-filter.compact #sso-filter-chip svg{
-      width:20px; height:20px; color:#111; /* nero quando non selezionata */
-      filter: drop-shadow(0 2px 3px rgba(0,0,0,.25)) drop-shadow(0 0 6px rgba(255,214,10,.22));
-    }
-    #chipbar-filter.compact #sso-filter-chip::before{
-      content:""; position:absolute; left:50%; top:50%; width:30px; height:30px; transform:translate(-50%,-50%);
-      border-radius:999px; pointer-events:none;
-      background:radial-gradient(closest-side, rgba(0,0,0,.10), rgba(0,0,0,0));
-      filter:blur(.2px);
-    }
+    #sso-filter-chip.tab{ min-height:44px; padding:10px 14px; }
 
-    /* etichetta e badge: nascosti in compatto */
-    #sso-filter-label, #sso-filter-badge{ transition:opacity .2s ease; }
+    /* Icona 3 barrette stile Apple */
+    #sso-filter-chip svg{ width:18px; height:18px; color:#111; } /* nera quando non attivo */
+    /* label e badge: nascosti in compatto (quando NON filtrando) */
     #chipbar-filter.compact #sso-filter-label,
     #chipbar-filter.compact #sso-filter-badge{ opacity:0; pointer-events:none; width:0; }
 
-    /* quando attivo/espanso: icona gialla, pillola nera, testo bianco */
-    #chipbar-filter.active #sso-filter-chip svg,
-    #chipbar-filter.expanded-temp #sso-filter-chip svg{ color:var(--highlight); }
+    /* Stato compatto: solo icona ma misura identica ai tab (niente sfumature) */
+    #chipbar-filter.compact .chip-inner{ background:transparent; border:0; }
 
-    /* badge icone reparti: giallo */
+    /* Stato attivo: va a capo, centrato. Esterno coerente, interno nero + testo bianco */
+    #chipbar-filter.active{ flex-basis:100%; display:flex; justify-content:center; background:transparent; border:0; }
+    #chipbar-filter.active .chip-inner{
+      background:#111; color:#fff; border:1px solid #111; border-radius:999px; padding:6px;
+    }
+    /* in attivo, l'icona può restare gialla per richiamo */
+    #chipbar-filter.active #sso-filter-chip svg{ color:var(--highlight); }
+
+    /* Badge con icone reparti: giallo */
     .count-badge{
       display:none; align-items:center; justify-content:center;
       padding:0 10px; height:22px; border-radius:999px; margin-left:4px;
@@ -237,10 +212,6 @@
     .filter-row .label{ display:inline-flex; align-items:center; gap:8px; }
     .filter-row .emoji{ font-size:18px; line-height:1; }
     .filter-actions{ display:flex; gap:10px; margin-top:16px; }
-    @media (max-width:480px){
-      #sso-filter-modal .sheet{ margin:8vh auto; }
-      .tab{ padding:10px 12px; }
-    }
 
     /* Loader spinner speed x2 (0.4s) */
     .loading-area{ display:flex; align-items:center; justify-content:center;
@@ -284,11 +255,11 @@
               </button>
             </div>
 
-            <!-- Bolla filtro: con "chip-inner" per pillola interna -->
+            <!-- Bolla filtro -->
             <div class="chipbar compact" id="chipbar-filter">
               <div class="chip-inner">
-                <button class="tab icon" id="sso-filter-chip" title="Filtra Reparti" aria-haspopup="dialog" aria-expanded="false">
-                  <!-- 3 barrette stile Apple -->
+                <button class="tab icon" id="sso-filter-chip" title="Filtro" aria-haspopup="dialog" aria-expanded="false">
+                  <!-- Icona 3 barrette -->
                   <svg viewBox="0 0 24 24" aria-hidden="true">
                     <g fill="currentColor">
                       <rect x="3" y="6"  rx="1.5" ry="1.5" width="18" height="2"></rect>
@@ -296,7 +267,7 @@
                       <rect x="9" y="16" rx="1.5" ry="1.5" width="6"  height="2"></rect>
                     </g>
                   </svg>
-                  <span id="sso-filter-label">Filtra Reparti</span>
+                  <span id="sso-filter-label">Filtro</span>
                   <span id="sso-filter-badge" class="count-badge"></span>
                 </button>
               </div>
@@ -339,7 +310,7 @@
         <div class="filter-options" id="sso-filter-options"></div>
         <div class="filter-actions">
           <button id="sso-filter-toggle-all" class="btn secondary">Seleziona tutti</button>
-          <button id="sso-filter-apply" class="btn primary-blue">Applica</button>
+          <button id="sso-filter-apply" class="btn primary-blue">Filtra</button>
         </div>
       </div>
     </div>
@@ -347,7 +318,6 @@
 
   <script>
   (function(){
-    /* URL API */
     const API_URL = 'https://script.google.com/macros/s/AKfycbzp_2RNQO9ROQkpcGebBpZ9P_MyZEmxkqLh5G-ODe4Yo2x9E0aRbEQIbmofaxhod9VGFA/exec';
 
     // Helpers
@@ -355,7 +325,7 @@
     const ddmmyyyy = d => `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
     const fmtIT = d => new Intl.DateTimeFormat('it-IT',{weekday:'long',day:'2-digit',month:'long'}).format(d);
     const norm = s => (s||'').toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu,'').replace(/\s+/g,' ').trim();
-    const esc = s => String(s==null? '': s).replace(/[&<>"]/g, m => ({'&':'&amp;','<':'&gt;','>':'&gt;','"':'&quot;'}[m]));
+    const esc = s => String(s==null? '': s).replace(/[&<>"]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
     const hasValue = v => { const t = String(v??'').trim(); return t!=='' && t!=='0' && t!=='-' && t.toLowerCase()!=='n/d'; };
     const isYes = v => { const t = norm(String(v??'')); return t==='si'||t==='sì'||t==='y'||t==='yes'||t==='true'||t==='1'; };
 
@@ -389,7 +359,6 @@
       ACTIVE_DEPTS = new Set(allDeptIds);
       localStorage.setItem('sso_active_depts', JSON.stringify([...ACTIVE_DEPTS]));
     }
-    let LAST_VALID_DEPTS = new Set(ACTIVE_DEPTS);
 
     // Mappatura colonne base
     function mapRowsFromAPI(rows){
@@ -463,7 +432,7 @@
     const rowHasDept = (row, id)=> getDeptStatus(row,id).present;
 
     function rowMatchesActiveDepts(row){
-      if(ACTIVE_DEPTS.size===0) return false; // sicurezza
+      if(ACTIVE_DEPTS.size===0) return false;
       for(const id of ACTIVE_DEPTS){ if(rowHasDept(row, id)) return true; }
       return false;
     }
@@ -608,17 +577,11 @@
       filterModal.classList.add('open'); filterModal.setAttribute('aria-hidden','false');
       lockScroll();
       tabs.filterChip.setAttribute('aria-expanded','true');
-      // espansione temporanea (slide-down)
-      chipbarFilter.classList.remove('compact');
-      chipbarFilter.classList.add('expanded-temp');
-      updateToggleAllLabel();
-      updateApplyDisabled();
     }
     function closeFilter(){
       filterModal.classList.remove('open'); filterModal.setAttribute('aria-hidden','true');
       unlockScroll();
       tabs.filterChip.setAttribute('aria-expanded','false');
-      chipbarFilter.classList.remove('expanded-temp');
       updateFilterUI();
     }
     tabs.filterChip.addEventListener('click', openFilter);
@@ -626,16 +589,16 @@
     filterModal.addEventListener('click', (e)=>{ if(e.target.classList.contains('backdrop')) closeFilter(); });
 
     function renderFilterOptions(){
-      const DEPARTMENTS = [
+      const DEPTS_SIMPLE = [
         {id:'pane',   label:'PANE E PRODOTTI DA FORNO', icon:'🥖'},
         {id:'banco',  label:'BANCO GASTRONOMIA',        icon:'🧀'},
         {id:'fruver', label:'FRUTTA E VERDURA',         icon:'🥦'},
         {id:'carne',  label:'CARNE',                    icon:'🥩'},
         {id:'altro',  label:'ALTRO',                    icon:'📦'}
       ];
-      filterOptionsEl.innerHTML = DEPARTMENTS.map(dep=>{
-        const checked = (JSON.parse(localStorage.getItem('sso_active_depts')||'[]')).includes(dep.id)
-          || (Array.from(ACTIVE_DEPTS)).includes(dep.id) ? 'checked' : '';
+      const activeIds = new Set(ACTIVE_DEPTS);
+      filterOptionsEl.innerHTML = DEPTS_SIMPLE.map(dep=>{
+        const checked = activeIds.has(dep.id) ? 'checked' : '';
         return `<label class="filter-row">
                   <input type="checkbox" data-dep="${dep.id}" ${checked} />
                   <span class="label"><span class="emoji">${dep.icon}</span> <span>${dep.label}</span></span>
@@ -644,6 +607,8 @@
       filterOptionsEl.querySelectorAll('input[type="checkbox"]').forEach(i=>{
         i.addEventListener('change', ()=>{ updateToggleAllLabel(); updateApplyDisabled(); });
       });
+      updateToggleAllLabel();
+      updateApplyDisabled();
     }
 
     function getModalSelectionCount(){
@@ -675,7 +640,7 @@
       const next = new Set();
       inputs.forEach(i=>{ if(i.checked) next.add(i.dataset.dep); });
       if(next.size===0){ return; }
-      ACTIVE_DEPTS = next; LAST_VALID_DEPTS = new Set(ACTIVE_DEPTS);
+      ACTIVE_DEPTS = next;
       localStorage.setItem('sso_active_depts', JSON.stringify([...ACTIVE_DEPTS]));
       updateFilterUI();
       rerenderLists(); closeFilter();
@@ -700,12 +665,15 @@
       badge.innerHTML = parts.join(' <span class="sep">+</span> ');
     }
     function updateFilterChipLayout(){
+      const el = document.getElementById('chipbar-filter');
       if(isFilterActive()){
-        chipbarFilter.classList.remove('compact');
-        chipbarFilter.classList.add('active');   // va a capo (slide-down) e mostra label + badge
+        el.classList.remove('compact');
+        el.classList.add('active');   // riga sotto, centrato
+        // testo “Filtro” deve essere leggibile su pillola nera (chip-inner)
+        document.getElementById('sso-filter-label').style.opacity = '1';
       }else{
-        chipbarFilter.classList.remove('active');
-        chipbarFilter.classList.add('compact');  // solo icona
+        el.classList.remove('active');
+        el.classList.add('compact');  // in linea con i tab, solo icona (ma altezza identica)
       }
     }
     function updateFilterUI(){
