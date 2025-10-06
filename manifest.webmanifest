@@ -1,0 +1,13 @@
+{
+  "name": "Stòc",
+  "short_name": "Stòc",
+  "start_url": "/bottega-sso/index.html",
+  "scope": "/bottega-sso/",
+  "display": "standalone",
+  "background_color": "#770505",
+  "theme_color": "#770505",
+  "icons": [
+    { "src": "/bottega-sso/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "/bottega-sso/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}
