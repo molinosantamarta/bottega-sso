@@ -107,16 +107,15 @@
     .order-card:active{ transform:scale(.995); }
 
     /* === Ordini “passati”: più scuri + nome barrato === */
-   .order-card.past{
-  opacity:.35;                        /* più trasparente */
-  filter: grayscale(1) brightness(.75) contrast(1);
-}
-.order-card.past .order-name{
-  text-decoration: line-through;
-  text-decoration-thickness: 2px;
-  text-decoration-color:##1c1c1c;
-  color:##1c1c1c;
-}
+    .order-card.past{
+      opacity:.25;                        /* più scuro ma leggibile */
+      filter: grayscale(.6) brightness(.65) contrast(.9);
+    }
+    .order-card.past .order-name{
+      text-decoration: line-through;
+      text-decoration-thickness: 2px;
+      text-decoration-color: #1c1c1c;
+      color:#1c1c1c;
     }
     .order-card.past .order-badge,
     .order-card.past .order-pill{ opacity:.9; }
@@ -261,7 +260,7 @@
         <div class="text">Mostra gli ordini del giorno selezionato che contengono almeno uno dei reparti scelti.</div>
         <div class="filter-options" id="sso-filter-options"></div>
         <div class="filter-actions">
-          <button id="sso-filter-reset" class="btn secondary">Azzera</button>
+          <button id="sso-filter-reset" class="btn secondary">Seleziona tutti</button>
           <button id="sso-filter-apply" class="btn">Applica</button>
         </div>
       </div>
@@ -297,15 +296,22 @@
     let DATA_ROWS = [];
     let UPDATED_AT = null;
 
-    // Reparti FISSI (lettura da row.src)
+    // Reparti FISSI (lettura da row.src esatta)
     const DEPARTMENTS = [
-      {id:'pane',   label:'1) PANE E PRODOTTI DA FORNO', keyPrefix:'1) pane e prodotti da forno'},
-      {id:'banco',  label:'2) BANCO GASTRONOMIA',        keyPrefix:'2) banco gastronomia'},
-      {id:'fruver', label:'3) FRUTTA E VERDURA',         keyPrefix:'3) frutta e verdura'},
-      {id:'carne',  label:'4) CARNE',                    keyPrefix:'4) carne'},
-      {id:'altro',  label:'5) ALTRO',                    keyPrefix:'5) altro'}
+      {id:'pane',   label:'1) PANE E PRODOTTI DA FORNO', keyExact: norm('1) PANE E PRODOTTI DA FORNO')},
+      {id:'banco',  label:'2) BANCO GASTRONOMIA',        keyExact: norm('2) BANCO GASTRONOMIA')},
+      {id:'fruver', label:'3) FRUTTA E VERDURA',         keyExact: norm('3) FRUTTA E VERDURA')},
+      {id:'carne',  label:'4) CARNE',                    keyExact: norm('4) CARNE')},
+      {id:'altro',  label:'5) ALTRO',                    keyExact: norm('5) ALTRO')}
     ];
+
+    // Inizializza selezione: TUTTI selezionati di default
+    const allDeptIds = DEPARTMENTS.map(d=>d.id);
     let ACTIVE_DEPTS = new Set(JSON.parse(localStorage.getItem('sso_active_depts')||'[]'));
+    if (ACTIVE_DEPTS.size === 0) {
+      ACTIVE_DEPTS = new Set(allDeptIds);
+      localStorage.setItem('sso_active_depts', JSON.stringify([...ACTIVE_DEPTS]));
+    }
 
     // Mappatura colonne base
     function mapRowsFromAPI(rows){
@@ -354,24 +360,23 @@
       return out;
     }
 
-    // Verifica se una riga ha contenuto per un reparto (guardando le chiavi della modale)
+    // Verifica se una riga ha contenuto per un reparto (matching esatto sull'intestazione)
     function rowHasDept(row, deptId){
       const dep = DEPARTMENTS.find(d=>d.id===deptId);
       if(!dep) return false;
-      const keyPrefix = dep.keyPrefix; // già normalizzato
       const entries = Object.entries(row.src||{});
       for(const [k,v] of entries){
         const nk = row.__normKeys[k] || norm(k);
-        // match robusto: inizia con "N) ..." oppure include esattamente l'etichetta
-        if(nk.startsWith(keyPrefix) || nk === keyPrefix){
-          if(hasValue(v)) return true;
+        if(nk === dep.keyExact){               // corrispondenza esatta
+          if(hasValue(v)) return true;         // ha contenuto significativo
+          return false;                        // intestazione presente ma vuota → non conta
         }
       }
-      return false;
+      return false; // non trovata intestazione del reparto
     }
 
     function rowMatchesActiveDepts(row){
-      if(!ACTIVE_DEPTS || ACTIVE_DEPTS.size===0) return true;
+      if(ACTIVE_DEPTS.size===0) return false; // se nulla selezionato → mostra nulla
       for(const id of ACTIVE_DEPTS){ if(rowHasDept(row, id)) return true; }
       return false;
     }
@@ -399,11 +404,12 @@
         </div>`;
     }
 
-    // Filtri per giorno
+    // Filtri per giorno (applica SEMPRE filtro reparti)
     const rowsForDate = d => {
       const k = ymd(new Date(d));
       return DATA_ROWS
-        .filter(r=>r.dateKey===k && rowMatchesActiveDepts(r))
+        .filter(r=>r.dateKey===k)
+        .filter(rowMatchesActiveDepts)
         .sort((a,b)=>{
           const ta=a.time||'', tb=b.time||'';
           if(ta&&tb){ const cmp=ta.localeCompare(tb); if(cmp!==0) return cmp; }
@@ -418,7 +424,7 @@
       document.getElementById('sso-ritiri-title-date').textContent = fmtIT(d);
     }
 
-    // Ricerca per nome
+    // Ricerca per nome (non vincolata ai reparti, per comodità di “ricerca rapida”)
     function findByName(q){
       const n = norm(q.trim()); if(!n) return [];
       const exact = DATA_ROWS.filter(r=>norm(r.name)===n); if(exact.length) return exact;
@@ -435,7 +441,7 @@
       DATA_ROWS = mapRowsFromAPI(data.rows || []);
       document.getElementById('sso-status').textContent =
         UPDATED_AT ? `Dati aggiornati: ${new Date(UPDATED_AT).toLocaleString('it-IT')}` : '';
-      renderFilterOptions(); 
+      renderFilterOptions();
       updateFilterBadge();
     }
 
@@ -613,14 +619,20 @@
       unlockScroll();
     }
     function updateFilterBadge(){
-      const n = ACTIVE_DEPTS.size;
-      if(n>0){ filterCount.textContent = n; filterCount.style.display='inline-flex'; }
-      else { filterCount.style.display='none'; }
+      const selected = ACTIVE_DEPTS.size;
+      const total = DEPARTMENTS.length;
+      if(selected === total){            // tutti selezionati → nascondi bolla
+        filterCount.style.display='none';
+      } else {                           // mostra il numero dei selezionati
+        filterCount.textContent = String(selected);
+        filterCount.style.display='inline-flex';
+      }
     }
 
     filterClose.addEventListener('click', closeFilter);
     filterReset.addEventListener('click', ()=>{
-      ACTIVE_DEPTS = new Set();
+      // Seleziona TUTTI
+      ACTIVE_DEPTS = new Set(allDeptIds);
       localStorage.setItem('sso_active_depts', JSON.stringify([...ACTIVE_DEPTS]));
       updateFilterBadge();
       // rerender lista corrente
@@ -664,8 +676,8 @@
         document.getElementById('sso-status').textContent = 'Errore nel caricamento dei dati';
       }
       // Bind UI
-      btn.onclick = submit;
-      input.onkeydown = e => { if(e.key==='Enter') submit(); };
+      document.getElementById('sso-go').onclick = submit;
+      document.getElementById('sso-q').onkeydown = e => { if(e.key==='Enter') submit(); };
 
       tabs.oggi.onclick=()=>activate('oggi');
       tabs.domani.onclick=()=>activate('domani');
@@ -688,7 +700,7 @@
             const base = new Date(); if (isDomani) base.setDate(base.getDate()+1);
             renderList(base);
           }
-          const qv = (input.value||'').trim();
+          const qv = (document.getElementById('sso-q').value||'').trim();
           if (qv) {
             const rows = findByName(qv);
             outEl.innerHTML =
