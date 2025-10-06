@@ -40,13 +40,14 @@
       font-family:'Libre Barcode 128 Text', cursive;text-transform:uppercase;letter-spacing:.02em}
 
     .beta-row{display:flex;justify-content:center;margin-top:14px;position:relative;top:0}
-    .beta-pill{display:inline-flex;align-items:center;justify-content:center;padding:5px 10px;border-radius:999px;
+    .beta-pill{display:inline-flex;align-items:center;justify-content:center;padding:5px 12px;border-radius:999px;
       background:#ffd60a;color:#000;font-weight:800;font-size:11px;border:1px solid #e6c408;
       box-shadow:0 1px 0 rgba(255,255,255,.25) inset,0 4px 12px rgba(0,0,0,.25);
-      background-image:linear-gradient(90deg,#ffd60a 0%,#ffe066 25%,#ffb700 50%,#ffd60a 75%,#ffcc00 100%);
-      background-size:200% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;
-      animation:shine 8s linear infinite;
-    }
+      position:relative;overflow:hidden}
+    /* Effetto luce non invasivo: overlay separato, non tocca il colore del testo */
+    .beta-pill::after{content:"";position:absolute;inset:-30% -40%;
+      background:linear-gradient(90deg,transparent 0,rgba(255,255,255,.55) 45%,rgba(255,255,255,.9) 50%,rgba(255,255,255,.55) 55%,transparent 100%);
+      transform:translateX(-120%);animation:pillShine 6s linear infin
     @keyframes shine{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
 
     .hero-img-wrap{display:flex;align-items:center;justify-content:center;margin-top:6px;position:relative;z-index:1}
@@ -71,6 +72,10 @@
     .card{margin:14px auto 0;border-radius:16px;padding:22px;background:#0b0b0c;border:1px solid rgba(255,255,255,.08);min-height:110px;width:92%;max-width:760px}
 
     footer{margin-top:40px;text-align:center;font-size:12px;color:#8e8e8e;opacity:.6;letter-spacing:.3px}
+
+    /* Fallback banner (solo in dev/offline) */
+    .fallback-note{margin:12px auto 0;max-width:760px;font-size:12px;opacity:.7;color:#c8c8c8;text-align:center}
+    .fallback-card{margin:14px auto 0;border-radius:16px;padding:22px;background:#0b0b0c;border:1px dashed rgba(255,255,255,.18);min-height:110px;width:92%;max-width:760px}
   </style>
 </head>
 <body>
@@ -100,13 +105,11 @@
     </nav>
 
     <section id="view-a" data-view class="active" data-src="./stoccaggio.html">
-      <div style="max-width:820px;margin:18px auto 0;padding:16px 18px;border:1px dashed rgba(255,255,255,.35);border-radius:14px;background:#0b0b0c;color:#eaeaea;font:14px/1.45 -apple-system,system-ui,Segoe UI,Roboto,sans-serif">
-        questa pagina è in fase di sviluppo, verrà rilasciata con la versione 10.0 dell'app nei prossimi aggiornamenti.
-      </div>
+      <div class="card">Caricamento…</div>
     </section>
 
     <section id="view-b" data-view data-src="./scanner.html">
-      <div class="card"></div><div class="card"></div><div class="card"></div><div class="card"></div>
+      <div class="card">Caricamento…</div>
     </section>
 
     <footer>© Tutti i diritti riservati – La Bottega di Casterno</footer>
@@ -114,57 +117,101 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
   <script>
-    lottie.loadAnimation({container:document.getElementById('lottie-scanner'),renderer:'svg',loop:true,autoplay:true,path:'./scanner.lotties.json'});
-    lottie.loadAnimation({container:document.getElementById('lottie-stoccaggio'),renderer:'svg',loop:true,autoplay:true,path:'./shopping-cart.lotties.json'});
+    // --- LOTTIE (tollerante a errori di rete) ---------------------------------
+    try{
+      lottie.loadAnimation({container:document.getElementById('lottie-scanner'),renderer:'svg',loop:true,autoplay:true,path:'./scanner.lotties.json'});
+      lottie.loadAnimation({container:document.getElementById('lottie-stoccaggio'),renderer:'svg',loop:true,autoplay:true,path:'./shopping-cart.lotties.json'});
+    }catch(e){ console.warn('Lottie non disponibile:', e); }
 
+    // --- Utility --------------------------------------------------------------
     const VIEWS=['a','b'];
     const $=s=>document.querySelector(s);
     const $$=s=>Array.from(document.querySelectorAll(s));
 
+    // Fallback inline per ambienti senza rete / file://
+    const EMBEDDED_PAGES={
+      './stoccaggio.html': `
+        <div class="fallback-note">(Fallback inline) Stoccaggio</div>
+        <div class="fallback-card">
+          <h3 style="margin:0 0 8px;font:600 16px/1.2 system-ui">Stoccaggio</h3>
+          <p style="margin:0;color:#cfcfcf">Questa è una versione di anteprima. La pagina esterna <code>stoccaggio.html</code> non è stata caricata (offline o percorso non trovato).</p>
+        </div>`,
+      './scanner.html': `
+        <div class="fallback-note">(Fallback inline) Scanner</div>
+        <div class="fallback-card">
+          <h3 style="margin:0 0 8px;font:600 16px/1.2 system-ui">Scanner</h3>
+          <p style="margin:0;color:#cfcfcf">Questa è una versione di anteprima. La pagina esterna <code>scanner.html</code> non è stata caricata (offline o percorso non trovato).</p>
+        </div>`
+    };
+
+    // Caricamento pagine esterne con fallback robusto
     const loadedStyles=new Set();
+
+    function isHttpContext(){ return location.protocol==='http:' || location.protocol==='https:'; }
+
+    async function fetchTextSafe(url, opts){
+      if(!isHttpContext()) throw new Error('Contesto non-HTTP (es. file://).');
+      const res=await fetch(url, opts);
+      if(!res.ok) throw new Error('HTTP '+res.status);
+      return res.text();
+    }
+
     async function loadExternalInto(section){
       const url=section.getAttribute('data-src');
-      if(!url||section.dataset.loaded==='true')return;
+      if(!url||section.dataset.loaded==='true') return;
+
       try{
-        const res=await fetch(url,{credentials:'same-origin'});
-        if(!res.ok)throw new Error('HTTP '+res.status);
-        const html=await res.text();
+        const html=await fetchTextSafe(url,{credentials:'same-origin'});
         const doc=new DOMParser().parseFromString(html,'text/html');
+
+        // Inietto <style> PRIMA del contenuto per evitare flash
         doc.querySelectorAll('style').forEach(styleEl=>{
-          const s=document.createElement('style'); s.textContent=styleEl.textContent;
-          document.head.appendChild(s);
+          const s=document.createElement('style'); s.textContent=styleEl.textContent; document.head.appendChild(s);
         });
+        // Eventuali CSS esterni
         doc.querySelectorAll('link[rel="stylesheet"]').forEach(link=>{
-          const href=link.getAttribute('href'); if(!href)return;
-          const abs=new URL(href,url).href;
-          if(loadedStyles.has(abs))return;
-          const l=document.createElement('link'); l.rel='stylesheet'; l.href=abs;
-          document.head.appendChild(l); loadedStyles.add(abs);
+          const href=link.getAttribute('href'); if(!href) return;
+          const abs=new URL(href, url).href;
+          if(loadedStyles.has(abs)) return;
+          const l=document.createElement('link'); l.rel='stylesheet'; l.href=abs; document.head.appendChild(l);
+          loadedStyles.add(abs);
         });
+        // Contenuto body
         section.innerHTML=doc.body?doc.body.innerHTML:html;
+        // Script della sotto-pagina (inline + esterni)
         doc.querySelectorAll('script').forEach(oldS=>{
           const s=document.createElement('script');
-          if(oldS.type)s.type=oldS.type;
-          if(oldS.noModule)s.noModule=true;
-          if(oldS.defer)s.defer=true;
-          if(oldS.async)s.async=true;
+          if(oldS.type) s.type=oldS.type;
+          if(oldS.noModule) s.noModule=true;
+          if(oldS.defer) s.defer=true;
+          if(oldS.async) s.async=true;
           const src=oldS.getAttribute('src');
-          if(src)s.src=new URL(src,url).href; else s.textContent=oldS.textContent||'';
+          if(src) s.src=new URL(src,url).href; else s.textContent=oldS.textContent||'';
           section.appendChild(s);
         });
         section.dataset.loaded='true';
+        section.dataset.source='external';
         syncPaneVarsFor(section);
       }catch(err){
-        console.error('Errore nel caricamento di',url,err);
-        const msg=document.createElement('div');
-        msg.style.cssText='margin:18px auto 0;padding:16px 18px;border:1px dashed rgba(255,255,255,.35);border-radius:14px;background:#0b0b0c;color:#eaeaea;font:14px/1.45 -apple-system,system-ui,Segoe UI,Roboto,sans-serif';
-        msg.textContent=`Non riesco a caricare ${url}. Assicurati che il file esista su GitHub Pages ed abbia la stessa origine.`;
-        section.innerHTML=''; section.appendChild(msg);
+        console.warn('Impossibile caricare', url, '-', err.message);
+        // Fallback elegante
+        const fb = EMBEDDED_PAGES[url];
+        if(fb){
+          section.innerHTML = fb;
+          section.dataset.loaded='true';
+          section.dataset.source='fallback';
+          syncPaneVarsFor(section);
+        }else{
+          const msg=document.createElement('div');
+          msg.className='fallback-card';
+          msg.innerHTML = `<strong>Non riesco a caricare <code>${url}</code></strong><br><span style="opacity:.8">Verifica che il file esista e sia servito dalla stessa origine.</span>`;
+          section.innerHTML=''; section.appendChild(msg);
+        }
       }
     }
 
     async function activate(view){
-      if(!VIEWS.includes(view))view='a';
+      if(!VIEWS.includes(view)) view='a';
       const section=view==='a'?$('#view-a'):$('#view-b');
       await loadExternalInto(section);
       $('#view-a').classList.toggle('active',view==='a');
@@ -173,23 +220,48 @@
       $('#view-a').style.zIndex=(view==='a')?5:0;
       $('#view-b').style.zIndex=(view==='b')?5:0;
       syncPaneVarsFor(section);
-      if(view==='b')document.dispatchEvent(new CustomEvent('sso:tabchange',{detail:{tab:'scanner'}}));
+      if(view==='b') document.dispatchEvent(new CustomEvent('sso:tabchange',{detail:{tab:'scanner'}}));
     }
 
+    // Avvio: carica e attiva la PRIMA pagina (Stoccaggio) e prefetch della seconda
     loadExternalInto($('#view-a')).then(()=>activate('a'));
+    loadExternalInto($('#view-b')); // prefetch per evitare flash al primo click
 
     document.querySelector('.x-tabbar-inner').addEventListener('click',e=>{
-      const a=e.target.closest('.x-tab'); if(!a)return; e.preventDefault(); activate(a.dataset.tab);
+      const a=e.target.closest('.x-tab'); if(!a) return; e.preventDefault(); activate(a.dataset.tab);
     });
 
+    // Sync width + gutter (gutter fisso = 0 per edge-to-edge)
     const EXTERNAL_GUTTER_PX=0;
     const wrapEl=document.querySelector('.x-wrap');
 
-    function readWrapDims(){if(!wrapEl)return{w:760,g:0};const w=wrapEl.getBoundingClientRect().width;return{w,g:0}}
-    function applyPaneVarsToRoots(pixels,gutter){const g=(typeof EXTERNAL_GUTTER_PX==='number')?EXTERNAL_GUTTER_PX:gutter;document.querySelectorAll('[data-view].active [data-sso]').forEach(root=>{root.style.setProperty('--pane-max',Math.round(pixels)+'px');root.style.setProperty('--pane-gutter',Math.round(g)+'px');})}
-    function syncPaneVarsFor(section){if(!section)return;const {w,g}=readWrapDims();applyPaneVarsToRoots(w,g)}
-    const ro=new ResizeObserver(entries=>{for(const e of entries){const w=e.contentRect.width;applyPaneVarsToRoots(w,0);}});if(wrapEl)ro.observe(wrapEl);
-    const mo=new MutationObserver(()=>syncPaneVarsFor(document.querySelector('[data-view].active')));mo.observe(document.body,{childList:true,subtree:true});
+    function readWrapDims(){
+      if(!wrapEl) return {w:760,g:0};
+      const w=wrapEl.getBoundingClientRect().width; return {w,g:0};
+    }
+    function applyPaneVarsToRoots(pixels,gutter){
+      const g=(typeof EXTERNAL_GUTTER_PX==='number')?EXTERNAL_GUTTER_PX:gutter;
+      document.querySelectorAll('[data-view].active [data-sso]').forEach(root=>{
+        root.style.setProperty('--pane-max',Math.round(pixels)+'px');
+        root.style.setProperty('--pane-gutter',Math.round(g)+'px');
+      });
+    }
+    function syncPaneVarsFor(section){ if(!section) return; const {w,g}=readWrapDims(); applyPaneVarsToRoots(w,g); }
+    const ro=new ResizeObserver(entries=>{ for(const e of entries){ const w=e.contentRect.width; applyPaneVarsToRoots(w,0); } }); if(wrapEl) ro.observe(wrapEl);
+    const mo=new MutationObserver(()=>syncPaneVarsFor(document.querySelector('[data-view].active'))); mo.observe(document.body,{childList:true,subtree:true});
+
+    // --- Self tests (semplici) -----------------------------------------------
+    (function runSelfTests(){
+      console.group('%cStòc self-tests','color:#ffd60a');
+      const a=$('#view-a'), b=$('#view-b');
+      console.assert(a, 'view-a presente');
+      console.assert(b, 'view-b presente');
+      setTimeout(()=>{
+        console.assert(a.dataset.loaded==='true', 'view-a caricata (esterno o fallback)');
+        console.assert(b.dataset.loaded==='true', 'view-b prefetched (esterno o fallback)');
+        console.groupEnd();
+      }, 300);
+    })();
   </script>
 </body>
 </html>
