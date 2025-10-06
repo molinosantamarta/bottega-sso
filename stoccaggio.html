@@ -114,8 +114,8 @@
 
     /* ===== Header ordini centrato + chipbar ===== */
     .orders-header{ display:flex; flex-direction:column; align-items:center; gap:10px; }
-    .orders-title{ font-size:18px; white-space:nowrap; text-align:center; } /* ingrandito */
-    .orders-title .date-accent{ color:#22c55e; text-transform:capitalize; } /* verde + Maiuscola iniziale */
+    .orders-title{ font-size:18px; white-space:nowrap; text-align:center; }
+    .orders-title .date-accent{ color:#22c55e; text-transform:capitalize; }
 
     .toolbar{ display:flex; justify-content:center; gap:12px; flex-wrap:wrap; }
     .chipbar{
@@ -133,58 +133,68 @@
     .tab-date{ position:relative; }
     .date-ghost{ position:absolute; inset:0; opacity:0; cursor:pointer; z-index:2; }
 
-    /* ===== Chip filtro =====
-       - Compact: solo icona, concentricità, alone sfumato
-       - Active: va a capo e mostra etichetta + bolla nera con icone
-       - Expanded-temp: espansione temporanea mentre la modale è aperta (anche se non attivo)
-    */
+    /* ===== Chip filtro con slide-down & stati ===== */
     #chipbar-filter{
-      transition:max-width .25s ease, flex-basis .25s ease, transform .25s ease;
-      max-width:56px; overflow:hidden; align-items:center;
+      /* slide-down: altezza animata */
+      max-height:48px; overflow:hidden; transition:max-height .25s ease, flex-basis .25s ease, max-width .25s ease;
+      max-width:56px; overflow-x:hidden;
     }
+    /* compatto: solo icona, concentricità */
     #chipbar-filter.compact{ flex-basis:auto; }
-    #chipbar-filter.active, #chipbar-filter.expanded-temp{ flex-basis:100%; max-width:100%; }
+    #chipbar-filter.compact .chip-inner{ display:flex; }
 
-    /* bottone interno: compatto = davvero "nudo", concentrico */
+    /* espanso (attivo o temporaneo): va a capo ma il contenitore esterno diventa "trasparente" per non lasciare spazio */
+    #chipbar-filter.active,
+    #chipbar-filter.expanded-temp{
+      flex-basis:100%; max-width:100%;
+      max-height:200px; /* per l'animazione slide-down */
+      background:transparent; border:0; padding:0;
+    }
+
+    /* contenuto interno del filtro (la vera pillola) */
+    .chip-inner{ display:inline-flex; align-items:center; gap:8px; padding:6px; border-radius:999px;
+      border:1px solid rgba(0,0,0,.06); background:#f7f7f8; }
+    /* quando è attivo/espanso: pillola nera, testo bianco */
+    #chipbar-filter.active .chip-inner,
+    #chipbar-filter.expanded-temp .chip-inner{
+      background:#111; color:#fff; border-color:#111;
+    }
+
+    /* bottone interno in forma di tab */
+    #sso-filter-chip{ gap:8px; }
+    /* icona filtro (3 barrette stile Apple) */
+    #sso-filter-chip svg{ width:18px; height:18px; color:#111; }
+    /* compatto: solo icona con alone */
     #chipbar-filter.compact #sso-filter-chip{
-      position:relative;
-      background:transparent; border:none; padding:8px; margin:0;
-      min-width:auto; min-height:auto;
+      position:relative; background:transparent; border:none; padding:8px; margin:0; min-width:auto; min-height:auto;
     }
     #chipbar-filter.compact #sso-filter-chip svg{
-      width:20px; height:20px; color:var(--highlight);
-      filter: drop-shadow(0 2px 3px rgba(0,0,0,.25)) drop-shadow(0 0 6px rgba(255,214,10,.35));
+      width:20px; height:20px; color:#111; /* nero quando non selezionata */
+      filter: drop-shadow(0 2px 3px rgba(0,0,0,.25)) drop-shadow(0 0 6px rgba(255,214,10,.22));
     }
-    /* alone morbido “a contatto” */
     #chipbar-filter.compact #sso-filter-chip::before{
-      content:""; position:absolute; inset:auto; left:50%; top:50%;
-      width:30px; height:30px; transform:translate(-50%,-50%);
+      content:""; position:absolute; left:50%; top:50%; width:30px; height:30px; transform:translate(-50%,-50%);
       border-radius:999px; pointer-events:none;
-      background:radial-gradient(closest-side, rgba(255,214,10,.35), rgba(255,214,10,0));
+      background:radial-gradient(closest-side, rgba(0,0,0,.10), rgba(0,0,0,0));
       filter:blur(.2px);
     }
 
-    /* quando attivo/espanso: torna stile tab, mostra label e badge */
-    #chipbar-filter.active #sso-filter-chip,
-    #chipbar-filter.expanded-temp #sso-filter-chip{
-      background:#f2f2f3; border:1px solid rgba(0,0,0,.06);
-      padding:10px 14px;
-    }
+    /* etichetta e badge: nascosti in compatto */
     #sso-filter-label, #sso-filter-badge{ transition:opacity .2s ease; }
     #chipbar-filter.compact #sso-filter-label,
     #chipbar-filter.compact #sso-filter-badge{ opacity:0; pointer-events:none; width:0; }
 
-    /* imbuto giallo con una leggera pulsazione */
-    #sso-filter-chip svg{ width:18px; height:18px; color:var(--highlight); animation:funnel-pulse 1.2s ease-in-out infinite; }
-    @keyframes funnel-pulse{ 0%,100%{ transform:scale(1);} 50%{ transform:scale(1.06);} }
+    /* quando attivo/espanso: icona gialla, pillola nera, testo bianco */
+    #chipbar-filter.active #sso-filter-chip svg,
+    #chipbar-filter.expanded-temp #sso-filter-chip svg{ color:var(--highlight); }
 
-    /* Badge nero per icone reparti selezionati */
+    /* badge icone reparti: giallo */
     .count-badge{
       display:none; align-items:center; justify-content:center;
       padding:0 10px; height:22px; border-radius:999px; margin-left:4px;
-      background:#111; color:#fff; font-size:13px; font-weight:900; line-height:1; gap:6px;
+      background:var(--highlight); color:#000; font-size:13px; font-weight:900; line-height:1; gap:6px;
     }
-    .count-badge .sep{ color:rgba(255,255,255,.7); }
+    .count-badge .sep{ color:rgba(0,0,0,.6); }
 
     /* ===== Modali base ===== */
     .modal{ position:fixed; inset:0; display:none; z-index:2147483647; }
@@ -231,6 +241,13 @@
       #sso-filter-modal .sheet{ margin:8vh auto; }
       .tab{ padding:10px 12px; }
     }
+
+    /* Loader spinner speed x2 (0.4s) */
+    .loading-area{ display:flex; align-items:center; justify-content:center;
+      padding:14px; border-radius:14px; border:1px dashed rgba(0,0,0,.15); background:#fff; }
+    .spinner{ width:26px; height:26px; border-radius:999px;
+      border:3px solid #e9e9eb; border-top-color:var(--accent); animation:spin .4s linear infinite; }
+    @keyframes spin{ to{ transform:rotate(360deg);} }
   </style>
 </head>
 <body>
@@ -267,13 +284,22 @@
               </button>
             </div>
 
-            <!-- Bolla filtro -->
+            <!-- Bolla filtro: con "chip-inner" per pillola interna -->
             <div class="chipbar compact" id="chipbar-filter">
-              <button class="tab icon" id="sso-filter-chip" title="Filtra Reparti" aria-haspopup="dialog" aria-expanded="false">
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5h18l-7 8v5l-4 2v-7L3 5z" fill="currentColor"/></svg>
-                <span id="sso-filter-label">Filtra Reparti</span>
-                <span id="sso-filter-badge" class="count-badge"></span>
-              </button>
+              <div class="chip-inner">
+                <button class="tab icon" id="sso-filter-chip" title="Filtra Reparti" aria-haspopup="dialog" aria-expanded="false">
+                  <!-- 3 barrette stile Apple -->
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <g fill="currentColor">
+                      <rect x="3" y="6"  rx="1.5" ry="1.5" width="18" height="2"></rect>
+                      <rect x="6" y="11" rx="1.5" ry="1.5" width="12" height="2"></rect>
+                      <rect x="9" y="16" rx="1.5" ry="1.5" width="6"  height="2"></rect>
+                    </g>
+                  </svg>
+                  <span id="sso-filter-label">Filtra Reparti</span>
+                  <span id="sso-filter-badge" class="count-badge"></span>
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -329,7 +355,7 @@
     const ddmmyyyy = d => `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
     const fmtIT = d => new Intl.DateTimeFormat('it-IT',{weekday:'long',day:'2-digit',month:'long'}).format(d);
     const norm = s => (s||'').toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu,'').replace(/\s+/g,' ').trim();
-    const esc = s => String(s==null? '': s).replace(/[&<>"]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
+    const esc = s => String(s==null? '': s).replace(/[&<>"]/g, m => ({'&':'&amp;','<':'&gt;','>':'&gt;','"':'&quot;'}[m]));
     const hasValue = v => { const t = String(v??'').trim(); return t!=='' && t!=='0' && t!=='-' && t.toLowerCase()!=='n/d'; };
     const isYes = v => { const t = norm(String(v??'')); return t==='si'||t==='sì'||t==='y'||t==='yes'||t==='true'||t==='1'; };
 
@@ -492,7 +518,7 @@
       const rows = rowsForDate(d);
       document.getElementById('sso-ritiri-list').innerHTML =
         rows.length ? rows.map(orderCard).join('') : `<div class='empty'>Nessun ordine</div>`;
-      const s = fmtIT(d); // es: "lunedì 06 ottobre"
+      const s = fmtIT(d);
       document.getElementById('sso-ritiri-title-date').textContent = s;
     }
 
@@ -582,7 +608,7 @@
       filterModal.classList.add('open'); filterModal.setAttribute('aria-hidden','false');
       lockScroll();
       tabs.filterChip.setAttribute('aria-expanded','true');
-      // espansione temporanea (anche se non attivo)
+      // espansione temporanea (slide-down)
       chipbarFilter.classList.remove('compact');
       chipbarFilter.classList.add('expanded-temp');
       updateToggleAllLabel();
@@ -592,7 +618,6 @@
       filterModal.classList.remove('open'); filterModal.setAttribute('aria-hidden','true');
       unlockScroll();
       tabs.filterChip.setAttribute('aria-expanded','false');
-      // rimuovi espansione temporanea; lo stato "active" (se presente) decide la permanenza
       chipbarFilter.classList.remove('expanded-temp');
       updateFilterUI();
     }
@@ -601,15 +626,21 @@
     filterModal.addEventListener('click', (e)=>{ if(e.target.classList.contains('backdrop')) closeFilter(); });
 
     function renderFilterOptions(){
+      const DEPARTMENTS = [
+        {id:'pane',   label:'PANE E PRODOTTI DA FORNO', icon:'🥖'},
+        {id:'banco',  label:'BANCO GASTRONOMIA',        icon:'🧀'},
+        {id:'fruver', label:'FRUTTA E VERDURA',         icon:'🥦'},
+        {id:'carne',  label:'CARNE',                    icon:'🥩'},
+        {id:'altro',  label:'ALTRO',                    icon:'📦'}
+      ];
       filterOptionsEl.innerHTML = DEPARTMENTS.map(dep=>{
-        const checked = ACTIVE_DEPTS.has(dep.id) ? 'checked' : '';
-        const cleanText = dep.label.replace(/^\d+\)\s*/, '');
+        const checked = (JSON.parse(localStorage.getItem('sso_active_depts')||'[]')).includes(dep.id)
+          || (Array.from(ACTIVE_DEPTS)).includes(dep.id) ? 'checked' : '';
         return `<label class="filter-row">
                   <input type="checkbox" data-dep="${dep.id}" ${checked} />
-                  <span class="label"><span class="emoji">${dep.icon}</span> <span>${esc(cleanText)}</span></span>
+                  <span class="label"><span class="emoji">${dep.icon}</span> <span>${dep.label}</span></span>
                 </label>`;
       }).join('');
-      // bind change → aggiorna pulsanti
       filterOptionsEl.querySelectorAll('input[type="checkbox"]').forEach(i=>{
         i.addEventListener('change', ()=>{ updateToggleAllLabel(); updateApplyDisabled(); });
       });
@@ -625,7 +656,7 @@
       updateToggleAllLabel(); updateApplyDisabled();
     }
     function updateToggleAllLabel(){
-      const total = DEPARTMENTS.length;
+      const total = 5;
       const selected = getModalSelectionCount();
       filterToggleAll.textContent = (selected === total) ? 'Deseleziona tutti' : 'Seleziona tutti';
     }
@@ -634,7 +665,7 @@
     }
 
     filterToggleAll.addEventListener('click', ()=>{
-      const total = DEPARTMENTS.length;
+      const total = 5;
       const selected = getModalSelectionCount();
       setAllInModal(!(selected === total));
     });
@@ -653,7 +684,7 @@
     /* === UI filtro: badge & layout chip === */
     function isFilterActive(){
       const n = ACTIVE_DEPTS.size;
-      return n>0 && n<DEPARTMENTS.length;
+      return n>0 && n<5;
     }
     function updateFilterBadge(){
       const badge = tabs.filterBadge;
@@ -661,17 +692,20 @@
         badge.style.display='none'; badge.innerHTML=''; return;
       }
       const parts=[];
-      for(const dep of DEPARTMENTS){ if(ACTIVE_DEPTS.has(dep.id)){ parts.push(dep.id==='carne' ? '🥩' : dep.icon); } }
+      const all = [
+        {id:'pane',icon:'🥖'},{id:'banco',icon:'🧀'},{id:'fruver',icon:'🥦'},{id:'carne',icon:'🥩'},{id:'altro',icon:'📦'}
+      ];
+      for(const dep of all){ if(ACTIVE_DEPTS.has(dep.id)){ parts.push(dep.icon); } }
       badge.style.display='inline-flex';
       badge.innerHTML = parts.join(' <span class="sep">+</span> ');
     }
     function updateFilterChipLayout(){
       if(isFilterActive()){
         chipbarFilter.classList.remove('compact');
-        chipbarFilter.classList.add('active');  // va a capo e mostra label + badge
+        chipbarFilter.classList.add('active');   // va a capo (slide-down) e mostra label + badge
       }else{
         chipbarFilter.classList.remove('active');
-        chipbarFilter.classList.add('compact'); // solo icona, concentrico
+        chipbarFilter.classList.add('compact');  // solo icona
       }
     }
     function updateFilterUI(){
@@ -780,8 +814,6 @@
       }, 300000);
 
       activate('oggi');
-
-      // chip filtro parte compatto/coerente allo stato
       updateFilterUI();
     })();
   })();
