@@ -13,62 +13,34 @@
       --bg:#000; --fg:#fff; --accent:#0a84ff; --border:#2c2c2e;
       --highlight:#ffd60a; --radius:22px; --elev:0 10px 24px rgba(0,0,0,.15);
       --pane-pad:16px;
-
       font-family:-apple-system,system-ui,Segoe UI,Roboto,sans-serif;
       font-size:16px; line-height:1.3;
       background:var(--bg); color:var(--fg);
     }
 
-    .wrap {
-      width:100%; max-width:min(760px,100%); margin:0 auto;
-      padding:calc(8px + env(safe-area-inset-top)) var(--pane-pad)
-              calc(24px + env(safe-area-inset-bottom));
-      display:flex; flex-direction:column; gap:14px; align-items:center;
-      box-sizing:border-box;
-    }
+    .wrap{ width:100%; max-width:min(760px,100%); margin:0 auto; padding:calc(8px + env(safe-area-inset-top)) var(--pane-pad) calc(24px + env(safe-area-inset-bottom)); display:flex; flex-direction:column; gap:14px; align-items:center; box-sizing:border-box; }
 
     /* ===== Sezioni & Tipografia ===== */
-    .section {
-      width:100%; border-radius:var(--radius);
-      padding:20px 16px 14px; background:#fff; color:#111;
-      border:1px solid rgba(0,0,0,.08); box-shadow:var(--elev); box-sizing:border-box;
-    }
-    .title { display:flex; align-items:center; gap:10px;
-      font-weight:800; font-size:18px; margin:0 0 15px; color:#111; justify-content:center; }
-    .text { font-size:15px; color:#222; }
+    .section{ width:100%; border-radius:var(--radius); padding:20px 16px 14px; background:#fff; color:#111; border:1px solid rgba(0,0,0,.08); box-shadow:var(--elev); box-sizing:border-box; }
+    .title{ display:flex; align-items:center; gap:10px; font-weight:800; font-size:18px; margin:0 0 15px; color:#111; justify-content:center; }
+    .text{ font-size:15px; color:#222; }
 
     /* Lente animata (ricerca) */
-    .lens{ position:relative; width:16px; height:16px; border-radius:999px;
-      border:3px solid var(--highlight); animation:lens-pulse 1.2s ease-in-out infinite;
-      flex:0 0 auto; filter:drop-shadow(0 0 6px rgba(255,214,10,.35));}
-    .lens::after{ content:""; position:absolute; right:-6px; bottom:-6px;
-      width:10px; height:3px; border-radius:3px; background:var(--highlight);
-      transform:rotate(45deg); transform-origin:right center; animation:lens-scan 1.2s ease-in-out infinite;}
-    @keyframes lens-pulse { 0%,100%{transform:scale(1);}50%{transform:scale(1.08);} }
-    @keyframes lens-scan  { 0%,100%{opacity:1;}50%{opacity:.6;} }
+    .lens{ position:relative; width:16px; height:16px; border-radius:999px; border:3px solid var(--highlight); animation:lens-pulse .6s ease-in-out infinite; flex:0 0 auto; filter:drop-shadow(0 0 6px rgba(255,214,10,.35));}
+    .lens::after{ content:""; position:absolute; right:-6px; bottom:-6px; width:10px; height:3px; border-radius:3px; background:var(--highlight); transform:rotate(45deg); transform-origin:right center; animation:lens-scan .6s ease-in-out infinite;}
+    @keyframes lens-pulse{ 0%,100%{transform:scale(1);} 50%{transform:scale(1.08);} }
+    @keyframes lens-scan { 0%,100%{opacity:1;} 50%{opacity:.6;} }
 
-    .divider { align-self:stretch; height:2px; background:var(--highlight);
-      box-shadow:0 0 8px rgba(255,214,10,.3); margin:10px 0; }
+    .divider{ align-self:stretch; height:2px; background:var(--highlight); box-shadow:0 0 8px rgba(255,214,10,.3); margin:10px 0; }
 
     /* Ricerca */
-    .search { display:flex; flex-direction:column; gap:10px; margin-top:10px; }
-    .input {
-      flex:1; padding:14px; border-radius:16px; border:1px solid var(--border);
-      font-size:16px; background:#fff; color:#111;
-    }
-    .btn {
-      border:none; border-radius:16px; padding:14px 20px;
-      background:var(--accent); color:#fff; font-weight:700; cursor:pointer;
-      box-shadow:0 4px 14px rgba(10,132,255,.35);
-      transition:transform .06s ease, opacity .2s ease;
-      font-size:16px; line-height:1; -webkit-touch-callout:none; -webkit-tap-highlight-color:transparent;
-    }
+    .search{ display:flex; flex-direction:column; gap:10px; margin-top:10px; }
+    .input{ flex:1; padding:14px; border-radius:16px; border:1px solid var(--border); font-size:16px; background:#fff; color:#111; }
+    .btn{ border:none; border-radius:16px; padding:14px 20px; background:var(--accent); color:#fff; font-weight:700; cursor:pointer; box-shadow:0 4px 14px rgba(10,132,255,.35); transition:transform .06s ease, opacity .2s ease; font-size:16px; line-height:1; -webkit-touch-callout:none; -webkit-tap-highlight-color:transparent; }
     .btn:active{ transform:scale(.995); }
     .btn[disabled]{ opacity:.6; cursor:default; box-shadow:none; }
     .btn.secondary{ background:#111; color:#fff; box-shadow:none; }
-    .btn.primary-yellow{ background:var(--highlight); color:#000; box-shadow:0 4px 14px rgba(255,214,10,.35); }
-    .btn.primary-blue{ background:#0a84ff; color:#fff; box-shadow:none; border:1px solid #0a6ad8; } /* contrasto forte */
-
+    .btn.primary-blue{ background:#0a84ff; color:#fff; box-shadow:none; border:1px solid #0a6ad8; }
     @media(min-width:520px){ .search{flex-direction:row;} .btn{width:auto;} }
 
     /* ===== Ordini ===== */
@@ -76,27 +48,11 @@
     #sso-out.orders{ margin-top:16px; }
     #sso-ritiri-list.orders{ margin-top:16px; }
 
-    .order-card{
-      display:flex; align-items:center; gap:12px; padding:12px; border-radius:16px;
-      background:#fff; border:1px solid rgba(0,0,0,.08);
-      box-shadow:var(--elev); cursor:pointer; box-sizing:border-box;
-      transition:opacity .2s ease, filter .2s ease, transform .06s ease;
-      min-height:54px;
-    }
+    .order-card{ display:flex; align-items:center; gap:12px; padding:12px; border-radius:16px; background:#fff; border:1px solid rgba(0,0,0,.08); box-shadow:var(--elev); cursor:pointer; box-sizing:border-box; transition:opacity .2s ease, filter .2s ease, transform .06s ease; min-height:54px; }
     .order-card:active{ transform:scale(.995); }
-
-    /* Passati: scuri + barrati */
-    .order-card.past{ opacity:.28; filter: grayscale(.6) brightness(.65) contrast(.9); }
-    .order-card.past .order-name{
-      text-decoration: line-through; text-decoration-thickness: 2px;
-      text-decoration-color: #1c1c1c; color:#1c1c1c;
-    }
-    .order-card.past .order-badge,.order-card.past .order-pill{ opacity:.9; }
-
-    .order-badge{
-      min-width:46px; height:32px; display:inline-flex; align-items:center; justify-content:center;
-      border-radius:999px; background:var(--highlight); color:#000; font-weight:900;
-    }
+    .order-card.past{ opacity:.28; filter:grayscale(.6) brightness(.65) contrast(.9); }
+    .order-card.past .order-name{ text-decoration:line-through; text-decoration-thickness:2px; text-decoration-color:#1c1c1c; color:#1c1c1c; }
+    .order-badge{ min-width:46px; height:32px; display:inline-flex; align-items:center; justify-content:center; border-radius:999px; background:var(--highlight); color:#000; font-weight:900; }
     .order-main{ flex:1; min-width:0; }
     .order-name{ font-weight:800; color:#0b0b0b; font-size:15px; }
     .order-sub{ display:flex; flex-wrap:wrap; gap:6px; margin-top:4px; align-items:center; }
@@ -104,82 +60,54 @@
     .order-time{ background:#f2f2f3; color:#111; }
     .order-date{ background:#e9e9eb; color:#111; }
     .order-zone{ background:var(--accent); color:#fff; border:1px solid rgba(0,0,0,.08); }
-
-    /* Icone reparti inline (nelle card) */
     .order-depts-inline{ font-size:14px; line-height:1; display:inline-flex; gap:6px; align-items:center; }
     .order-depts-inline .sep{ opacity:.6; }
 
     .empty{ padding:12px; border-radius:16px; border:1px dashed rgba(0,0,0,.15); background:#fff; color:#333; font-size:14px; text-align:center; }
     .status{ margin-top:8px; font-size:12px; color:#555; }
 
-    /* ===== Header ordini centrato + chipbar ===== */
+    /* ===== Header ordini ===== */
     .orders-header{ display:flex; flex-direction:column; align-items:center; gap:10px; }
     .orders-title{ font-size:18px; white-space:nowrap; text-align:center; }
     .orders-title .date-accent{ color:#22c55e; text-transform:capitalize; }
-
     .toolbar{ display:flex; justify-content:center; gap:12px; flex-wrap:wrap; }
-    .chipbar{
-      display:flex; align-items:center; gap:8px; padding:6px;
-      border:1px solid rgba(0,0,0,.06); background:#f7f7f8; border-radius:999px;
-      box-sizing:border-box;
-    }
-    .tab{
-      padding:10px 14px; border-radius:999px; border:1px solid rgba(0,0,0,.06);
-      background:#f2f2f3; font-weight:800; cursor:pointer; white-space:nowrap; color:#111;
-      min-height:44px; display:inline-flex; align-items:center;
-      transition:background .2s ease, color .2s ease, border-color .2s ease;
-    }
+
+    .chipbar{ display:flex; align-items:center; gap:8px; padding:6px; border:1px solid rgba(0,0,0,.06); background:#f7f7f8; border-radius:999px; box-sizing:border-box; }
+    .tab{ padding:10px 14px; border-radius:999px; border:1px solid rgba(0,0,0,.06); background:#f2f2f3; font-weight:800; cursor:pointer; white-space:nowrap; color:#111; min-height:44px; display:inline-flex; align-items:center; transition:background .2s ease, color .2s ease, border-color .2s ease; }
     .tab.active{ background:var(--highlight); color:#000; border-color:rgba(0,0,0,.08); }
     .tab-date{ position:relative; }
     .date-ghost{ position:absolute; inset:0; opacity:0; cursor:pointer; z-index:2; }
 
-    /* ===== Chip filtro (no animazione, allineamenti identici) ===== */
-    #chipbar-filter{ /* stesso stile contenitore del chipbar date */
-      display:flex; align-items:center; gap:8px; padding:6px;
-      border:1px solid rgba(0,0,0,.06); background:#f7f7f8; border-radius:999px;
-      box-sizing:border-box;
+    /* ===== Chip filtro (3 livelli: esterno, nero interno, badge giallo) ===== */
+    #chipbar-filter{ width:auto; cursor:pointer; }
+    #chipbar-filter .chip-inner{ display:inline-flex; align-items:center; gap:8px; min-height:44px; border-radius:999px; }
+
+    /* Stato compatto: SOLO icona dentro bolla rotonda */
+    #chipbar-filter.compact .chip-inner{
+      background:#f2f2f3; border:1px solid rgba(0,0,0,.06); border-radius:999px;
+      width:44px; height:44px; display:flex; align-items:center; justify-content:center; padding:0;
     }
-    /* contenuto interno del filtro (pillola reale quando attivo) */
-    .chip-inner{ display:inline-flex; align-items:center; gap:8px; }
-
-    /* Bottone filtro (stessa altezza dei tab) */
-    #sso-filter-chip{ gap:8px; }
-    #sso-filter-chip.tab{ min-height:44px; padding:10px 14px; }
-
-    /* Icona 3 barrette stile Apple */
-    #sso-filter-chip svg{ width:18px; height:18px; color:#111; } /* nera quando non attivo */
-    /* label e badge: nascosti in compatto (quando NON filtrando) */
     #chipbar-filter.compact #sso-filter-label,
-    #chipbar-filter.compact #sso-filter-badge{ opacity:0; pointer-events:none; width:0; }
+    #chipbar-filter.compact #sso-filter-badge{ opacity:0; width:0; pointer-events:none; }
+    #chipbar-filter.compact svg{ color:#111; width:18px; height:18px; }
 
-    /* Stato compatto: solo icona ma misura identica ai tab (niente sfumature) */
-    #chipbar-filter.compact .chip-inner{ background:transparent; border:0; }
+    /* Stato attivo: chip-inner NERA con icona + pillola gialla */
+    #chipbar-filter.active{ display:inline-flex; background:#f7f7f8; border-color:rgba(0,0,0,.06); align-self:center; width:auto; }
+    #chipbar-filter.active .chip-inner{ background:#000; color:#fff; border:1px solid #000; padding:10px 12px; gap:10px; justify-content:center; align-items:center; }
+    #chipbar-filter.active .chip-inner svg{ display:inline-block; width:18px; height:18px; color:var(--highlight); margin-right:6px; }
 
-    /* Stato attivo: va a capo, centrato. Esterno coerente, interno nero + testo bianco */
-    #chipbar-filter.active{ flex-basis:100%; display:flex; justify-content:center; background:transparent; border:0; }
-    #chipbar-filter.active .chip-inner{
-      background:#111; color:#fff; border:1px solid #111; border-radius:999px; padding:6px;
-    }
-    /* in attivo, l'icona può restare gialla per richiamo */
-    #chipbar-filter.active #sso-filter-chip svg{ color:var(--highlight); }
+    #sso-filter-label{ display:none !important; }
 
-    /* Badge con icone reparti: giallo */
-    .count-badge{
-      display:none; align-items:center; justify-content:center;
-      padding:0 10px; height:22px; border-radius:999px; margin-left:4px;
-      background:var(--highlight); color:#000; font-size:13px; font-weight:900; line-height:1; gap:6px;
-    }
-    .count-badge .sep{ color:rgba(0,0,0,.6); }
+    .count-badge{ display:none; align-items:center; justify-content:center; padding:0 12px; height:28px; background:var(--highlight); color:#000; border-radius:999px; font-weight:900; font-size:14px; gap:8px; }
+    .count-badge .sep{ color:rgba(0,0,0,.55); }
+    #chipbar-filter.active #sso-filter-badge{ display:inline-flex; }
 
-    /* ===== Modali base ===== */
+    /* ===== Modali ===== */
     .modal{ position:fixed; inset:0; display:none; z-index:2147483647; }
     .modal.open{ display:block; }
     .modal .backdrop{ position:absolute; inset:0; background:rgba(0,0,0,.55); backdrop-filter:saturate(1.2) blur(6px); }
-
-    /* Dettaglio (full) */
     .modal .sheet{ position:absolute; inset:0; background:#fff; color:#111; display:flex; flex-direction:column; }
-    .modal header{ display:flex; align-items:center; justify-content:space-between; gap:12px;
-      padding:14px 16px 12px; border-bottom:1px solid #ececec; position:sticky; top:0; background:#fff; z-index:1; }
+    .modal header{ display:flex; align-items:center; justify-content:space-between; gap:12px; padding:14px 16px 12px; border-bottom:1px solid #ececec; position:sticky; top:0; background:#fff; z-index:1; }
     .modal header .h{ font-weight:900; font-size:22px; text-align:left; margin:0; }
     .modal header .text{ font-size:15px; text-align:left; margin-top:6px; color:#555; }
     .modal .close{ border:1px solid #ddd; background:#fff; border-radius:999px; padding:8px 12px; font-weight:800; cursor:pointer; }
@@ -190,34 +118,20 @@
     .kv tr:last-child th, .kv tr:last-child td{ border-bottom:none; }
     .kv tr.hl{ background:rgba(255,214,10,.22); }
 
-    /* ===== Modale filtri: coerente, arrotondata ===== */
-    #sso-filter-modal .sheet{
-      position:relative; inset:auto; margin:10vh auto;
-      width:min(560px, 92vw); max-height:80vh;
-      background:#fff; color:#111; border-radius:var(--radius); overflow:hidden;
-      border:1px solid rgba(0,0,0,.08); box-shadow:var(--elev);
-      display:flex; flex-direction:column;
-    }
-    #sso-filter-modal header{
-      position:sticky; top:0; z-index:1; background:#fff; border-bottom:1px solid #ececec;
-      padding:14px 16px 10px;
-    }
+    /* Modale filtri (sheet centrato, arrotondato) */
+    #sso-filter-modal .sheet{ position:relative; inset:auto; margin:10vh auto; width:min(560px,92vw); max-height:80vh; background:#fff; color:#111; border-radius:var(--radius); overflow:hidden; border:1px solid rgba(0,0,0,.08); box-shadow:var(--elev); display:flex; flex-direction:column; }
+    #sso-filter-modal header{ position:sticky; top:0; z-index:1; background:#fff; border-bottom:1px solid #ececec; padding:14px 16px 10px; }
     #sso-filter-modal header .h{ font-size:18px; font-weight:800; color:#111; margin:0; }
     #sso-filter-modal .close{ border:1px solid #ddd; background:#fff; border-radius:999px; padding:8px 12px; font-weight:800; cursor:pointer; }
     #sso-filter-modal .content{ padding:14px 16px 18px; font-size:15px; }
-    #sso-filter-modal .content .text{ margin-bottom:12px; color:#222; }
     .filter-options{ display:flex; flex-direction:column; gap:10px; padding-top:4px; }
     .filter-row{ display:flex; align-items:center; gap:10px; padding:6px 2px; }
     .filter-row input{ width:20px; height:20px; }
-    .filter-row .label{ display:inline-flex; align-items:center; gap:8px; }
-    .filter-row .emoji{ font-size:18px; line-height:1; }
     .filter-actions{ display:flex; gap:10px; margin-top:16px; }
 
-    /* Loader spinner speed x2 (0.4s) */
-    .loading-area{ display:flex; align-items:center; justify-content:center;
-      padding:14px; border-radius:14px; border:1px dashed rgba(0,0,0,.15); background:#fff; }
-    .spinner{ width:26px; height:26px; border-radius:999px;
-      border:3px solid #e9e9eb; border-top-color:var(--accent); animation:spin .4s linear infinite; }
+    /* Loader */
+    .loading-area{ display:flex; align-items:center; justify-content:center; padding:14px; border-radius:14px; border:1px dashed rgba(0,0,0,.15); background:#fff; }
+    .spinner{ width:26px; height:26px; border-radius:999px; border:3px solid #e9e9eb; border-top-color:var(--accent); animation:spin .4s linear infinite; }
     @keyframes spin{ to{ transform:rotate(360deg);} }
   </style>
 </head>
@@ -255,21 +169,18 @@
               </button>
             </div>
 
-            <!-- Bolla filtro -->
-            <div class="chipbar compact" id="chipbar-filter">
+            <!-- Bolla filtro cliccabile (senza button interno) -->
+            <div class="chipbar compact" id="chipbar-filter" title="Filtro" aria-haspopup="dialog" aria-expanded="false">
               <div class="chip-inner">
-                <button class="tab icon" id="sso-filter-chip" title="Filtro" aria-haspopup="dialog" aria-expanded="false">
-                  <!-- Icona 3 barrette -->
-                  <svg viewBox="0 0 24 24" aria-hidden="true">
-                    <g fill="currentColor">
-                      <rect x="3" y="6"  rx="1.5" ry="1.5" width="18" height="2"></rect>
-                      <rect x="6" y="11" rx="1.5" ry="1.5" width="12" height="2"></rect>
-                      <rect x="9" y="16" rx="1.5" ry="1.5" width="6"  height="2"></rect>
-                    </g>
-                  </svg>
-                  <span id="sso-filter-label">Filtro</span>
-                  <span id="sso-filter-badge" class="count-badge"></span>
-                </button>
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <g fill="currentColor">
+                    <rect x="3" y="6" rx="1.5" ry="1.5" width="18" height="2"></rect>
+                    <rect x="6" y="11" rx="1.5" ry="1.5" width="12" height="2"></rect>
+                    <rect x="9" y="16" rx="1.5" ry="1.5" width="6" height="2"></rect>
+                  </g>
+                </svg>
+                <span id="sso-filter-label" aria-hidden="true"></span>
+                <span id="sso-filter-badge" class="count-badge"></span>
               </div>
             </div>
           </div>
@@ -280,7 +191,7 @@
     </div>
   </div>
 
-  <!-- Modale Dettaglio (full) -->
+  <!-- Modale Dettaglio -->
   <div id="sso-modal" class="modal" aria-hidden="true" role="dialog">
     <div class="backdrop"></div>
     <div class="sheet">
@@ -325,13 +236,12 @@
     const ddmmyyyy = d => `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
     const fmtIT = d => new Intl.DateTimeFormat('it-IT',{weekday:'long',day:'2-digit',month:'long'}).format(d);
     const norm = s => (s||'').toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu,'').replace(/\s+/g,' ').trim();
-    const esc = s => String(s==null? '': s).replace(/[&<>"]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
+    const esc = s => String(s==null? '': s).replace(/[&<>\"]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
     const hasValue = v => { const t = String(v??'').trim(); return t!=='' && t!=='0' && t!=='-' && t.toLowerCase()!=='n/d'; };
     const isYes = v => { const t = norm(String(v??'')); return t==='si'||t==='sì'||t==='y'||t==='yes'||t==='true'||t==='1'; };
 
     function parseAnyDate(s){
-      if(!s) return null;
-      const str=String(s).trim();
+      if(!s) return null; const str=String(s).trim();
       let m=str.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})$/);
       if(m){ const dd=+m[1], mm=+m[2]-1, yy=+m[3]; return new Date(yy<100?2000+yy:yy,mm,dd,12,0,0); }
       m=str.match(/^(\d{4})-(\d{2})-(\d{2})$/);
@@ -340,8 +250,7 @@
     }
 
     // Stato
-    let DATA_ROWS = [];
-    let UPDATED_AT = null;
+    let DATA_ROWS = []; let UPDATED_AT = null;
 
     // Reparti (Carne gestisce Avicolo => 🐔)
     const DEPARTMENTS = [
@@ -353,14 +262,10 @@
     ];
     const allDeptIds = DEPARTMENTS.map(d=>d.id);
 
-    // Selezione reparti: default TUTTI
     let ACTIVE_DEPTS = new Set(JSON.parse(localStorage.getItem('sso_active_depts')||'[]'));
-    if (ACTIVE_DEPTS.size === 0) {
-      ACTIVE_DEPTS = new Set(allDeptIds);
-      localStorage.setItem('sso_active_depts', JSON.stringify([...ACTIVE_DEPTS]));
-    }
+    if (ACTIVE_DEPTS.size === 0) { ACTIVE_DEPTS = new Set(allDeptIds); localStorage.setItem('sso_active_depts', JSON.stringify([...ACTIVE_DEPTS])); }
 
-    // Mappatura colonne base
+    // Map colonne
     function mapRowsFromAPI(rows){
       const pickKey = (obj, cands) => {
         const ks = Object.keys(obj);
@@ -375,48 +280,26 @@
         const timeKey = pickKey(r,['ORA','ORARIO']);
         const zoneKey = pickKey(r,['ZONA STOCCAGGIO','ZONA','STOCCAGGIO','UBICAZIONE']);
         const ordKey = pickKey(r,['NUMERO ORDINE','ORDINE','N° ORDINE','ORD']);
-
         const name = nameKey ? (r[nameKey]||'').trim() : '';
         if(!name) continue;
-
         const d = dateKeyRaw ? parseAnyDate(r[dateKeyRaw]) : null;
         const time = timeKey ? String(r[timeKey]||'').trim() : '';
         const zone = zoneKey ? String(r[zoneKey]||'').trim() : '';
         const ordRaw = ordKey ? r[ordKey] : r.ord;
         const ord = ordRaw != null ? Number(ordRaw) : null;
-
-        out.push({
-          ord: Number.isFinite(ord) ? ord : null,
-          name,
-          dateKey: d? ymd(d) : null,
-          dateText: d? ddmmyyyy(d) : '',
-          time,
-          zone: zone || '?',
-          src: r,
-          __normKeys: Object.fromEntries(Object.keys(r).map(k=>[k, norm(k)]))
-        });
+        out.push({ ord: Number.isFinite(ord) ? ord : null, name, dateKey: d? ymd(d) : null, dateText: d? ddmmyyyy(d) : '', time, zone: zone || '?', src: r, __normKeys: Object.fromEntries(Object.keys(r).map(k=>[k, norm(k)])) });
       }
-      out.sort((a,b)=>{
-        if(a.dateKey&&b.dateKey&&a.dateKey!==b.dateKey) return a.dateKey.localeCompare(b.dateKey);
-        const ta=a.time||'', tb=b.time||'';
-        if(ta&&tb){ const cmp=ta.localeCompare(tb); if(cmp!==0) return cmp; }
-        return a.name.localeCompare(b.name);
-      });
-      out.forEach((o,i)=>o.__i=i);
-      return out;
+      out.sort((a,b)=>{ if(a.dateKey&&b.dateKey&&a.dateKey!==b.dateKey) return a.dateKey.localeCompare(b.dateKey); const ta=a.time||'', tb=b.time||''; if(ta&&tb){ const cmp=ta.localeCompare(tb); if(cmp!==0) return cmp; } return a.name.localeCompare(b.name); });
+      out.forEach((o,i)=>o.__i=i); return out;
     }
 
-    // Stato + icona reparto (Carne→Avicolo 🐔 se header vuoto)
     function getDeptStatus(row, deptId){
-      const dep = DEPARTMENTS.find(d=>d.id===deptId);
-      if(!dep) return {present:false, icon:null};
-
+      const dep = DEPARTMENTS.find(d=>d.id===deptId); if(!dep) return {present:false, icon:null};
       let headerHasContent = false;
       for(const [k,v] of Object.entries(row.src||{})){
         const nk = row.__normKeys[k] || norm(k);
         if(nk === dep.keyExact){ headerHasContent = hasValue(v); break; }
       }
-
       if(deptId === 'carne'){
         let avicoloYes = false;
         for(const [k,v] of Object.entries(row.src||{})){
@@ -429,33 +312,16 @@
       }
       return {present:headerHasContent, icon: headerHasContent ? dep.icon : null};
     }
-    const rowHasDept = (row, id)=> getDeptStatus(row,id).present;
+    const rowHasDept = (row,id)=> getDeptStatus(row,id).present;
+    function rowMatchesActiveDepts(row){ if(ACTIVE_DEPTS.size===0) return false; for(const id of ACTIVE_DEPTS){ if(rowHasDept(row,id)) return true; } return false; }
 
-    function rowMatchesActiveDepts(row){
-      if(ACTIVE_DEPTS.size===0) return false;
-      for(const id of ACTIVE_DEPTS){ if(rowHasDept(row, id)) return true; }
-      return false;
-    }
+    function deptInline(row){ const parts=[]; for(const dep of DEPARTMENTS){ const st=getDeptStatus(row,dep.id); if(st.present) parts.push(st.icon||dep.icon); } return parts.length? parts.join(' <span class=\"sep\">+</span> ') : ''; }
 
-    // Icone reparti inline per card
-    function deptInline(row){
-      const parts=[];
-      for(const dep of DEPARTMENTS){
-        const st = getDeptStatus(row, dep.id);
-        if(st.present) parts.push(st.icon || dep.icon);
-      }
-      return parts.length ? parts.join(' <span class="sep">+</span> ') : '';
-    }
-
-    // Card
     const isPast = row => row.dateKey ? (row.dateKey < ymd(new Date())) : false;
     function orderCard(o){
       const datePill = o.dateText ? `<span class='order-pill order-date'>${esc(o.dateText)}</span>` : '';
       const timePill = o.time ? `<span class='order-pill order-time'>${esc(o.time)}</span>` : '';
-      const deptsHTML = (()=>{
-        const d = deptInline(o);
-        return d ? `<span class="order-depts-inline" aria-label="Reparti presenti">${d}</span>` : '';
-      })();
+      const deptsHTML = (()=>{ const d = deptInline(o); return d ? `<span class=\"order-depts-inline\" aria-label=\"Reparti presenti\">${d}</span>` : ''; })();
       const pastClass = isPast(o) ? ' past' : '';
       return `
         <div class='order-card${pastClass}' data-idx='${o.__i}'>
@@ -471,318 +337,94 @@
         </div>`;
     }
 
-    // Liste per giorno (data + reparti)
     const rowsForDate = d => {
       const k = ymd(new Date(d));
-      return DATA_ROWS
-        .filter(r=>r.dateKey===k)
-        .filter(rowMatchesActiveDepts)
-        .sort((a,b)=>{
-          const ta=a.time||'', tb=b.time||'';
-          if(ta&&tb){ const cmp=ta.localeCompare(tb); if(cmp!==0) return cmp; }
-          return a.name.localeCompare(b.name);
-        });
+      return DATA_ROWS.filter(r=>r.dateKey===k).filter(rowMatchesActiveDepts).sort((a,b)=>{ const ta=a.time||'', tb=b.time||''; if(ta&&tb){ const cmp=ta.localeCompare(tb); if(cmp!==0) return cmp; } return a.name.localeCompare(b.name); });
     };
-    function renderList(d){
-      const rows = rowsForDate(d);
-      document.getElementById('sso-ritiri-list').innerHTML =
-        rows.length ? rows.map(orderCard).join('') : `<div class='empty'>Nessun ordine</div>`;
-      const s = fmtIT(d);
-      document.getElementById('sso-ritiri-title-date').textContent = s;
-    }
+    function renderList(d){ const rows = rowsForDate(d); document.getElementById('sso-ritiri-list').innerHTML = rows.length ? rows.map(orderCard).join('') : `<div class='empty'>Nessun ordine</div>`; document.getElementById('sso-ritiri-title-date').textContent = fmtIT(d); }
 
-    // Ricerca rapida (non filtrata per reparti)
-    function findByName(q){
-      const n = norm(q.trim()); if(!n) return [];
-      const exact = DATA_ROWS.filter(r=>norm(r.name)===n); if(exact.length) return exact;
-      const starts = DATA_ROWS.filter(r=>norm(r.name).startsWith(n)); if(starts.length) return starts;
-      return DATA_ROWS.filter(r=>norm(r.name).includes(n));
-    }
+    function findByName(q){ const n = norm(q.trim()); if(!n) return []; const exact = DATA_ROWS.filter(r=>norm(r.name)===n); if(exact.length) return exact; const starts = DATA_ROWS.filter(r=>norm(r.name).startsWith(n)); if(starts.length) return starts; return DATA_ROWS.filter(r=>norm(r.name).includes(n)); }
 
-    // Fetch
     async function refreshData(){
       const res = await fetch(API_URL + '?&_ts=' + Date.now(), { cache:'no-store' });
       if(!res.ok) throw new Error('HTTP ' + res.status);
       const data = await res.json();
-      UPDATED_AT = data.updatedAt || null;
-      DATA_ROWS = mapRowsFromAPI(data.rows || []);
-      document.getElementById('sso-status').textContent =
-        UPDATED_AT ? `Dati aggiornati: ${new Date(UPDATED_AT).toLocaleString('it-IT')}` : '';
-      renderFilterOptions();
-      updateFilterUI();
+      UPDATED_AT = data.updatedAt || null; DATA_ROWS = mapRowsFromAPI(data.rows || []);
+      document.getElementById('sso-status').textContent = UPDATED_AT ? `Dati aggiornati: ${new Date(UPDATED_AT).toLocaleString('it-IT')}` : '';
+      renderFilterOptions(); updateFilterUI();
     }
 
-    /* Loader ricerca */
-    const outEl = document.getElementById('sso-out');
-    const btn = document.getElementById('sso-go');
-    const input = document.getElementById('sso-q');
+    const outEl = document.getElementById('sso-out'); const btn = document.getElementById('sso-go'); const input = document.getElementById('sso-q');
+    function showLoading(){ outEl.innerHTML = `<div class=\"loading-area\" role=\"status\" aria-live=\"polite\"><div class=\"spinner\" aria-label=\"Caricamento\"></div></div>`; outEl.setAttribute('aria-busy','true'); btn.disabled = true; btn.textContent = 'Cerco…'; }
+    function hideLoading(){ outEl.removeAttribute('aria-busy'); btn.disabled = false; btn.textContent = 'Cerca'; }
+    async function submit(){ const qv = (input.value||'').trim(); showLoading(); try { await refreshData(); const rows = qv ? findByName(qv) : rowsForDate(new Date()); outEl.innerHTML = rows.map(orderCard).join('') || `<div class='empty'>Nessun risultato</div>`; if(rows.length) outEl.scrollIntoView({behavior:'smooth',block:'start'}); } catch(err){ console.warn('Errore ricerca:', err); outEl.innerHTML = `<div class='empty'>Errore nel caricamento dei dati</div>`; } finally { hideLoading(); } }
 
-    function showLoading(){
-      outEl.innerHTML = `<div class="loading-area" role="status" aria-live="polite"><div class="spinner" aria-label="Caricamento"></div></div>`;
-      outEl.setAttribute('aria-busy','true'); btn.disabled = true; btn.textContent = 'Cerco…';
-    }
-    function hideLoading(){
-      outEl.removeAttribute('aria-busy'); btn.disabled = false; btn.textContent = 'Cerca';
-    }
+    const tabs={ oggi:document.getElementById('sso-tab-oggi'), domani:document.getElementById('sso-tab-domani'), data:document.getElementById('sso-tab-data'), filterContainer:document.getElementById('chipbar-filter'), filterBadge:document.getElementById('sso-filter-badge') };
+    const dateInput=document.getElementById('sso-ritiri-date'); const dateLabel=document.getElementById('sso-tab-date-label'); const setDateTabLabel = d => { dateLabel.textContent = ddmmyyyy(d); };
+    function activate(which){ [tabs.oggi,tabs.domani,tabs.data].forEach(t=>{ t.classList.remove('active'); t.setAttribute('aria-selected','false'); }); if(which!=='filter'){ tabs[which].classList.add('active'); tabs[which].setAttribute('aria-selected','true'); } if(which==='data'){ if(!dateInput.value) dateInput.value = ymd(new Date()); const d = new Date(`${dateInput.value}T12:00:00`); setDateTabLabel(d); renderList(d); if(dateInput.showPicker){ try{ dateInput.showPicker(); }catch(_){} } } else if(which==='oggi' || which==='domani') { const base=new Date(); if(which==='domani') base.setDate(base.getDate()+1); renderList(base); } }
 
-    async function submit(){
-      const qv = (input.value||'').trim();
-      showLoading();
-      try {
-        await refreshData();
-        const rows = qv ? findByName(qv) : rowsForDate(new Date());
-        outEl.innerHTML = rows.map(orderCard).join('') || `<div class='empty'>Nessun risultato</div>`;
-        if(rows.length) outEl.scrollIntoView({behavior:'smooth',block:'start'});
-      } catch(err){
-        console.warn('Errore ricerca:', err);
-        outEl.innerHTML = `<div class='empty'>Errore nel caricamento dei dati</div>`;
-      } finally { hideLoading(); }
-    }
-
-    // Tabs & Date
-    const tabs={
-      oggi:document.getElementById('sso-tab-oggi'),
-      domani:document.getElementById('sso-tab-domani'),
-      data:document.getElementById('sso-tab-data'),
-      filterChip:document.getElementById('sso-filter-chip'),
-      filterBadge:document.getElementById('sso-filter-badge')
-    };
-    const chipbarFilter = document.getElementById('chipbar-filter');
-    const dateInput=document.getElementById('sso-ritiri-date');
-    const dateLabel=document.getElementById('sso-tab-date-label');
-    const setDateTabLabel = d => { dateLabel.textContent = ddmmyyyy(d); };
-
-    function activate(which){
-      [tabs.oggi,tabs.domani,tabs.data].forEach(t=>{ t.classList.remove('active'); t.setAttribute('aria-selected','false'); });
-      if(which!=='filter'){ tabs[which].classList.add('active'); tabs[which].setAttribute('aria-selected','true'); }
-      if(which==='data'){
-        if(!dateInput.value) dateInput.value = ymd(new Date());
-        const d = new Date(`${dateInput.value}T12:00:00`);
-        setDateTabLabel(d); renderList(d);
-        if(dateInput.showPicker){ try{ dateInput.showPicker(); }catch(_){} }
-      } else if(which==='oggi' || which==='domani') {
-        const base=new Date(); if(which==='domani') base.setDate(base.getDate()+1); renderList(base);
-      }
-    }
-
-    /* ===== Modale Filtri (UI + flussi) ===== */
-    const filterModal     = document.getElementById('sso-filter-modal');
+    /* Modale Filtri */
+    const filterModal = document.getElementById('sso-filter-modal');
     const filterOptionsEl = document.getElementById('sso-filter-options');
-    const filterApply     = document.getElementById('sso-filter-apply');
+    const filterApply = document.getElementById('sso-filter-apply');
     const filterToggleAll = document.getElementById('sso-filter-toggle-all');
-    const filterCloseBtn  = document.getElementById('sso-filter-close');
+    const filterCloseBtn = document.getElementById('sso-filter-close');
 
-    function openFilter(){
-      renderFilterOptions();
-      filterModal.classList.add('open'); filterModal.setAttribute('aria-hidden','false');
-      lockScroll();
-      tabs.filterChip.setAttribute('aria-expanded','true');
-    }
-    function closeFilter(){
-      filterModal.classList.remove('open'); filterModal.setAttribute('aria-hidden','true');
-      unlockScroll();
-      tabs.filterChip.setAttribute('aria-expanded','false');
-      updateFilterUI();
-    }
-    tabs.filterChip.addEventListener('click', openFilter);
+    function openFilter(){ renderFilterOptions(); filterModal.classList.add('open'); filterModal.setAttribute('aria-hidden','false'); lockScroll(); tabs.filterContainer.setAttribute('aria-expanded','true'); }
+    function closeFilter(){ filterModal.classList.remove('open'); filterModal.setAttribute('aria-hidden','true'); unlockScroll(); tabs.filterContainer.setAttribute('aria-expanded','false'); updateFilterUI(); }
+    tabs.filterContainer.addEventListener('click', openFilter);
     filterCloseBtn.addEventListener('click', closeFilter);
     filterModal.addEventListener('click', (e)=>{ if(e.target.classList.contains('backdrop')) closeFilter(); });
 
     function renderFilterOptions(){
       const DEPTS_SIMPLE = [
-        {id:'pane',   label:'PANE E PRODOTTI DA FORNO', icon:'🥖'},
-        {id:'banco',  label:'BANCO GASTRONOMIA',        icon:'🧀'},
-        {id:'fruver', label:'FRUTTA E VERDURA',         icon:'🥦'},
-        {id:'carne',  label:'CARNE',                    icon:'🥩'},
-        {id:'altro',  label:'ALTRO',                    icon:'📦'}
+        {id:'pane',   label:'🥖  PANE E PRODOTTI DA FORNO'},
+        {id:'banco',  label:'🧀  BANCO GASTRONOMIA'},
+        {id:'fruver', label:'🥦  FRUTTA E VERDURA'},
+        {id:'carne',  label:'🥩  CARNE'},
+        {id:'altro',  label:'📦  ALTRO'}
       ];
       const activeIds = new Set(ACTIVE_DEPTS);
-      filterOptionsEl.innerHTML = DEPTS_SIMPLE.map(dep=>{
-        const checked = activeIds.has(dep.id) ? 'checked' : '';
-        return `<label class="filter-row">
-                  <input type="checkbox" data-dep="${dep.id}" ${checked} />
-                  <span class="label"><span class="emoji">${dep.icon}</span> <span>${dep.label}</span></span>
-                </label>`;
-      }).join('');
-      filterOptionsEl.querySelectorAll('input[type="checkbox"]').forEach(i=>{
-        i.addEventListener('change', ()=>{ updateToggleAllLabel(); updateApplyDisabled(); });
-      });
-      updateToggleAllLabel();
-      updateApplyDisabled();
-    }
-
-    function getModalSelectionCount(){
-      const inputs = filterOptionsEl.querySelectorAll('input[type="checkbox"][data-dep]');
-      let c=0; inputs.forEach(i=>{ if(i.checked) c++; });
-      return c;
-    }
-    function setAllInModal(checked){
-      filterOptionsEl.querySelectorAll('input[type="checkbox"][data-dep]').forEach(i=>{ i.checked = checked; });
+      filterOptionsEl.innerHTML = DEPTS_SIMPLE.map(dep=>`<label class=\"filter-row\"><input type=\"checkbox\" data-dep=\"${dep.id}\" ${activeIds.has(dep.id)?'checked':''} /><span class=\"label\">${dep.label}</span></label>`).join('');
+      filterOptionsEl.querySelectorAll('input[type=\"checkbox\"]').forEach(i=>{ i.addEventListener('change', ()=>{ updateToggleAllLabel(); updateApplyDisabled(); }); });
       updateToggleAllLabel(); updateApplyDisabled();
     }
-    function updateToggleAllLabel(){
-      const total = 5;
-      const selected = getModalSelectionCount();
-      filterToggleAll.textContent = (selected === total) ? 'Deseleziona tutti' : 'Seleziona tutti';
-    }
-    function updateApplyDisabled(){
-      filterApply.disabled = (getModalSelectionCount() === 0);
-    }
 
-    filterToggleAll.addEventListener('click', ()=>{
-      const total = 5;
-      const selected = getModalSelectionCount();
-      setAllInModal(!(selected === total));
-    });
+    function getModalSelectionCount(){ const inputs = filterOptionsEl.querySelectorAll('input[type=\"checkbox\"][data-dep]'); let c=0; inputs.forEach(i=>{ if(i.checked) c++; }); return c; }
+    function setAllInModal(checked){ filterOptionsEl.querySelectorAll('input[type=\"checkbox\"][data-dep]').forEach(i=>{ i.checked = checked; }); updateToggleAllLabel(); updateApplyDisabled(); }
+    function updateToggleAllLabel(){ const total=5; const selected=getModalSelectionCount(); filterToggleAll.textContent=(selected===total)?'Deseleziona tutti':'Seleziona tutti'; }
+    function updateApplyDisabled(){ filterApply.disabled = (getModalSelectionCount()===0); }
 
-    filterApply.addEventListener('click', ()=>{
-      const inputs = filterOptionsEl.querySelectorAll('input[type="checkbox"][data-dep]');
-      const next = new Set();
-      inputs.forEach(i=>{ if(i.checked) next.add(i.dataset.dep); });
-      if(next.size===0){ return; }
-      ACTIVE_DEPTS = next;
-      localStorage.setItem('sso_active_depts', JSON.stringify([...ACTIVE_DEPTS]));
-      updateFilterUI();
-      rerenderLists(); closeFilter();
-    });
+    filterToggleAll.addEventListener('click', ()=>{ const total=5; const selected=getModalSelectionCount(); setAllInModal(!(selected===total)); });
+    filterApply.addEventListener('click', ()=>{ const inputs=filterOptionsEl.querySelectorAll('input[type=\"checkbox\"][data-dep]'); const next=new Set(); inputs.forEach(i=>{ if(i.checked) next.add(i.dataset.dep); }); if(next.size===0){ return; } ACTIVE_DEPTS = next; localStorage.setItem('sso_active_depts', JSON.stringify([...ACTIVE_DEPTS])); updateFilterUI(); rerenderLists(); closeFilter(); });
 
-    /* === UI filtro: badge & layout chip === */
-    function isFilterActive(){
-      const n = ACTIVE_DEPTS.size;
-      return n>0 && n<5;
-    }
-    function updateFilterBadge(){
-      const badge = tabs.filterBadge;
-      if(!isFilterActive()){
-        badge.style.display='none'; badge.innerHTML=''; return;
-      }
-      const parts=[];
-      const all = [
-        {id:'pane',icon:'🥖'},{id:'banco',icon:'🧀'},{id:'fruver',icon:'🥦'},{id:'carne',icon:'🥩'},{id:'altro',icon:'📦'}
-      ];
-      for(const dep of all){ if(ACTIVE_DEPTS.has(dep.id)){ parts.push(dep.icon); } }
-      badge.style.display='inline-flex';
-      badge.innerHTML = parts.join(' <span class="sep">+</span> ');
-    }
-    function updateFilterChipLayout(){
-      const el = document.getElementById('chipbar-filter');
-      if(isFilterActive()){
-        el.classList.remove('compact');
-        el.classList.add('active');   // riga sotto, centrato
-        // testo “Filtro” deve essere leggibile su pillola nera (chip-inner)
-        document.getElementById('sso-filter-label').style.opacity = '1';
-      }else{
-        el.classList.remove('active');
-        el.classList.add('compact');  // in linea con i tab, solo icona (ma altezza identica)
-      }
-    }
-    function updateFilterUI(){
-      updateFilterBadge();
-      updateFilterChipLayout();
-    }
+    function isFilterActive(){ const n = ACTIVE_DEPTS.size; return n>0 && n<5; }
+    function updateFilterBadge(){ const badge=tabs.filterBadge; if(!isFilterActive()){ badge.style.display='none'; badge.innerHTML=''; return; } const parts=[]; const all=[{id:'pane',icon:'🥖'},{id:'banco',icon:'🧀'},{id:'fruver',icon:'🥦'},{id:'carne',icon:'🥩'},{id:'altro',icon:'📦'}]; for(const dep of all){ if(ACTIVE_DEPTS.has(dep.id)){ parts.push(dep.icon); } } badge.style.display='inline-flex'; badge.innerHTML = parts.join(' <span class=\"sep\">+</span> '); }
+    function updateFilterChipLayout(){ const el=document.getElementById('chipbar-filter'); if(isFilterActive()){ el.classList.remove('compact'); el.classList.add('active'); } else { el.classList.remove('active'); el.classList.add('compact'); } }
+    function updateFilterUI(){ updateFilterBadge(); updateFilterChipLayout(); }
 
-    function rerenderLists(){
-      const isDomani = document.getElementById('sso-tab-domani').classList.contains('active');
-      const isData   = document.getElementById('sso-tab-data').classList.contains('active');
-      if(isData){
-        const d = new Date(`${document.getElementById('sso-ritiri-date').value||ymd(new Date())}T12:00:00`); renderList(d);
-      }else{
-        const base = new Date(); if (isDomani) base.setDate(base.getDate()+1); renderList(base);
-      }
-    }
+    function rerenderLists(){ const isDomani=document.getElementById('sso-tab-domani').classList.contains('active'); const isData=document.getElementById('sso-tab-data').classList.contains('active'); if(isData){ const d=new Date(`${document.getElementById('sso-ritiri-date').value||ymd(new Date())}T12:00:00`); renderList(d); } else { const base=new Date(); if(isDomani) base.setDate(base.getDate()+1); renderList(base); } }
 
-    /* --- Dettaglio: modale --- */
-    const modal = document.getElementById('sso-modal');
-    const modalClose = document.getElementById('sso-modal-close');
-    const modalTable = document.getElementById('sso-modal-table');
-    const modalTitle = document.getElementById('sso-modal-title');
-    const modalSub = document.getElementById('sso-modal-sub');
-
-    function lockScroll(){
-      const y = window.scrollY || window.pageYOffset;
-      document.body.dataset.scrollY = y;
-      document.body.style.position = 'fixed';
-      document.body.style.top = `-${y}px`;
-      document.body.style.left = '0'; document.body.style.right = '0';
-      document.body.style.width = '100%';
-    }
-    function unlockScroll(){
-      const y = +(document.body.dataset.scrollY||0);
-      document.body.style.position = ''; document.body.style.top = '';
-      document.body.style.left = ''; document.body.style.right = '';
-      document.body.style.width = ''; window.scrollTo(0, y); delete document.body.dataset.scrollY;
-    }
-
-    function openModal(row){
-      modalTitle.textContent = row.name || 'Dettaglio ordine';
-      modalSub.textContent = [ row.ord? `Ordine #${row.ord}`: null, row.dateText || null, row.time || null ]
-        .filter(Boolean).join(' • ');
-
-      const entries = Object.entries(row.src || {});
-      const skipKeys = new Set([
-        'ord','numero ordine (parsed)','ora (parsed)','zona (parsed)',
-        'nome','nome cliente','cliente','data','giorno','data ordine','ora','orario'
-      ].map(k=>norm(k)));
-
-      let seenItemsStart = false;
-      const rowsHtml = entries
-        .filter(([k,_]) => !skipKeys.has(norm(String(k))))
-        .map(([k,v]) => {
-          const keyStr = String(k).trim();
-          const valStr = (v==null)? '' : String(v).trim();
-          if (/^\s*1\)\s*/i.test(keyStr)) seenItemsStart = true;
-          const shouldHL = seenItemsStart && valStr !== '' && valStr !== '0';
-          return `<tr class="${shouldHL?'hl':''}"><th>${esc(keyStr)}</th><td>${esc(valStr)}</td></tr>`;
-        }).join('');
-
-      modalTable.innerHTML = rowsHtml || `<tr><td>Nessun dettaglio</td></tr>`;
-      modal.classList.add('open'); modal.setAttribute('aria-hidden','false'); lockScroll();
-    }
+    /* Modale Dettaglio */
+    const modal = document.getElementById('sso-modal'); const modalClose = document.getElementById('sso-modal-close'); const modalTable = document.getElementById('sso-modal-table'); const modalTitle = document.getElementById('sso-modal-title'); const modalSub = document.getElementById('sso-modal-sub');
+    function lockScroll(){ const y = window.scrollY || window.pageYOffset; document.body.dataset.scrollY = y; document.body.style.position='fixed'; document.body.style.top=`-${y}px`; document.body.style.left='0'; document.body.style.right='0'; document.body.style.width='100%'; }
+    function unlockScroll(){ const y = +(document.body.dataset.scrollY||0); document.body.style.position=''; document.body.style.top=''; document.body.style.left=''; document.body.style.right=''; document.body.style.width=''; window.scrollTo(0,y); delete document.body.dataset.scrollY; }
+    function openModal(row){ modalTitle.textContent = row.name || 'Dettaglio ordine'; modalSub.textContent = [ row.ord? `Ordine #${row.ord}`: null, row.dateText || null, row.time || null ].filter(Boolean).join(' • '); const entries=Object.entries(row.src||{}); const skipKeys=new Set(['ord','numero ordine (parsed)','ora (parsed)','zona (parsed)','nome','nome cliente','cliente','data','giorno','data ordine','ora','orario'].map(k=>norm(k))); let seenItemsStart=false; const rowsHtml=entries.filter(([k,_])=>!skipKeys.has(norm(String(k)))).map(([k,v])=>{ const keyStr=String(k).trim(); const valStr=(v==null)? '' : String(v).trim(); if(/^\s*1\)\s*/i.test(keyStr)) seenItemsStart=true; const shouldHL=seenItemsStart && valStr!=='' && valStr!=='0'; return `<tr class=\"${shouldHL?'hl':''}\"><th>${esc(keyStr)}</th><td>${esc(valStr)}</td></tr>`; }).join(''); modalTable.innerHTML = rowsHtml || `<tr><td>Nessun dettaglio</td></tr>`; modal.classList.add('open'); modal.setAttribute('aria-hidden','false'); lockScroll(); }
     function closeModal(){ modal.classList.remove('open'); modal.setAttribute('aria-hidden','true'); unlockScroll(); }
-    modalClose.addEventListener('click', closeModal);
-    modal.addEventListener('click', (e)=>{ if(e.target.classList.contains('backdrop')) closeModal(); });
-    document.addEventListener('keydown', (e)=>{ if(e.key==='Escape' && modal.classList.contains('open')) closeModal(); });
+    modalClose.addEventListener('click', closeModal); modal.addEventListener('click', (e)=>{ if(e.target.classList.contains('backdrop')) closeModal(); }); document.addEventListener('keydown', (e)=>{ if(e.key==='Escape' && modal.classList.contains('open')) closeModal(); });
 
-    /* === Boot === */
+    /* Boot */
     (async function init(){
       try{ await refreshData(); }
-      catch(err){ console.warn('Errore API:', err); DATA_ROWS = []; document.getElementById('sso-status').textContent = 'Errore nel caricamento dei dati'; }
-
-      // Bind UI
-      document.getElementById('sso-go').onclick = submit;
-      document.getElementById('sso-q').onkeydown = e => { if(e.key==='Enter') submit(); };
-
+      catch(err){ console.warn('Errore API:', err); DATA_ROWS=[]; document.getElementById('sso-status').textContent='Errore nel caricamento dei dati'; }
+      document.getElementById('sso-go').onclick = submit; document.getElementById('sso-q').onkeydown = e => { if(e.key==='Enter') submit(); };
       document.getElementById('sso-tab-oggi').onclick=()=>activate('oggi');
       document.getElementById('sso-tab-domani').onclick=()=>activate('domani');
       document.getElementById('sso-tab-data').onclick=()=>activate('data');
       document.getElementById('sso-ritiri-date').onchange=()=>activate('data');
-
-      // Click su card → modale
-      document.addEventListener('click', e=>{
-        const card = e.target.closest('.order-card');
-        if(card){
-          const idx = Number(card.getAttribute('data-idx'));
-          const row = DATA_ROWS.find(x => x.__i === idx);
-          if(row) openModal(row);
-        }
-      });
-
-      // refresh soft ogni 5 minuti
-      setInterval(async ()=>{
-        try{
-          await refreshData();
-          rerenderLists();
-          const qv = (document.getElementById('sso-q').value||'').trim();
-          if (qv) {
-            const rows = findByName(qv);
-            document.getElementById('sso-out').innerHTML =
-              rows.map(orderCard).join('') || `<div class='empty'>Nessun risultato</div>`;
-          }
-        }catch(_) {}
-      }, 300000);
-
-      activate('oggi');
-      updateFilterUI();
+      document.addEventListener('click', e=>{ const card = e.target.closest('.order-card'); if(card){ const idx=Number(card.getAttribute('data-idx')); const row=DATA_ROWS.find(x=>x.__i===idx); if(row) openModal(row); } });
+      setInterval(async ()=>{ try{ await refreshData(); rerenderLists(); const qv=(document.getElementById('sso-q').value||'').trim(); if(qv){ const rows=findByName(qv); document.getElementById('sso-out').innerHTML = rows.map(orderCard).join('') || `<div class='empty'>Nessun risultato</div>`; } }catch(_){} }, 300000);
+      activate('oggi'); updateFilterUI();
     })();
   })();
   </script>
