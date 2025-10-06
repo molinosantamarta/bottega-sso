@@ -5,28 +5,54 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>Stòc</title>
   <link rel="manifest" href="/bottega-sso/manifest.webmanifest">
-<meta name="theme-color" content="#770505">
+  <meta name="theme-color" content="#770505">
 
-<!-- Icone iOS -->
-<link rel="apple-touch-icon" sizes="180x180" href="/bottega-sso/apple-touch-icon-180.png">
-<link rel="apple-touch-icon" sizes="167x167" href="/bottega-sso/apple-touch-icon-167.png">
-<link rel="apple-touch-icon" sizes="152x152" href="/bottega-sso/apple-touch-icon-152.png">
-<link rel="apple-touch-icon" sizes="120x120" href="/bottega-sso/apple-touch-icon-120.png">
+  <!-- Icone iOS -->
+  <link rel="apple-touch-icon" sizes="180x180" href="/bottega-sso/apple-touch-icon-180.png">
+  <link rel="apple-touch-icon" sizes="167x167" href="/bottega-sso/apple-touch-icon-167.png">
+  <link rel="apple-touch-icon" sizes="152x152" href="/bottega-sso/apple-touch-icon-152.png">
+  <link rel="apple-touch-icon" sizes="120x120" href="/bottega-sso/apple-touch-icon-120.png">
 
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Stòc">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Stòc">
+
+  <!-- Font: Titolo Playfair Display + Sottotitolo Barcode -->
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Libre+Barcode+128+Text&display=swap" rel="stylesheet">
+
   <style>
     /* Base dark */
     html,body{height:100%;background:#000;margin:0;font-family:-apple-system,system-ui,Segoe UI,Roboto,sans-serif;color:#eaeaea}
     .x-wrap{padding:8px 16px 24px;max-width:760px;margin:0 auto}
 
     header{text-align:center;padding:18px 12px 10px;position:relative;z-index:1}
-    header h1{margin:0;font-size:20px;font-weight:800;color:#fff}
-    header .subtitle{margin-top:6px;font-size:13px;font-weight:500;color:#bdbdbd;opacity:.95}
 
-    .beta-row{display:flex;justify-content:center;margin-top:8px;position:relative;top:3px}
-    .beta-pill{display:inline-flex;align-items:center;justify-content:center;padding:5px 10px;border-radius:999px;background:#ffd60a;color:#000;font-weight:800;font-size:11px;box-shadow:0 1px 0 rgba(255,255,255,.25) inset,0 4px 12px rgba(0,0,0,.25);border:1px solid #e6c408}
+    /* TITOLO (h2) — Playfair Display con gradiente giallo->arancio dinamico */
+    header h2{margin:0;font-family:'Playfair Display',serif;font-weight:700;letter-spacing:-0.02em;
+      font-size:clamp(56px,8vw,88px);
+      background:linear-gradient(135deg,#ffd60a 0%,#ffcc00 30%,#ffb700 60%,#ff9500 100%);
+      background-size:400% 400%;
+      -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+      animation:goldFlow 14s ease-in-out infinite, fadeInTitle 1.6s ease-out both;
+    }
+    @keyframes goldFlow{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+    @keyframes fadeInTitle{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+
+    /* SOTTOTITOLO (h1) — Libre Barcode ridotto e pulito */
+    header h1{margin:8px 0 0;font-size:26px;font-weight:400;color:#fff;opacity:1;
+      font-family:'Libre Barcode 128 Text', cursive;text-transform:uppercase;letter-spacing:.02em}
+
+    /* Pillola — testo con riflesso dorato (shine) sincronizzato dolcemente */
+    .beta-row{display:flex;justify-content:center;margin-top:2px;position:relative;top:0}
+    .beta-pill{display:inline-flex;align-items:center;justify-content:center;padding:5px 10px;border-radius:999px;
+      background:#ffd60a;color:#000;font-weight:800;font-size:11px;border:1px solid #e6c408;
+      box-shadow:0 1px 0 rgba(255,255,255,.25) inset,0 4px 12px rgba(0,0,0,.25);
+      /* shine sul testo */
+      background-image:linear-gradient(90deg,#ffd60a 0%,#ffe066 25%,#ffb700 50%,#ffd60a 75%,#ffcc00 100%);
+      background-size:200% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;
+      animation:shine 8s linear infinite
+    }
+    @keyframes shine{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
 
     /* Immagini incrociate */
     .hero-img-wrap{display:flex;align-items:center;justify-content:center;margin-top:6px;position:relative;z-index:1}
@@ -60,7 +86,7 @@
     <header>
       <h2>Stòc</h2>
       <h1>Scanner & Stoccaggio Ordini</h1>
-      <div class="beta-row"><span class="beta-pill">Scansiona, stocca, ritrova. Tutto in un colpo solo.</span></div>
+      <div class="beta-row"><span class="beta-pill">Dove la storia incontra il futuro.</span></div>
     </header>
 
     <div class="hero-img-wrap">
