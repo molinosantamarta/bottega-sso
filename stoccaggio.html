@@ -143,21 +143,13 @@
     }
     .count-badge .sep{ opacity:.7; }
 
-    /* iOS: selettore nativo multiplo */
-    .filter-native{
-      display:none; border:1px solid rgba(0,0,0,.08);
-      border-radius:12px; padding:8px; font-size:15px; background:#fff; color:#111; min-width:260px;
-    }
-    body.ios .filter-native{ display:block; }
-    body.ios #sso-filter-chip{ display:none; } /* su iOS nascondo il bottone filtro */
-
-    /* Modali */
+    /* Modali: base fullscreen */
     .modal{ position:fixed; inset:0; display:none; z-index:2147483647; }
     .modal.open{ display:block; }
     .modal .backdrop{ position:absolute; inset:0; background:rgba(0,0,0,.55); backdrop-filter:saturate(1.2) blur(6px); }
     .modal .sheet{ position:absolute; inset:0; background:#fff; color:#111; display:flex; flex-direction:column; }
 
-    /* Dettaglio ordine */
+    /* Dettaglio ordine (lasciamo fullscreen) */
     .modal header{ display:flex; align-items:center; justify-content:space-between; gap:12px;
       padding:14px 16px 12px; border-bottom:1px solid #ececec; position:sticky; top:0; background:#fff; z-index:1; }
     .modal header .h{ font-weight:900; font-size:24px; text-align:left; margin:0; }
@@ -170,8 +162,18 @@
     .kv tr:last-child th, .kv tr:last-child td{ border-bottom:none; }
     .kv tr.hl{ background:rgba(255,214,10,.22); }
 
-    /* Modale filtri */
-    #sso-filter-modal .content .text{ margin-bottom:14px; }
+    /* === Modale filtri: compatta e centrata, NON fullscreen === */
+    #sso-filter-modal{ display:none; }
+    #sso-filter-modal.open{ display:block; }
+    #sso-filter-modal .sheet{
+      position:relative; inset:auto; margin:10vh auto;
+      width:min(560px, calc(100% - 32px)); max-height:80vh;
+      background:#fff; color:#111; border-radius:18px; overflow:hidden;
+      box-shadow:0 20px 50px rgba(0,0,0,.25);
+    }
+    #sso-filter-modal header{ position:sticky; top:0; background:#fff; z-index:1; padding:16px 16px 10px; border-bottom:1px solid #ececec; }
+    #sso-filter-modal .content{ padding:14px 16px 18px; }
+    #sso-filter-modal .content .text{ margin-bottom:12px; }
     .filter-options{ display:flex; flex-direction:column; gap:10px; padding-top:4px; }
     .filter-row{ display:flex; align-items:center; gap:10px; }
     .filter-row input{ width:18px; height:18px; }
@@ -214,15 +216,11 @@
 
             <!-- Bolla filtro -->
             <div class="chipbar" id="chipbar-filter">
-              <!-- Bottone filtro (non-iOS) -->
               <button class="tab icon" id="sso-filter-chip" title="Filtra reparti" aria-haspopup="dialog" aria-expanded="false">
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5h18l-7 8v5l-4 2v-7L3 5z" fill="currentColor"/></svg>
                 <span id="sso-filter-label">Filtra reparti</span>
                 <span id="sso-filter-badge" class="count-badge"></span>
               </button>
-
-              <!-- iOS: selettore nativo multiplo -->
-              <select id="sso-filter-native" class="filter-native" multiple size="5" aria-multiselectable="true" aria-label="Filtra reparti (iOS)"></select>
             </div>
           </div>
         </div>
@@ -232,7 +230,7 @@
     </div>
   </div>
 
-  <!-- Modale Dettaglio -->
+  <!-- Modale Dettaglio (fullscreen) -->
   <div id="sso-modal" class="modal" aria-hidden="true" role="dialog">
     <div class="backdrop"></div>
     <div class="sheet">
@@ -249,8 +247,8 @@
     </div>
   </div>
 
-  <!-- Modale Filtri Reparti (non-iOS) -->
-  <div id="sso-filter-modal" class="modal" aria-hidden="true" role="dialog">
+  <!-- Modale Filtri (compatta) -->
+  <div id="sso-filter-modal" class="modal" aria-hidden="true" role="dialog" aria-modal="true">
     <div class="backdrop"></div>
     <div class="sheet">
       <header>
@@ -270,11 +268,8 @@
 
   <script>
   (function(){
-    const API_URL = 'https://script.google.com/macros/s/AKfycbzp_2RNQO9ROQkpcGebBpZ9_PMyZEmxkqLh5G-ODe4Yo2x9E0aRbEQIbmofaxhod9VGFA/exec'.replace('_P','_P');
-
-    // iOS detection
-    const isiOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform==='MacIntel' && navigator.maxTouchPoints>1);
-    if(isiOS){ document.body.classList.add('ios'); }
+    /* URL API corretto (niente refusi) */
+    const API_URL = 'https://script.google.com/macros/s/AKfycbzp_2RNQO9ROQkpcGebBpZ9P_MyZEmxkqLh5G-ODe4Yo2x9E0aRbEQIbmofaxhod9VGFA/exec';
 
     // Helpers
     const ymd = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
@@ -464,8 +459,8 @@
       DATA_ROWS = mapRowsFromAPI(data.rows || []);
       document.getElementById('sso-status').textContent =
         UPDATED_AT ? `Dati aggiornati: ${new Date(UPDATED_AT).toLocaleString('it-IT')}` : '';
-      renderFilterControls();   // popola controlli filtro (iOS + modale)
-      updateFilterBadge();      // aggiorna bollino (non-iOS)
+      renderFilterOptions(); 
+      updateFilterBadge();
     }
 
     /* Loader ricerca */
@@ -501,8 +496,7 @@
       domani:document.getElementById('sso-tab-domani'),
       data:document.getElementById('sso-tab-data'),
       filterChip:document.getElementById('sso-filter-chip'),
-      filterBadge:document.getElementById('sso-filter-badge'),
-      filterNative:document.getElementById('sso-filter-native')
+      filterBadge:document.getElementById('sso-filter-badge')
     };
     const dateInput=document.getElementById('sso-ritiri-date');
     const dateLabel=document.getElementById('sso-tab-date-label');
@@ -521,15 +515,14 @@
       }
     }
 
-    /* ====== FILTRO: UI ====== */
+    /* ====== FILTRO: UI con modale compatta ====== */
     const filterModal     = document.getElementById('sso-filter-modal');
     const filterOptions   = document.getElementById('sso-filter-options');
     const filterApply     = document.getElementById('sso-filter-apply');
     const filterReset     = document.getElementById('sso-filter-reset');
     const filterCloseBtn  = document.getElementById('sso-filter-close');
 
-    function renderFilterControls(){
-      // Modale checklist
+    function renderFilterOptions(){
       filterOptions.innerHTML = DEPARTMENTS.map(dep=>{
         const checked = ACTIVE_DEPTS.has(dep.id) ? 'checked' : '';
         return `<label class="filter-row">
@@ -537,83 +530,44 @@
                   <span>${esc(dep.label)}</span>
                 </label>`;
       }).join('');
-      // iOS: nativo
-      const sel = tabs.filterNative;
-      sel.innerHTML = '';
-      for(const dep of DEPARTMENTS){
-        const opt = document.createElement('option');
-        opt.value = dep.id;
-        opt.textContent = dep.label;
-        opt.selected = ACTIVE_DEPTS.has(dep.id);
-        sel.appendChild(opt);
-      }
     }
-
-    // Bottone filtro (apre modale) – solo non-iOS
-    if(!isiOS){
-      tabs.filterChip.addEventListener('click', openFilter);
-      function openFilter(){ renderFilterControls(); filterModal.classList.add('open'); filterModal.setAttribute('aria-hidden','false'); lockScroll(); }
-      function closeFilter(){ filterModal.classList.remove('open'); filterModal.setAttribute('aria-hidden','true'); unlockScroll(); }
-      filterCloseBtn.addEventListener('click', closeFilter);
-      filterModal.addEventListener('click', (e)=>{ if(e.target.classList.contains('backdrop')) closeFilter(); });
-
-      filterReset.addEventListener('click', ()=>{
-        ACTIVE_DEPTS = new Set(allDeptIds);
-        localStorage.setItem('sso_active_depts', JSON.stringify([...ACTIVE_DEPTS]));
-        renderFilterControls(); updateFilterBadge();
-      });
-
-      filterApply.addEventListener('click', ()=>{
-        const inputs = filterOptions.querySelectorAll('input[type="checkbox"][data-dep]');
-        const next = new Set();
-        inputs.forEach(i=>{ if(i.checked) next.add(i.dataset.dep); });
-        if(next.size===0){ alert('Seleziona almeno un reparto.'); return; }
-        ACTIVE_DEPTS = next; LAST_VALID_DEPTS = new Set(ACTIVE_DEPTS);
-        localStorage.setItem('sso_active_depts', JSON.stringify([...ACTIVE_DEPTS]));
-        updateFilterBadge();
-        rerenderLists(); closeFilter();
-      });
+    function openFilter(){
+      renderFilterOptions();
+      filterModal.classList.add('open'); filterModal.setAttribute('aria-hidden','false');
+      lockScroll();
+      tabs.filterChip.setAttribute('aria-expanded','true');
     }
-
-    // iOS: selettore nativo – toggling via tap + enforce >=1
-    if(isiOS){
-      const sel = tabs.filterNative;
-
-      // toggle per iOS: tocca un'opzione per selezionarla/deselezionarla (senza gesture “multi-select”)
-      function iosToggleHandler(ev){
-        const t = ev.target;
-        if(t && t.tagName === 'OPTION'){
-          t.selected = !t.selected;
-          ev.preventDefault(); // evita il comportamento di default che resetta
-          // trigger change per pipeline filtro
-          sel.dispatchEvent(new Event('change', {bubbles:true}));
-        }
-      }
-      // usa sia touchstart che mousedown per coprire Safari/WebView
-      sel.addEventListener('touchstart', iosToggleHandler, {passive:false});
-      sel.addEventListener('mousedown', iosToggleHandler);
-
-      sel.addEventListener('change', ()=>{
-        const next = new Set();
-        [...sel.options].forEach(o=>{ if(o.selected) next.add(o.value); });
-        if(next.size===0){
-          // ripristina ultima valida
-          [...sel.options].forEach(o=>{ o.selected = LAST_VALID_DEPTS.has(o.value); });
-          alert('Seleziona almeno un reparto.');
-          return;
-        }
-        ACTIVE_DEPTS = next; LAST_VALID_DEPTS = new Set(ACTIVE_DEPTS);
-        localStorage.setItem('sso_active_depts', JSON.stringify([...ACTIVE_DEPTS]));
-        rerenderLists();
-      });
+    function closeFilter(){
+      filterModal.classList.remove('open'); filterModal.setAttribute('aria-hidden','true');
+      unlockScroll();
+      tabs.filterChip.setAttribute('aria-expanded','false');
     }
+    tabs.filterChip.addEventListener('click', openFilter);
+    filterCloseBtn.addEventListener('click', closeFilter);
+    filterModal.addEventListener('click', (e)=>{ if(e.target.classList.contains('backdrop')) closeFilter(); });
+
+    filterReset.addEventListener('click', ()=>{
+      ACTIVE_DEPTS = new Set(allDeptIds);
+      localStorage.setItem('sso_active_depts', JSON.stringify([...ACTIVE_DEPTS]));
+      renderFilterOptions(); updateFilterBadge(); rerenderLists();
+    });
+
+    filterApply.addEventListener('click', ()=>{
+      const inputs = filterOptions.querySelectorAll('input[type="checkbox"][data-dep]');
+      const next = new Set();
+      inputs.forEach(i=>{ if(i.checked) next.add(i.dataset.dep); });
+      if(next.size===0){ alert('Seleziona almeno un reparto.'); return; }
+      ACTIVE_DEPTS = next; LAST_VALID_DEPTS = new Set(ACTIVE_DEPTS);
+      localStorage.setItem('sso_active_depts', JSON.stringify([...ACTIVE_DEPTS]));
+      updateFilterBadge();
+      rerenderLists(); closeFilter();
+    });
 
     function updateFilterBadge(){
-      if(isiOS) return; // su iOS il bottone è nascosto
       const selected = ACTIVE_DEPTS.size;
       const total = DEPARTMENTS.length;
+      const badge = tabs.filterBadge;
 
-      const badge = document.getElementById('sso-filter-badge');
       if(selected === total){
         badge.style.display='none'; badge.innerHTML=''; return;
       }
