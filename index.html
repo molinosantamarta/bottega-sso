@@ -47,7 +47,8 @@
     /* Effetto luce non invasivo: overlay separato, non tocca il colore del testo */
     .beta-pill::after{content:"";position:absolute;inset:-30% -40%;
       background:linear-gradient(90deg,transparent 0,rgba(255,255,255,.55) 45%,rgba(255,255,255,.9) 50%,rgba(255,255,255,.55) 55%,transparent 100%);
-      transform:translateX(-120%);animation:pillShine 6s linear infin
+      transform:translateX(-120%);animation:pillShine 6s linear infinite;mix-blend-mode:soft-light;pointer-events:none}
+    @keyframes pillShine{to{transform:translateX(120%)}}
     @keyframes shine{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
 
     .hero-img-wrap{display:flex;align-items:center;justify-content:center;margin-top:6px;position:relative;z-index:1}
@@ -83,7 +84,7 @@
     <header>
       <h2>Stòc</h2>
       <h1>Scanner & Stoccaggio Ordini</h1>
-      <div class="beta-row"><span class="beta-pill">Dove la storia incontra il futuro.</span></div>
+      <div class="beta-row"><span class="beta-pill"><span class="txt">Dove la storia incontra il futuro.</span></span></div>
     </header>
 
     <div class="hero-img-wrap">
