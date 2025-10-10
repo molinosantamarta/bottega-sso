@@ -26,8 +26,6 @@
 
       --pane-w: 100%;
       --pane-max: min(760px, 100vw);
-      --pane-gutter: 0px;
-
       --radius-outer: 28px;
       --radius-inner: 20px;
 
@@ -73,7 +71,7 @@
     /* ACTIVE: solo bordo verde, spessore raddoppiato */
     [data-sso] .section.active{
       background:linear-gradient(180deg, #ffffff, #fbfbfb);
-      border:2px solid #16c172; /* raddoppiato rispetto al 1px base */
+      border:2px solid #16c172;
       box-shadow:0 14px 32px rgba(0,0,0,.22);
     }
 
@@ -83,39 +81,31 @@
       box-shadow: 0 16px 36px rgba(10,132,255,.28), 0 10px 24px rgba(0,0,0,.18);
     }
 
-    /* Garantisco priorità click su STEP1 */
-    #section1 { position: relative; z-index: 10; }
-
-    /* Titolo step */
+    /* STEP titles */
     [data-sso] .step-title{ color:#111; font-size:14px; opacity:.95; margin-bottom:16px; display:flex; align-items:center; gap:8px; }
     [data-sso] .step-badge{ background:#f1f1f5; color:#111; border-radius:999px; padding:2px 8px; font-size:12px; border:1px solid #e2e2e8; }
-    [data-sso] .step-badge.done{ background:linear-gradient(180deg,#eafff2,#b8ffd4); color:#073; font-weight:900; border-color:#a4f5c4; text-shadow:none; }
+    [data-sso] .step-badge.done{ background:linear-gradient(180deg,#eafff2,#b8ffd4); color:#073; font-weight:900; border-color:#a4f5c4; }
     @keyframes pulse-badge { 0%,100%{ transform:scale(1); box-shadow:0 0 0 0 rgba(10,132,255,0);} 50%{ transform:scale(1.1); box-shadow:0 0 0 6px rgba(10,132,255,.15);} }
     [data-sso] .step-badge.pulse{ animation:pulse-badge 1.2s ease-in-out infinite; background:linear-gradient(180deg, #0a84ff, #0569c9); color:#fff; border-color:#0569c9; }
 
-    /* Gruppi zona in STEP 1 – pillola minimale, concentriche, stesso radius */
-    .seg-row{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-bottom:12px; }
-    .seg-row.group{
-      padding:10px 12px;
-      border-radius:999px;        /* stesso raggio capsule interne */
-      border:1px solid #dcdce2;   /* anello esterno */
+    /* STEP 1 – gruppi: UNA sola capsula minimale, su un'unica riga */
+    .seg-row{
+      display:flex; align-items:center; gap:12px; margin-bottom:12px;
+      flex-wrap:nowrap; /* stessa riga */
+      padding:8px 10px;
+      border-radius:999px;
+      border:1px solid #dcdce2;
       background:#fff;
-      position:relative;
+      overflow:hidden;
     }
-    .seg-row.group::after{
-      content:""; position:absolute; inset:4px; border-radius:999px;
-      border:1px solid #f0f0f4;   /* anello interno (concentrico) */
-      pointer-events:none;
-    }
-    .seg-row.group.selected{
-      border-color:#16c172;
-    }
-    .seg-row.group.selected::after{
-      border-color:#bfead3;       /* leggero eco verde interno */
-    }
+    .seg-row.selected{ border-color:#16c172; }
 
-    .seg-label{ font-size:13px; color:#222; opacity:.95; min-width:120px; font-weight:800; }
-    .seg{ display:flex; background:#121214; border:1px solid var(--border); border-radius:999px; overflow:auto; -webkit-overflow-scrolling:touch; }
+    .seg-label{ font-size:13px; color:#222; opacity:.95; min-width:140px; font-weight:800; white-space:nowrap; }
+    .seg{
+      display:flex; flex:1; min-width:0;
+      background:#121214; border:1px solid var(--border);
+      border-radius:999px; overflow:auto; -webkit-overflow-scrolling:touch;
+    }
     .seg .opt{ padding:8px 12px; font-size:14px; border:0; background:transparent; color:#fff; cursor:pointer; white-space:nowrap; }
     .seg .opt.active{ background:linear-gradient(180deg, #b8ffd4, #a4f5c4); color:#003b1f; font-weight:900; border-radius:999px; box-shadow:0 6px 18px rgba(120,255,180,.35), inset 0 1px 0 rgba(255,255,255,.35); }
 
@@ -132,6 +122,7 @@
     .selected-zone.active{ background:#ffd60a; color:#000; box-shadow:0 4px 14px rgba(0,0,0,.18); border-color:#e6c408; }
     .selected-dot{ width:10px; height:10px; border-radius:999px; background:var(--ok); display:inline-block; }
 
+    /* STEP 2 – video area */
     .video-wrap{
       width:100%; aspect-ratio:16/9; border-radius:var(--radius-inner);
       overflow:hidden; border:1px solid #e6e6ea; margin-top:10px;
@@ -146,12 +137,11 @@
       pointer-events:none;
     }
 
-    /* overlay guida barcode */
+    /* overlay guida barcode – doppia dimensione, nessun bordo/sfondo */
     .qr-guide{
       position:absolute; left:50%; top:30%; transform:translate(-50%,-50%);
-      height:30%; width:auto; opacity:.95; display:none; pointer-events:none;
-      border-radius:8px; border:1px solid rgba(255,255,255,.25);
-      background:#000;
+      height:60%; width:auto; opacity:.95; display:none; pointer-events:none;
+      border:none; border-radius:0; background:transparent; box-shadow:none;
     }
     .qr-hint{
       position:absolute; left:50%; top:66%; transform:translate(-50%,-50%);
@@ -182,7 +172,7 @@
     .summary{ margin-top:10px; font-size:12px; opacity:.75; }
     .divider{ height:0.75px; background:#fff; opacity:.18; margin:10px 0 12px; border-radius:1px; }
 
-    /* --- Aggiunta manuale (nel blocco 2) --- */
+    /* Aggiunta manuale (nel blocco 2) */
     .manual-wrap{ margin-top:12px; background:transparent; box-shadow:none; }
     .manual-controls{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
     .keypad{ display:none; margin-top:10px; }
@@ -190,11 +180,12 @@
     .key-display{ height:44px; border:1px solid var(--border); border-radius:16px; background:#111; color:#fff; display:flex; align-items:center; justify-content:flex-end; padding:0 12px; font-weight:800; font-size:18px; letter-spacing:.8px; }
     .keys{ margin-top:8px; display:grid; grid-template-columns:repeat(3, 1fr); gap:8px; }
     .key{ height:48px; border-radius:16px; border:1px solid #2c2c2e; background:#1a1a1d; color:#fff; font-weight:800; font-size:18px; display:flex; align-items:center; justify-content:center; cursor:pointer; user-select:none; }
-    .key.action{ background:#3c3c42; border-color:#4a4a50; } /* backspace più chiaro e marcato */
+    .key.action{ background:#3c3c42; border-color:#4a4a50; } /* backspace evidenziato */
     .key.confirm{ background:#ffd60a; color:#000; font-size:15px; } /* -3px */
 
+    /* Bottoni */
     .btn{ padding:14px 16px; border:0; border-radius:24px; font-size:16px; font-weight:700; color:#fff; cursor:pointer; transition: filter .15s ease, opacity .15s ease, background-color .15s ease, color .15s ease; display:inline-flex; align-items:center; justify-content:center; line-height:1; gap:10px; }
-    .btn:disabled{ opacity:.7; cursor:not-allowed; filter:none; }
+    .btn:disabled{ opacity:.7; cursor:not-allowed; }
     .primary{ background:var(--accent); }
     .ghost{ background:#4b4b4e; color:#ddd; }
     .danger{ background:var(--danger); }
@@ -213,26 +204,24 @@
     .controls.split .btn{ flex:1; }
     #section3 .controls.split .btn{ font-size:18px; padding:21px 16px; }
 
+    /* Pulsante torcia: SOLO icona interna, nessun cono/alone/ombre extra */
     .icon-btn{
       width:44px; height:44px; border-radius:999px; position:relative;
       border:1px solid #e6e6ea; background:#fff; color:#000;
       display:inline-flex; align-items:center; justify-content:center; cursor:pointer;
       box-shadow:inset 0 1px 0 rgba(255,255,255,.6), 0 4px 10px rgba(0,0,0,.12);
-      overflow:visible;
-      z-index: 1;
+      overflow:hidden;
+      z-index:1;
     }
-    /* TORCIA pulita: solo cambio colore */
-    .icon-btn.torch-on{
-      background:var(--torch-on); color:#111; border-color:#d8be07;
-    }
+    .icon-btn:active{ transform:scale(.97); }
+    .icon-btn svg{ width:22px; height:22px; display:block; }
+    .icon-btn.torch-on{ background:var(--torch-on); color:#111; border-color:#d8be07; }
+    /* Niente ::before/::after, niente effetti */
 
     .torch-wrap{ display:flex; align-items:center; gap:7px; }
     .torch-label{ font-size:15px; line-height:1.05; text-align:right; opacity:.9; text-transform:lowercase; color:#222; }
     .torch-label strong{ display:block; text-transform:uppercase; }
 
-    .spacer{ height:1px; }
-
-    /* Contenitore esterno del pulsante finale */
     .btn-new-outer{
       width:var(--pane-w);
       max-width:var(--pane-max);
@@ -241,7 +230,7 @@
     }
     .btn-new-outer .btn{ width:100%; }
 
-    /* PATCH: nessuno pseudo-elemento può bloccare i tap */
+    /* PATCH: niente pseudo-elemento blocca tap */
     *::before, *::after{ pointer-events:none !important; }
   </style>
 </head>
@@ -253,8 +242,8 @@
       <div class="section active" id="section1">
         <div class="step-title"><span class="step-badge" id="badge1">1</span> Seleziona la zona che stai per scansionare</div>
 
-        <!-- gruppo NEGOZIO in pillola minimale, concentriche -->
-        <div class="seg-row group" id="groupNegozio">
+        <!-- NEGOZIO: capsula minimale, stessa riga -->
+        <div class="seg-row" id="groupNegozio">
           <div class="seg-label">CELLA NEGOZIO</div>
           <div class="seg" id="segNegozio">
             <button class="opt" data-zone="NEGOZIO - SOPRA" type="button">SOPRA</button>
@@ -262,8 +251,8 @@
           </div>
         </div>
 
-        <!-- gruppo CAMION in pillola minimale, concentriche -->
-        <div class="seg-row group" id="groupCamion">
+        <!-- CAMION: capsula minimale, stessa riga -->
+        <div class="seg-row" id="groupCamion">
           <div class="seg-label">CELLA CAMION</div>
           <div class="seg" id="segCamion">
             <button class="opt" data-zone="CAMION - SOPRA" type="button">SOPRA</button>
@@ -303,7 +292,7 @@
         </div>
 
         <div class="video-wrap" id="videoWrap">
-          <!-- immagine guida al primo avvio -->
+          <!-- immagine guida: doppia dimensione, senza bordo/sfondo -->
           <img id="qrGuide" class="qr-guide" style="display:none" src="barcode-guida.png" alt="Guida barcode" />
           <div id="qrHint" class="qr-hint" style="display:none">Scansiona il codice a barre</div>
           <video id="video" autoplay playsinline muted></video>
@@ -346,7 +335,6 @@
           </div>
         </div>
         <!-- /Aggiunta manuale -->
-
       </div>
 
       <!-- STEP 3 -->
@@ -591,7 +579,7 @@
       dupTimer = setTimeout(()=>dupMsg.classList.remove('show'), 1200);
     }
 
-    /* Attiva/Disattiva i bottoni finali + ripristino colori corretti */
+    /* Abilita/disabilita bottoni finali con colori corretti */
     function setActionButtonsEnabled(enabled){
       btnCopy.disabled = !enabled;
       btnClear.disabled = !enabled;
@@ -693,10 +681,7 @@
       try{
         const constraints = {
           audio:false,
-          video:{
-            facingMode:{ ideal:'environment' },
-            width:{ ideal:1920 }, height:{ ideal:1080 }
-          }
+          video:{ facingMode:{ ideal:'environment' }, width:{ ideal:1920 }, height:{ ideal:1080 } }
         };
 
         video.setAttribute('playsinline','');
@@ -857,7 +842,7 @@
       let iframe = S("#hidden_iframe_gform");
       if (!iframe) {
         iframe = document.createElement("iframe");
-        iframe.name = "hidden_iframe_gform";
+      iframe.name = "hidden_iframe_gform";
         iframe.id   = "hidden_iframe_gform";
         iframe.style.display = "none";
         SECTION.appendChild(iframe);
@@ -980,7 +965,6 @@
               btnNewOuter.innerHTML = '';
               btnNewOuter.appendChild(btnNewExternal);
               btnNewOuter.style.display = 'block';
-              /* Auto-scroll per mostrare completamente il bottone */
               setTimeout(()=>{
                 btnNewOuter.scrollIntoView({ behavior:'smooth', block:'center' });
               }, 60);
