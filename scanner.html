@@ -69,29 +69,26 @@
     @media (max-width: 430px){
       [data-sso] .section{ width:96vw; border-radius:22px; }
     }
+    /* Glow più intenso quando selezionate/attive */
     [data-sso] .section.active{
       background:linear-gradient(180deg, #ffffff, #fbfbfb);
-      box-shadow:0 14px 32px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.6);
       border-color:rgba(0,0,0,.12);
+      /* bagliore blu/verde nitido e luminoso */
+      box-shadow:
+        0 14px 32px rgba(0,0,0,.22),
+        0 0 0 2px rgba(10,132,255,.25) inset,
+        0 0 20px 2px rgba(10,132,255,.28),
+        0 0 36px 4px rgba(52,199,89,.25);
     }
 
     /* Focus del primo blocco quando la tab esterna è "scanner" */
     .scanner-focus{
       outline: 2px solid rgba(10,132,255,.35);
-      box-shadow: 0 16px 36px rgba(10,132,255,.20), 0 10px 24px rgba(0,0,0,.15);
+      box-shadow: 0 16px 36px rgba(10,132,255,.28), 0 10px 24px rgba(0,0,0,.18);
     }
 
     /* Garantisco priorità click su STEP1 */
     #section1 { position: relative; z-index: 10; }
-
-    /* Pillola versione */
-    .beta-row{display:flex;justify-content:center;margin:6px 0 2px}
-    .beta-pill{
-      display:inline-flex;align-items:center;justify-content:center;
-      padding:6px 12px;border-radius:999px;background:#ffd60a;color:#000;
-      font-weight:800;font-size:12px;border:1px solid #e6c408;
-      box-shadow:0 1px 0 rgba(255,255,255,.25) inset,0 4px 12px rgba(0,0,0,.25)
-    }
 
     /* Titolo step */
     [data-sso] .step-title{ color:#111; font-size:14px; opacity:.95; margin-bottom:16px; display:flex; align-items:center; gap:8px; }
@@ -168,7 +165,7 @@
     .key.action{ background:#2a2a2d; }
     .key.confirm{ background:#ffd60a; color:#000; }
 
-    .btn{ padding:14px 16px; border:0; border-radius:24px; font-size:16px; font-weight:700; color:#fff; cursor:pointer; transition: filter .15s ease, opacity .15s ease, background-color .15s ease, color .15s ease; display:inline-flex; align-items:center; justify-content:center; line-height:1; }
+    .btn{ padding:14px 16px; border:0; border-radius:24px; font-size:16px; font-weight:700; color:#fff; cursor:pointer; transition: filter .15s ease, opacity .15s ease, background-color .15s ease, color .15s ease; display:inline-flex; align-items:center; justify-content:center; line-height:1; gap:8px; }
     .btn:disabled{ opacity:.7; cursor:not-allowed; filter:none; }
     .primary{ background:var(--accent); }
     .ghost{ background:#4b4b4e; color:#ddd; }
@@ -178,6 +175,22 @@
     .btn.pause{ background:#5a5a5e; color:#fff; }
     .btn.resume{ background:var(--success); color:#001f0f; }
     .pause-ico, .play-ico{ margin-left:8px; font-weight:900; }
+
+    /* Icone bianche animate dentro i bottoni finali */
+    .btn .ico{ display:inline-flex; width:18px; height:18px; }
+    .btn .ico svg{ width:100%; height:100%; display:block; }
+    @keyframes fly {
+      0% { transform: translateX(0) }
+      50%{ transform: translateX(3px) }
+      100%{ transform: translateX(0) }
+    }
+    @keyframes rotateX {
+      0% { transform: rotate(0deg) }
+      50%{ transform: rotate(-18deg) }
+      100%{ transform: rotate(0deg) }
+    }
+    .btn-send .ico { animation: fly 1.4s ease-in-out infinite; }
+    .btn-cancel .ico { animation: rotateX 1.6s ease-in-out infinite; }
 
     .controls{ display:flex; gap:10px; align-items:center; }
     .controls.nowrap{ flex-wrap:nowrap; }
@@ -262,8 +275,7 @@
   <div data-sso>
     <div class="wrap">
 
-      <!-- Pillola versione -->
-      <div class="beta-row"><span class="beta-pill">V 9.9</span></div>
+      <!-- (RIMOSSA) Pillola versione -->
 
       <!-- STEP 1 -->
       <div class="section active" id="section1">
@@ -317,8 +329,8 @@
         </div>
 
         <div class="video-wrap" id="videoWrap">
-          <img id="qrGuide" class="qr-guide" style="display:none" src="https://upload.wikimedia.org/wikipedia/commons/d/d0/QR_code_for_mobile_English_Wikipedia.svg" alt="Guida QR" />
-          <div id="qrHint" class="qr-hint" style="display:none">scansiona il codice QR del biglietto sulla spesa</div>
+          <img id="qrGuide" class="qr-guide" style="display:none" src="" alt="" />
+          <div id="qrHint" class="qr-hint" style="display:none">Scansiona il codice a barre (Code 39)</div>
           <video id="video" playsinline muted></video>
 
           <div id="placeholder" class="placeholder">
@@ -372,8 +384,25 @@
           <div class="divider"></div>
 
           <div class="controls split" style="margin-top:0;">
-            <button id="btnCopy" class="btn success" disabled type="button">Termina e invia</button>
-            <button id="btnClear" class="btn danger" disabled type="button">Cancella e rifai</button>
+            <!-- Bottoni finali con icone bianche animate -->
+            <button id="btnCopy" class="btn success btn-send" disabled type="button" title="Termina e invia">
+              <span class="ico" aria-hidden="true">
+                <!-- aereo carta / invio -->
+                <svg viewBox="0 0 24 24" fill="none">
+                  <path d="M3 11l17-8-7 18-2-7-8-3z" stroke="white" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+                </svg>
+              </span>
+              <span>Termina e invia</span>
+            </button>
+            <button id="btnClear" class="btn danger btn-cancel" disabled type="button" title="Annulla">
+              <span class="ico" aria-hidden="true">
+                <!-- X/undo -->
+                <svg viewBox="0 0 24 24" fill="none">
+                  <path d="M7 7l10 10M17 7L7 17" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+              </span>
+              <span>Annulla</span>
+            </button>
           </div>
         </div>
       </div>
@@ -454,7 +483,7 @@
       ENTRY_ORDERS: "entry.1223265482"
     };
 
-    /* Nascondo le guide QR all'inizio */
+    /* Nascondo le guide all'inizio */
     if (qrGuide) qrGuide.style.display = 'none';
     if (qrHint)  qrHint.style.display  = 'none';
 
@@ -664,7 +693,7 @@
       });
     }
 
-    // === Camera / QR ===
+    // === Camera / BARCODE (Code 39) ===
     async function openCamera(){
       if (!currentZone){ alert('Seleziona una zona.'); return; }
       try{
@@ -687,7 +716,6 @@
         videoTrack = stream.getVideoTracks()[0];
 
         firstScanDone = false;
-        if (qrGuide) qrGuide.style.display = 'block';
         if (qrHint)  qrHint.style.display  = 'block';
 
         if (window.startQR) {
@@ -738,7 +766,6 @@
       video.srcObject = null;
       videoTrack = null;
 
-      if (qrGuide) qrGuide.style.display = 'none';
       if (qrHint)  qrHint.style.display  = 'none';
 
       setScanButton_start();
@@ -893,7 +920,6 @@
       manualBuffer = ""; if (keyDisplay) keyDisplay.textContent = '—';
 
       firstScanDone = false;
-      if (qrGuide) qrGuide.style.display = 'none';
       if (qrHint)  qrHint.style.display  = 'none';
 
       if (pDoneOuter) pDoneOuter.style.display = 'none';
@@ -1035,30 +1061,120 @@
   })();
   </script>
 
-  <!-- QR scanner (ZXing) -->
+  <!-- Barcode scanner (Code 39): 1) BarcodeDetector, 2) fallback QuaggaJS -->
   <script type="module">
-    import { BrowserQRCodeReader } from "https://cdn.jsdelivr.net/npm/@zxing/browser@0.0.10/+esm";
-
-    const qrReader = new BrowserQRCodeReader();
-    let qrControls = null;
+    // Debounce duplicati molto ravvicinati
     let lastText = "";
 
-    window.startQR = async function(videoEl, onResult){
-      qrControls = await qrReader.decodeFromVideoElement(videoEl, (result, err) => {
-        if (result) {
-          const text = result.getText();
-          if (text && text !== lastText) {
-            lastText = text;
-            try { onResult(text); } catch(e) { console.error(e); }
-            setTimeout(()=>{ lastText = ""; }, 800);
-          }
-        }
+    // Loader dinamico per script UMD (Quagga)
+    function loadScript(src){
+      return new Promise((resolve, reject)=>{
+        const s = document.createElement('script');
+        s.src = src; s.async = true;
+        s.onload = ()=>resolve();
+        s.onerror = reject;
+        document.head.appendChild(s);
       });
+    }
+
+    // --- BarcodeDetector (nativo) ---
+    let bdStop = null;
+    async function startWithBarcodeDetector(videoEl, onResult){
+      if (!('BarcodeDetector' in window)) throw new Error('BarcodeDetector non presente');
+
+      // Verifica supporto formati
+      if (window.BarcodeDetector.getSupportedFormats) {
+        const fmts = await window.BarcodeDetector.getSupportedFormats();
+        if (!fmts || !fmts.includes('code_39')) throw new Error('code_39 non supportato nativamente');
+      }
+
+      const detector = new window.BarcodeDetector({ formats: ['code_39'] });
+      let running = true;
+
+      async function loop(){
+        // usa il video element come sorgente direttamente
+        if (!running) return;
+        try{
+          const codes = await detector.detect(videoEl);
+          if (codes && codes.length){
+            // prendi il primo valido
+            for (const c of codes){
+              const text = (c.rawValue || c.displayValue || '').trim();
+              if (text && text !== lastText){
+                lastText = text;
+                try{ onResult(text); }catch(e){ console.error(e); }
+                setTimeout(()=>{ lastText = ""; }, 800);
+                break;
+              }
+            }
+          }
+        }catch(e){
+          // ignora frame non leggibili
+        }
+        if (running) requestAnimationFrame(loop);
+      }
+      requestAnimationFrame(loop);
+
+      bdStop = ()=>{ running = false; };
+    }
+
+    // --- QuaggaJS (fallback) ---
+    let quaggaRunning = false;
+    async function startWithQuagga(videoEl, onResult){
+      if (!window.Quagga){
+        await loadScript('https://cdn.jsdelivr.net/npm/quagga@0.12.1/dist/quagga.min.js');
+      }
+      return new Promise((resolve, reject)=>{
+        try{
+          window.Quagga.init({
+            inputStream: {
+              name: "LiveStream",
+              type: "LiveStream",
+              target: videoEl, // userai il contenitore/video esistente
+              constraints: { facingMode: "environment" }
+            },
+            decoder: {
+              readers: ["code_39_reader"]
+            },
+            locate: true
+          }, (err)=>{
+            if (err){ reject(err); return; }
+            window.Quagga.start();
+            quaggaRunning = true;
+            window.Quagga.onDetected((res)=>{
+              const code = res && res.codeResult && res.codeResult.code;
+              if (!code) return;
+              if (code !== lastText){
+                lastText = code;
+                try{ onResult(code); }catch(e){ console.error(e); }
+                setTimeout(()=>{ lastText = ""; }, 800);
+              }
+            });
+            resolve();
+          });
+        }catch(e){ reject(e); }
+      });
+    }
+
+    // API compatibile con il resto del file
+    window.startQR = async function(videoEl, onResult){
+      // Tenta BarcodeDetector, se fallisce usa Quagga
+      try{
+        await startWithBarcodeDetector(videoEl, onResult);
+      }catch(_){
+        await startWithQuagga(videoEl, onResult);
+      }
     };
 
     window.stopQR = function(){
-      try { if (qrControls) qrControls.stop(); } catch(_) {}
-      qrControls = null;
+      try{ if (bdStop) bdStop(); }catch(_){}
+      bdStop = null;
+      try{
+        if (window.Quagga && quaggaRunning){
+          window.Quagga.stop();
+          quaggaRunning = false;
+        }
+      }catch(_){}
     };
   </script>
 </body>
