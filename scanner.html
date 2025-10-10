@@ -39,7 +39,7 @@
     /* wrapper centrale */
     [data-sso] .wrap{
       width:100%;
-      padding:8px 0 24px;
+      padding:8px 10px 24px; /* padding orizzontale: mobile-safe */
       max-width:var(--pane-max);
       margin-left:auto;
       margin-right:auto;
@@ -65,13 +65,11 @@
       pointer-events:auto;
     }
     @media (max-width: 430px){
-      [data-sso] .section{ width:96vw; border-radius:22px; }
+      [data-sso] .section{ width:100%; border-radius:22px; }
     }
-
-    /* ACTIVE: solo bordo verde, spessore raddoppiato */
     [data-sso] .section.active{
       background:linear-gradient(180deg, #ffffff, #fbfbfb);
-      border:2px solid #16c172;
+      border:4px solid #3ec116; /* bordo verde raddoppiato */
       box-shadow:0 14px 32px rgba(0,0,0,.22);
     }
 
@@ -81,35 +79,61 @@
       box-shadow: 0 16px 36px rgba(10,132,255,.28), 0 10px 24px rgba(0,0,0,.18);
     }
 
-    /* STEP titles */
+    /* Garantisco priorità click su STEP1 */
+    #section1 { position: relative; z-index: 10; }
+
+    /* Titolo step */
     [data-sso] .step-title{ color:#111; font-size:14px; opacity:.95; margin-bottom:16px; display:flex; align-items:center; gap:8px; }
     [data-sso] .step-badge{ background:#f1f1f5; color:#111; border-radius:999px; padding:2px 8px; font-size:12px; border:1px solid #e2e2e8; }
-    [data-sso] .step-badge.done{ background:linear-gradient(180deg,#eafff2,#b8ffd4); color:#073; font-weight:900; border-color:#a4f5c4; }
+    [data-sso] .step-badge.done{ background:linear-gradient(180deg,#eafff2,#b8ffd4); color:#073; font-weight:900; border-color:#a4f5c4; text-shadow:none; }
     @keyframes pulse-badge { 0%,100%{ transform:scale(1); box-shadow:0 0 0 0 rgba(10,132,255,0);} 50%{ transform:scale(1.1); box-shadow:0 0 0 6px rgba(10,132,255,.15);} }
     [data-sso] .step-badge.pulse{ animation:pulse-badge 1.2s ease-in-out infinite; background:linear-gradient(180deg, #0a84ff, #0569c9); color:#fff; border-color:#0569c9; }
 
-    /* STEP 1 – gruppi: UNA sola capsula minimale, su un'unica riga */
+    /* Gruppi zona – UNA sola pillola minimale, riga obbligatoria (no wrap) */
     .seg-row{
-      display:flex; align-items:center; gap:12px; margin-bottom:12px;
-      flex-wrap:nowrap; /* stessa riga */
-      padding:8px 10px;
+      display:flex; align-items:center; gap:auto; margin-bottom:12px;
+      flex-wrap:nowrap; /* stessa riga obbligatoria */
+      padding:4px 10px;
       border-radius:999px;
       border:1px solid #dcdce2;
       background:#fff;
       overflow:hidden;
+      max-width:auto
     }
-    .seg-row.selected{ border-color:#16c172; }
+    
 
-    .seg-label{ font-size:13px; color:#222; opacity:.95; min-width:140px; font-weight:800; white-space:nowrap; }
+    .seg-label{
+      font-size:14px; color:#222; opacity:.95; min-width:140px; font-weight:800; white-space:nowrap;
+    }
+
     .seg{
-      display:flex; flex:1; min-width:0;
+      display:flex; min-width:0;
       background:#121214; border:1px solid var(--border);
-      border-radius:999px; overflow:auto; -webkit-overflow-scrolling:touch;
+      border-radius:999px;
+      overflow-x:auto; overflow-y:hidden; /* mobile: scorrimento orizzontale se serve */
+      -webkit-overflow-scrolling:touch;
+    
     }
-    .seg .opt{ padding:8px 12px; font-size:14px; border:0; background:transparent; color:#fff; cursor:pointer; white-space:nowrap; }
-    .seg .opt.active{ background:linear-gradient(180deg, #b8ffd4, #a4f5c4); color:#003b1f; font-weight:900; border-radius:999px; box-shadow:0 6px 18px rgba(120,255,180,.35), inset 0 1px 0 rgba(255,255,255,.35); }
+    .seg .opt{
+      padding:8px 12px; font-size:14px; border:0; background:transparent; color:#fff;
+      cursor:pointer; white-space:nowrap; border-radius:999px;
+    }
+    .seg .opt.active{
+      background:linear-gradient(180deg, #b8ffd4, #a4f5c4); color:#003b1f; font-weight:900; border-radius:999px;
+      box-shadow:0 6px 18px rgba(120,255,180,.35), inset 0 1px 0 rgba(255,255,255,.35);
+    }
 
-    .chips{ display:flex; gap:8px; margin-top:12px; flex-wrap:wrap; }
+    /* Mobile-only tweaks */
+    @media (max-width:520px){
+      .seg-row{ gap:8px; padding:8px 8px; }
+      .seg-label{ min-width:112px; font-size:13px; }
+      .seg .opt{ padding:8px 10px; font-size:13px; }
+      .chips{ gap:6px; }
+      .custom input{ font-size:14px; }
+      .custom button{ font-size:14px; }
+    }
+
+    .chips{ display:flex; gap:10px; margin-top:12px; flex-wrap:wrap; }
     .chip{ background:#121214; color:#fff; padding:10px 12px; border-radius:999px; font-size:14px; border:1px solid var(--border); cursor:pointer; white-space:nowrap; }
     .chip.active{ background:linear-gradient(180deg, #b8ffd4, #a4f5c4); color:#003b1f; font-weight:900; box-shadow:0 6px 18px rgba(120,255,180,.35), inset 0 1px 0 rgba(255,255,255,.35); border-color:transparent; }
 
@@ -122,12 +146,10 @@
     .selected-zone.active{ background:#ffd60a; color:#000; box-shadow:0 4px 14px rgba(0,0,0,.18); border-color:#e6c408; }
     .selected-dot{ width:10px; height:10px; border-radius:999px; background:var(--ok); display:inline-block; }
 
-    /* STEP 2 – video area */
     .video-wrap{
       width:100%; aspect-ratio:16/9; border-radius:var(--radius-inner);
       overflow:hidden; border:1px solid #e6e6ea; margin-top:10px;
       background:#000; position:relative; display:block; z-index: 0;
-      pointer-events:auto;
     }
     @media (max-width:600px){ .video-wrap{ height:56vw; aspect-ratio:auto; } }
     .video-wrap.paused::after{
@@ -137,7 +159,7 @@
       pointer-events:none;
     }
 
-    /* overlay guida barcode – doppia dimensione, nessun bordo/sfondo */
+    /* immagine guida barcode – doppia dimensione, nessun bordo/sfondo */
     .qr-guide{
       position:absolute; left:50%; top:30%; transform:translate(-50%,-50%);
       height:60%; width:auto; opacity:.95; display:none; pointer-events:none;
@@ -204,7 +226,7 @@
     .controls.split .btn{ flex:1; }
     #section3 .controls.split .btn{ font-size:18px; padding:21px 16px; }
 
-    /* Pulsante torcia: SOLO icona interna, nessun cono/alone/ombre extra */
+    /* Pulsante torcia: SOLO icona interna */
     .icon-btn{
       width:44px; height:44px; border-radius:999px; position:relative;
       border:1px solid #e6e6ea; background:#fff; color:#000;
@@ -216,7 +238,6 @@
     .icon-btn:active{ transform:scale(.97); }
     .icon-btn svg{ width:22px; height:22px; display:block; }
     .icon-btn.torch-on{ background:var(--torch-on); color:#111; border-color:#d8be07; }
-    /* Niente ::before/::after, niente effetti */
 
     .torch-wrap{ display:flex; align-items:center; gap:7px; }
     .torch-label{ font-size:15px; line-height:1.05; text-align:right; opacity:.9; text-transform:lowercase; color:#222; }
@@ -230,7 +251,7 @@
     }
     .btn-new-outer .btn{ width:100%; }
 
-    /* PATCH: niente pseudo-elemento blocca tap */
+    /* PATCH: nessuno pseudo-elemento può bloccare i tap */
     *::before, *::after{ pointer-events:none !important; }
   </style>
 </head>
@@ -391,13 +412,14 @@
 
   <script>
   (function(){
+    /* === SCOPING: limita tutto al container che include questo script === */
     const SECTION = (document.currentScript && document.currentScript.closest('[data-view]')) || document;
     const root = SECTION.querySelector('[data-sso]');
     if (!root) { console.warn('Scanner: [data-sso] non trovato nel suo container'); return; }
 
     const $  = (sel) => root.querySelector(sel);
     const $$ = (sel) => Array.from(root.querySelectorAll(sel));
-    const S  = (sel) => SECTION.querySelector(sel);
+    const S  = (sel) => SECTION.querySelector(sel); // per elementi fuori da [data-sso] ma dentro la stessa view
 
     const loc = $('#loc');
     const zoneLine = $('#zoneLine');
@@ -424,17 +446,13 @@
     const btnNewExternal = S('#btnNew');
     const btnNewOuter = S('#btnNewOuter');
 
-    // Gruppi visivi per STEP1
-    const groupNegozio = S('#groupNegozio');
-    const groupCamion  = S('#groupCamion');
-
-    // Manual keypad (nel blocco 2)
+    // Manual keypad
     const toggleKeypadBtn = S('#toggleKeypad');
     const keypad = S('#keypad');
     const keyDisplay = S('#keyDisplay');
 
     let currentZone = null;
-    const data = {};
+    const data = {};           // { zone: [numbers] }
     let stream = null;
     let videoTrack = null;
 
@@ -452,7 +470,7 @@
       ENTRY_ORDERS: "entry.1223265482"
     };
 
-    /* Guida barcode all'inizio */
+    /* Nascondo le guide QR all'inizio */
     if (qrGuide) qrGuide.style.display = 'none';
     if (qrHint)  qrHint.style.display  = 'none';
 
@@ -462,6 +480,7 @@
       el.removeAttribute('disabled');
       el.style.pointerEvents = 'auto';
     });
+    // assicuro priorità del blocco 1
     const s1 = S('#section1'); if (s1) s1.style.zIndex = '10';
 
     /* Audio feedback */
@@ -494,10 +513,10 @@
     function clearZoneSelectionsUI(){
       $$('.opt,.chip').forEach(b=>b.classList.remove('active'));
       selectedZoneBox.classList.remove('active');
-      if (groupNegozio) groupNegozio.classList.remove('selected');
-      if (groupCamion)  groupCamion.classList.remove('selected');
       if (loc) loc.textContent = 'Nessuna zona selezionata';
       if (zoneLine) zoneLine.textContent = '—';
+      S('#groupNegozio')?.classList.remove('selected');
+      S('#groupCamion')?.classList.remove('selected');
     }
 
     function select(z){
@@ -514,16 +533,16 @@
       $$('.chip').forEach(c=>c.classList.remove('active'));
       selectedZoneBox.classList.remove('active');
 
-      if (groupNegozio) groupNegozio.classList.remove('selected');
-      if (groupCamion)  groupCamion.classList.remove('selected');
+      S('#groupNegozio')?.classList.remove('selected');
+      S('#groupCamion')?.classList.remove('selected');
 
       if(z.startsWith('NEGOZIO')){
-        if (groupNegozio) groupNegozio.classList.add('selected');
+        S('#groupNegozio')?.classList.add('selected');
         const btn = [...$$('#segNegozio .opt')].find(b=>z.includes(b.textContent.trim()));
         if (btn) btn.classList.add('active');
       }
       if(z.startsWith('CAMION')){
-        if (groupCamion) groupCamion.classList.add('selected');
+        S('#groupCamion')?.classList.add('selected');
         const btn = [...$$('#segCamion .opt')].find(b=>z.includes(b.textContent.trim()));
         if (btn) btn.classList.add('active');
       }
@@ -579,7 +598,6 @@
       dupTimer = setTimeout(()=>dupMsg.classList.remove('show'), 1200);
     }
 
-    /* Abilita/disabilita bottoni finali con colori corretti */
     function setActionButtonsEnabled(enabled){
       btnCopy.disabled = !enabled;
       btnClear.disabled = !enabled;
@@ -842,7 +860,7 @@
       let iframe = S("#hidden_iframe_gform");
       if (!iframe) {
         iframe = document.createElement("iframe");
-      iframe.name = "hidden_iframe_gform";
+        iframe.name = "hidden_iframe_gform";
         iframe.id   = "hidden_iframe_gform";
         iframe.style.display = "none";
         SECTION.appendChild(iframe);
@@ -1045,7 +1063,6 @@
       if (tab) applyTabHighlight(tab);
     });
 
-    /* PWA: ferma camera in background */
     window.addEventListener('pagehide', async ()=>{ await stopCamera(); }, { once:true });
     window.addEventListener('beforeunload', async ()=>{ await stopCamera(); }, { once:true });
     document.addEventListener('visibilitychange', async ()=>{
